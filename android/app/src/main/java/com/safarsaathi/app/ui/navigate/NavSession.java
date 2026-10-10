@@ -28,6 +28,11 @@ import java.util.Map;
  * </ol>
  * A QR code or a chosen place that is NOT on the route means the traveller went another way: the route is worked out
  * again from there (re-route), and the screen says so.
+ *
+ * <p><b>Missed a turn?</b> Counted steps move the arrow along the route even when the traveller walks straight past a
+ * corner. So a turn that the steps went past by more than {@link #MISSED_TURN_M} metres, without the motion sensors
+ * feeling it (and without a QR code or "I'm here" after it), is reported by {@link #missedTurn}: the screen then asks
+ * the traveller to scan a QR code or tap "I'm here".
  */
 public final class NavSession {
 
@@ -59,8 +64,13 @@ public final class NavSession {
         ARRIVED
     }
 
-    /** Within this many metres before a turn, a matching turn of the phone moves the position to the corner. */
+    /**
+     * Within this many metres of a turn, a matching turn of the phone moves the position to the corner: before it
+     * (the counted steps are behind) or after it (the counted steps ran ahead of the traveller).
+     */
     static final double TURN_WINDOW_M = 20;
+    /** Counted steps this far past a turn that nobody confirmed: "Missed a turn?". */
+    static final double MISSED_TURN_M = TURN_WINDOW_M;
     /** Closer than this to the destination counts as arrived (counted steps are never exact). */
     static final double ARRIVED_WITHIN_M = 3;
     /** A "Head towards ..." stays in the banner for this many metres before the next turn takes over. */
@@ -91,6 +101,10 @@ public final class NavSession {
 
     private double headingReference = Double.NaN;
     private int headingStepIndex = -1;
+    /** True once the motion sensors gave a direction during this walk (phones without them can't feel turns). */
+    private boolean headingSeen;
+    /** Turns up to here (metres along the route) are done: felt by the sensors, or a QR code / chosen place after them. */
+    private double turnsDoneUpTo;
 
     // ---- Map and settings ----
 
@@ -168,6 +182,9 @@ public final class NavSession {
             if (along >= 0) {
                 progress = along;
                 resetHeading();
+                if (exactFix) {
+                    turnsDoneUpTo = along - 0.5; // a turn AT this place is still to be made
+                }
                 return isAtDestination() ? arrive() : Event.POSITION_CONFIRMED;
             }
             return rerouteFrom(nodeId, Event.REROUTED);
@@ -274,6 +291,8 @@ public final class NavSession {
         countedFromId = hereId;
         exactFix = hereSource != HereSource.WALKED;
         resetHeading();
+        headingSeen = false;
+        turnsDoneUpTo = 0;
         return true;
     }
 
@@ -327,44 +346,87 @@ public final class NavSession {
         }
         progress = route.metresAt(route.secondsAt(progress) + seconds);
         exactFix = false;
+        turnsDoneUpTo = progress; // a simulation follows the route exactly, so it never misses a turn
         return isAtDestination() ? arrive() : Event.NONE;
     }
 
     /**
      * The phone's heading (degrees clockwise, from the motion sensors). Only CHANGES of heading are used, so the
-     * map does not have to know where real north is: near the next turn, turning the expected way (left / right, by
-     * at least 60% of the turn) moves the position to that corner. That corrects step counting, which drifts.
+     * map does not have to know where real north is: near a turn, turning the expected way (left / right, by at least
+     * 60% of the turn) moves the position to that corner. That corrects step counting, which drifts.
      */
     public Event onHeading(double degrees) {
         if (mode != Mode.NAVIGATING || route == null || Double.isNaN(degrees)) {
             return Event.NONE;
         }
+        headingSeen = true;
         int stepIndex = route.stepIndexAt(progress);
         if (stepIndex != headingStepIndex) {
             headingStepIndex = stepIndex;
             headingReference = Double.NaN;
         }
-        RouteStep next = stepIndex + 1 < route.steps.size() ? route.steps.get(stepIndex + 1) : null;
-        double toTurn = next == null ? Double.MAX_VALUE : next.startMetres - progress;
-        if (next == null || !next.maneuver.isTurn() || toTurn > TURN_WINDOW_M || Double.isNaN(headingReference)) {
+        RouteStep turn = turnNearby(stepIndex);
+        if (turn == null || Double.isNaN(headingReference)) {
             headingReference = degrees; // walking straight on: keep following the phone's direction
             return Event.NONE;
         }
         double turned = signedDifference(headingReference, degrees);
         boolean matches;
-        if (next.maneuver == Maneuver.U_TURN) {
+        if (turn.maneuver == Maneuver.U_TURN) {
             matches = Math.abs(turned) >= 120;
         } else {
-            double needed = Math.max(30, 0.6 * Math.abs(next.turnDegrees));
-            matches = Math.signum(turned) == Math.signum(next.turnDegrees) && Math.abs(turned) >= needed;
+            double needed = Math.max(30, 0.6 * Math.abs(turn.turnDegrees));
+            matches = Math.signum(turned) == Math.signum(turn.turnDegrees) && Math.abs(turned) >= needed;
         }
         if (!matches) {
             return Event.NONE;
         }
-        progress = route.clamp(next.startMetres + 0.5);
+        progress = route.clamp(turn.startMetres + 0.5);
+        turnsDoneUpTo = progress;
         headingReference = degrees;
         headingStepIndex = route.stepIndexAt(progress);
         return isAtDestination() ? arrive() : Event.TURN_CONFIRMED;
+    }
+
+    /**
+     * The turn a change of direction would be: first a turn the counted steps already went past (by up to
+     * {@link #TURN_WINDOW_M}) that is not done yet, else the next turn if it is that close ahead; null when none.
+     */
+    private RouteStep turnNearby(int stepIndex) {
+        for (int i = 0; i <= stepIndex; i++) {
+            RouteStep passed = route.steps.get(i);
+            if (passed.maneuver.isTurn() && passed.startMetres > turnsDoneUpTo
+                    && progress - passed.startMetres <= TURN_WINDOW_M) {
+                return passed;
+            }
+        }
+        RouteStep next = stepIndex + 1 < route.steps.size() ? route.steps.get(stepIndex + 1) : null;
+        boolean close = next != null && next.maneuver.isTurn() && next.startMetres - progress <= TURN_WINDOW_M;
+        return close ? next : null;
+    }
+
+    /**
+     * The turn the counted steps went past by more than {@link #MISSED_TURN_M} metres without anything confirming it,
+     * or null. Only on phones whose sensors report a direction (otherwise no turn could ever be confirmed), and never
+     * for slight bends, which are hard to feel. The traveller may simply have walked on: "Missed a turn?".
+     */
+    public RouteStep missedTurn() {
+        if (mode != Mode.NAVIGATING || route == null || !headingSeen) {
+            return null;
+        }
+        for (RouteStep step : route.steps) {
+            boolean clearTurn = step.maneuver.isTurn() && step.maneuver != Maneuver.SLIGHT_LEFT
+                    && step.maneuver != Maneuver.SLIGHT_RIGHT;
+            if (clearTurn && step.startMetres > turnsDoneUpTo && progress - step.startMetres > MISSED_TURN_M) {
+                return step;
+            }
+        }
+        return null;
+    }
+
+    /** "I did turn" (the traveller closed the hint): the turns passed so far count as done. */
+    public void dismissMissedTurn() {
+        turnsDoneUpTo = Math.max(turnsDoneUpTo, progress);
     }
 
     // ---- What the screen shows while navigating ----
@@ -455,6 +517,7 @@ public final class NavSession {
     private Event planFromHere() {
         routeVersion++;
         progress = 0;
+        turnsDoneUpTo = 0;
         resetHeading();
         if (hereId == null || destinationId == null || router == null) {
             route = null;
@@ -476,6 +539,7 @@ public final class NavSession {
         }
         route = newRoute;
         progress = 0;
+        turnsDoneUpTo = 0;
         return isAtDestination() ? arrive() : success;
     }
 

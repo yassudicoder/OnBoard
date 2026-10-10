@@ -69,8 +69,8 @@ import java.util.List;
  *       the place (a phone can't locate itself inside a terminal).</li>
  *   <li><b>Navigating:</b> the green banner with the next turn ("Turn left at Central hall", "Then ..."), the map
  *       following a blue arrow with the walking direction up, time / distance / arrival at the bottom, voice guidance,
- *       steps list, help nearby. The arrow moves with counted steps (estimate), QR codes, "I'm here", or the demo walk
- *       in demo builds.</li>
+ *       steps list, help nearby, "Missed a turn?", and a notification that keeps going with the screen off. The arrow
+ *       moves with counted steps (estimate), QR codes, "I'm here", or the demo walk in demo builds.</li>
  *   <li><b>Arrived:</b> "You have arrived at Gate 32".</li>
  * </ol>
  * The map's own note ("Demo schematic, not an official airport map") is always on screen (CLAUDE.md honesty rule). The
@@ -104,6 +104,8 @@ public class NavigateFragment extends Fragment {
     @Nullable
     private String spokenKey;
     private boolean spokeNear;
+    @Nullable
+    private String missedTurnKey;
     private int topInset;
     private int bottomInset;
 
@@ -113,10 +115,12 @@ public class NavigateFragment extends Fragment {
     private VoiceGuide voice;
     private boolean voiceMissingShown;
 
-    private final ActivityResultLauncher<String> activityPermission =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+    /** Step counting ("physical activity") and, on Android 13+, the navigation notification. */
+    private final ActivityResultLauncher<String[]> navPermissions =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), answers -> {
                 updateSensors();
-                if (!granted) {
+                viewModel.onPermissionsChanged();
+                if (Boolean.FALSE.equals(answers.get(Manifest.permission.ACTIVITY_RECOGNITION))) {
                     showSnack(getString(R.string.nav_position_no_steps));
                 }
             });
@@ -142,7 +146,7 @@ public class NavigateFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         binding = FragmentNavigateBinding.bind(view);
-        viewModel = new ViewModelProvider(this, MapViewModel.factory()).get(MapViewModel.class);
+        viewModel = new ViewModelProvider(this, MapViewModel.factory(requireContext())).get(MapViewModel.class);
         floorButtonIds.clear();
         floorButtonViewIds.clear();
         shownMode = null;
@@ -198,7 +202,11 @@ public class NavigateFragment extends Fragment {
 
     @Override
     public void onStop() {
-        if (sensors != null) {
+        // While navigating, step counting goes on with the screen off or in another app (NavigationService keeps
+        // Android sending the steps; the notification shows the walk). Otherwise the sensors are off already.
+        NavSession session = viewModel.getNav().getValue();
+        boolean navigating = session != null && session.mode() == NavSession.Mode.NAVIGATING;
+        if (sensors != null && !navigating) {
             sensors.stop();
         }
         super.onStop();
@@ -265,10 +273,7 @@ public class NavigateFragment extends Fragment {
         binding.navigateNeedChoose.setOnClickListener(button -> askWhereAmI());
         binding.navigateStepFree.setOnCheckedChangeListener((chip, checked) -> routeOptionsChanged());
         binding.navigateSlowPace.setOnCheckedChangeListener((chip, checked) -> routeOptionsChanged());
-        binding.navigateStart.setOnClickListener(button -> {
-            askForStepCounting();
-            viewModel.start();
-        });
+        binding.navigateStart.setOnClickListener(button -> viewModel.start()); // render() asks for permissions
         binding.navigatePreviewSteps.setOnClickListener(button -> showSteps());
 
         // Navigating
@@ -289,6 +294,9 @@ public class NavigateFragment extends Fragment {
         });
         binding.navigateDemoWalk.setOnClickListener(button -> viewModel.toggleDemoWalk());
         binding.navigateDemoSpeed.setOnClickListener(button -> viewModel.nextDemoSpeed());
+        binding.navigateMissedTurnScan.setOnClickListener(button -> scanQr());
+        binding.navigateMissedTurnHere.setOnClickListener(button -> askWhereAmI());
+        binding.navigateMissedTurnClose.setOnClickListener(button -> viewModel.dismissMissedTurn());
 
         // Arrived
         binding.navigateArrivedDone.setOnClickListener(button -> viewModel.stop());
@@ -321,6 +329,9 @@ public class NavigateFragment extends Fragment {
             binding.navigateSearchBar.setVisibility(explore ? View.VISIBLE : View.GONE);
             binding.navigatePreviewTop.setVisibility(preview ? View.VISIBLE : View.GONE);
             binding.navigateBanner.setVisibility(navigating ? View.VISIBLE : View.GONE);
+            if (!navigating) {
+                binding.navigateMissedTurn.setVisibility(View.GONE);
+            }
             binding.navigateFloorCard.setVisibility(navigating ? View.GONE : View.VISIBLE);
             binding.navigateVoice.setVisibility(navigating ? View.VISIBLE : View.GONE);
             binding.navigateRecenter.setVisibility(explore ? View.VISIBLE : View.GONE);
@@ -339,7 +350,7 @@ public class NavigateFragment extends Fragment {
             renderVoiceButton();
             back.setEnabled(!explore || placeOnCard != null);
             if (navigating) {
-                askForStepCounting();
+                askForNavPermissions();
             }
         }
 
@@ -355,6 +366,7 @@ public class NavigateFragment extends Fragment {
                 showFloor(point.floor, false);
             }
             renderBanner(session);
+            renderMissedTurn(session);
             renderNavSheet(session);
             announce(session);
         } else if (preview) {
@@ -449,6 +461,25 @@ public class NavigateFragment extends Fragment {
         boolean riding = step.maneuver.changesFloor();
         setIfChanged(binding.navigateBannerDistance, riding ? "" : distance(session.bannerDistance()));
         binding.navigateBannerDistance.setVisibility(riding ? View.GONE : View.VISIBLE);
+    }
+
+    /**
+     * "Missed a turn? Scan a QR code or tap I'm here": the counted steps went more than 20 m past a turn that the
+     * phone did not feel (see {@link NavSession#missedTurn}). Said out loud once per turn.
+     */
+    private void renderMissedTurn(NavSession session) {
+        RouteStep missed = session.missedTurn();
+        binding.navigateMissedTurn.setVisibility(missed == null ? View.GONE : View.VISIBLE);
+        if (missed == null) {
+            return;
+        }
+        String key = session.routeVersion() + ":" + session.route().steps.indexOf(missed);
+        if (!key.equals(missedTurnKey)) {
+            missedTurnKey = key;
+            binding.navigateMissedTurnDetail.setText(getString(R.string.nav_missed_turn_detail, instruction(missed)));
+            binding.navigateMissedTurn.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            speak(getString(R.string.nav_missed_turn));
+        }
     }
 
     private void renderNavSheet(NavSession session) {
@@ -937,11 +968,22 @@ public class NavigateFragment extends Fragment {
                 Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED;
     }
 
-    /** Asks once per walk for the "physical activity" permission, only when the phone can count steps at all. */
-    private void askForStepCounting() {
+    /**
+     * Asks once per walk for what is still missing: the "physical activity" permission (only when the phone can count
+     * steps at all) and, on Android 13+, notifications (the walk's notification).
+     */
+    private void askForNavPermissions() {
+        List<String> missing = new ArrayList<>();
         if (sensors != null && sensors.canCountSteps() && !hasActivityPermission()
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            activityPermission.launch(Manifest.permission.ACTIVITY_RECOGNITION);
+            missing.add(Manifest.permission.ACTIVITY_RECOGNITION);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            missing.add(Manifest.permission.POST_NOTIFICATIONS);
+        }
+        if (!missing.isEmpty()) {
+            navPermissions.launch(missing.toArray(new String[0]));
         }
     }
 
@@ -1028,22 +1070,14 @@ public class NavigateFragment extends Fragment {
         return words().text(step, data.map);
     }
 
-    /** "40 m" (rounded like Google Maps: to 5 m under 100 m, to 10 m above). */
+    /** "40 m" (rounded like Google Maps). */
     private String distance(double metres) {
-        long rounded;
-        if (metres < 10) {
-            rounded = Math.round(metres);
-        } else if (metres < 100) {
-            rounded = Math.round(metres / 5) * 5;
-        } else {
-            rounded = Math.round(metres / 10) * 10;
-        }
-        return getString(R.string.nav_metres, (int) rounded);
+        return NavText.distance(getResources(), metres);
     }
 
     /** "4 min" (at least 1). */
     private String minutes(double seconds) {
-        return getString(R.string.nav_minutes, (int) Math.max(1, Math.ceil(seconds / 60)));
+        return NavText.minutes(getResources(), seconds);
     }
 
     private static void setIfChanged(android.widget.TextView view, CharSequence text) {
@@ -1054,7 +1088,7 @@ public class NavigateFragment extends Fragment {
 
     /** The app's language code ("en", "hi", "mr"); place names and instructions fall back to English. */
     private String language() {
-        return getResources().getConfiguration().getLocales().get(0).getLanguage();
+        return NavText.language(getResources());
     }
 
     @StringRes

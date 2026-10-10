@@ -11,6 +11,13 @@
          without it the arrow moves with QR codes, "I'm here" or the demo walk only). -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
+    <!-- Navigate: the notification while walking to the gate ("Gate 32 · 4 min"; Android 13+ asks the traveller first). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Navigate: NavigationService keeps step counting going with the screen off. Type "health" = step counting;
+         Android allows it only once the traveller allowed physical activity (above). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+
     <!-- Ride handoff: "is the phone online?", so the ride button can say "Uber needs internet to book". Android grants
          this one without asking. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -90,6 +97,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Navigate: runs only while walking with step counting on (see NavigationService). -->
+        <service
+            android:name=".ui.navigate.NavigationService"
+            android:exported="false"
+            android:foregroundServiceType="health" />
     </application>
 
 </manifest>

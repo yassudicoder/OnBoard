@@ -108,6 +108,11 @@ live safety scoring (a country pack's official advisory link at most).
     - Bottom bar: minutes, metres, arrival "(estimate)".
     - Steps sheet; "Help nearby": nearest help desk / washrooms / lift / buggy, with a detour and "Continue to …".
     - Arrival card, voice guidance (TTS), dark mode.
+    - Ongoing notification while navigating (`NavNotification`): "Gate 32 · 4 min", "30 m · Turn left at …",
+      "Arrive 07:12 (estimate)" ("Demo walk (simulation)" during the demo walk). It is shown as a foreground
+      service (`NavigationService`, type `health`) only when step counting is allowed, because Android only sends
+      step events to a background app that runs one. Otherwise it is a plain notification. `POST_NOTIFICATIONS` is
+      asked at Start; navigation works the same without it. G4 adds the gate source and "Boarding closes" to it.
     - No toolbar on this tab, and the bottom tabs are hidden while navigating.
   - Positioning as built:
     - QR anchors via Google's code scanner: Google Play services shows the camera, so no camera permission is needed.
@@ -117,6 +122,10 @@ live safety scoring (a country pack's official advisory link at most).
       true north is needed.
     - Demo walk in debug builds, labelled as a simulation.
     - Off-route = a QR / chosen place that is not on the route: re-route from there and say so.
+    - "Missed a turn? Scan a QR code or tap I'm here" (`NavSession.missedTurn`): counted steps went > 20 m past a
+      turn that nothing confirmed (no matching heading change, QR code or chosen place). Shown as a card, said once,
+      and put in the notification. Only on phones that report a heading, never for slight bends, never on the demo
+      walk. A matching turn up to 20 m AFTER the corner still counts (the steps ran ahead), so the hint stays rare.
     - Not built: free 2D dead reckoning and the "> 25 m for > 10 s" rule. Both need the map's real orientation and
       scale checked on site.
   - **Phone GPS is not used inside the terminal:** it can't tell floors and is tens of metres off indoors. Getting TO the
@@ -594,7 +603,7 @@ Exact Android library versions live in `android/gradle/libs.versions.toml`; back
 - [x] R0 — Refocus (done 2026-10-11)
 - [x] G1 — Airport map (done 2026-10-11)
 - [x] G2 — Routing (done 2026-10-11)
-- [x] G3 — Navigation UX + positioning (done 2026-10-11; the ongoing notification moved to G4)
+- [x] G3 — Navigation UX + positioning (done 2026-10-11; ongoing notification + "Missed a turn?" added 2026-10-11)
 - [ ] G4 — Gate changes (waits for Disruption Recovery C1 in main: GateWatcher builds on its flight model)
 - [ ] B1 — Bag Shield capture
 - [ ] B2 — Counter & Station
