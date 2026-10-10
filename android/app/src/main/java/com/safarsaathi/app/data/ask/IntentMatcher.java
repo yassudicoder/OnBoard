@@ -102,9 +102,13 @@ public final class IntentMatcher {
         rule(AskIntent.NEXT_STEP, 7, any(Concept.WHERE), any(Concept.GO));
         rule(AskIntent.NEXT_STEP, 6, any(Concept.NEXT));
 
-        // Documents.
-        rule(AskIntent.DOCUMENT_EXPIRY, 9, any(Concept.PASSPORT, Concept.VISA, Concept.DOCUMENT), any(Concept.EXPIRY));
-        rule(AskIntent.DOCUMENT_EXPIRY, 6, any(Concept.PASSPORT, Concept.VISA, Concept.DOCUMENT));
+        // Documents (answered from the vault's summaries). "Is my visa saved?" / "Am I missing a document?" is about
+        // what the vault holds (9); a document with "expire" / "valid" is about its dates (9); a document alone too (6).
+        rule(AskIntent.DOCUMENT_MISSING, 9, any(Concept.PASSPORT, Concept.VISA, Concept.INSURANCE, Concept.DOCUMENT),
+                any(Concept.SAVED, Concept.MISS));
+        rule(AskIntent.DOCUMENT_EXPIRY, 9, any(Concept.PASSPORT, Concept.VISA, Concept.INSURANCE, Concept.DOCUMENT),
+                any(Concept.EXPIRY));
+        rule(AskIntent.DOCUMENT_EXPIRY, 6, any(Concept.PASSPORT, Concept.VISA, Concept.INSURANCE, Concept.DOCUMENT));
 
         // Places in the terminal, and general help.
         rule(AskIntent.WHERE_IS, 8, any(Concept.WASHROOM, Concept.HELP_DESK, Concept.LIFT));
@@ -141,8 +145,9 @@ public final class IntentMatcher {
         }
         boolean high = best.score >= HIGH_SCORE && !hasCloseRival(best, matching, found);
         IntentMatch.Place place = best.intent == AskIntent.WHERE_IS ? firstPlace(hits) : null;
+        boolean aboutDocuments = best.intent == AskIntent.DOCUMENT_EXPIRY || best.intent == AskIntent.DOCUMENT_MISSING;
         return new IntentMatch(best.intent, high ? IntentMatch.Confidence.HIGH : IntentMatch.Confidence.MEDIUM,
-                best.score, place, gateNumber(words));
+                best.score, place, gateNumber(words), aboutDocuments ? firstDocument(hits) : null);
     }
 
     /**
@@ -177,6 +182,22 @@ public final class IntentMatcher {
             }
             if (hit.concepts.contains(Concept.LIFT)) {
                 return IntentMatch.Place.LIFT;
+            }
+        }
+        return null;
+    }
+
+    /** The first document named in the question ("passport", "visa", "insurance"), or null for documents in general. */
+    private static IntentMatch.Document firstDocument(List<Lexicon.Hit> hits) {
+        for (Lexicon.Hit hit : hits) {
+            if (hit.concepts.contains(Concept.PASSPORT)) {
+                return IntentMatch.Document.PASSPORT;
+            }
+            if (hit.concepts.contains(Concept.VISA)) {
+                return IntentMatch.Document.VISA;
+            }
+            if (hit.concepts.contains(Concept.INSURANCE)) {
+                return IntentMatch.Document.INSURANCE;
             }
         }
         return null;

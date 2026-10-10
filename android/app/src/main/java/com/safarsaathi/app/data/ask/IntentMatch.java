@@ -24,6 +24,9 @@ public final class IntentMatch {
     /** For {@link AskIntent#WHERE_IS}: which kind of place. */
     public enum Place { WASHROOM, HELP_DESK, LIFT }
 
+    /** For the document intents: which document was named (null = documents in general). */
+    public enum Document { PASSPORT, VISA, INSURANCE }
+
     public final AskIntent intent;
     public final Confidence confidence;
     /** The winning rule's score (0 when nothing matched); for tests and the routing log. */
@@ -34,18 +37,22 @@ public final class IntentMatch {
     /** A gate number in the question ("washroom near gate 32" -> "32"), else null. */
     @Nullable
     public final String gateNumber;
+    /** Document intents only: the document named, else null. */
+    @Nullable
+    public final Document document;
 
     IntentMatch(AskIntent intent, Confidence confidence, int score, @Nullable Place place,
-                @Nullable String gateNumber) {
+                @Nullable String gateNumber, @Nullable Document document) {
         this.intent = intent;
         this.confidence = confidence;
         this.score = score;
         this.place = place;
         this.gateNumber = gateNumber;
+        this.document = document;
     }
 
     static IntentMatch none() {
-        return new IntentMatch(AskIntent.UNKNOWN, Confidence.NONE, 0, null, null);
+        return new IntentMatch(AskIntent.UNKNOWN, Confidence.NONE, 0, null, null, null);
     }
 
     @Override

@@ -299,7 +299,8 @@ live safety scoring (a country pack's official advisory link at most).
     first; Marathi endings cut off; typos forgiven in words of 5+ letters; `MARKERS` = language giveaways).
   - `IntentMatcher`: rules over concepts (same for every language) → intent + confidence (HIGH only without a close
     rival that saw another topic). Intents: GATE, BOARDING_TIME, BOARDING_CLOSE, FLIGHT_STATUS, CONNECTION_STATUS,
-    BAGGAGE_BELT, BAG_STATUS, NEXT_STEP, DOCUMENT_EXPIRY, WHERE_IS (washroom / help desk / lift), HELP; recognised but
+    BAGGAGE_BELT, BAG_STATUS, NEXT_STEP, DOCUMENT_EXPIRY, DOCUMENT_MISSING, WHERE_IS (washroom / help desk / lift),
+    HELP; recognised but
     not answered on the phone: SEARCH_FLIGHTS, SEARCH_HOTELS, CAB.
   - `LanguagePicker`: marker words decide; ML Kit language-id (bundled, offline) breaks ties; Marathi in English
     letters is answered in Marathi script; the language chip overrides (saved in `AskSettings`).
@@ -313,16 +314,23 @@ live safety scoring (a country pack's official advisory link at most).
     `data/vault/**`): per document type, holder FIRST name, expiry, covered dates + countries, status (READY /
     EXPIRES_SOON / EXPIRED / MISSING / MISMATCH / NOT_OFFLINE_YET). Never numbers, MRZ, images, file paths, full names,
     birth dates. Only Layer 1 and Layer 2 may use it; Layer 3 (cloud) never receives vault data (a test checks it).
-    Vault locked: "Unlock your vault to see this" + an Unlock button (biometric prompt), then the answer. A1 itself
-    reads nothing from the vault (it is not on this branch yet).
+    Vault locked: "Unlock your vault to see this" + an Unlock button (biometric prompt), then the answer.
+    Ask side built: `DocumentFacts` (only those fields; `DocumentFactsTest` fails if one is added), DOCUMENT_EXPIRY +
+    DOCUMENT_MISSING answers. MISSING = the saved file is missing on the phone, NOT "a required document"; which
+    documents a country requires needs sourced country packs (V4), so "saved?" answers add "I can't tell which
+    documents a country requires: check with the airline or embassy". Wiring to the reader (`currentTrip()`,
+    `getSummaries`, `isUnlocked`, `VaultUnlockPrompt`) follows when the reader is on `feature/document-vault`.
   - Connection answers state the gap only until Disruption Recovery C1's minimum-connection-time data is wired in
     (then labelled "based on a demo minimum connection time"); never "enough" without that data.
 - **Branch:** `feature/ask-onboard` (worktree `../OnBoard-ask`) = main + a merge of `feature/gate-navigation`
   (the map and `setTabsVisible` are G1-G3 code). It must reach main AFTER the gate branch. When G4 and C1 are in main,
   merge main and wire GATE / BOARDING / CONNECTION_STATUS to them; BAG_STATUS waits for B1.
-- **Tests:** `IntentGoldenSetTest` (golden_phrases.tsv, 124 phrases, 4 languages, ≥ 90% intents AND languages; chips
+- **Debug builds:** Ask's toolbar menu "Load demo trip on phone" saves the backend's demo trip 1 (`DemoTripOnPhone`,
+  flight IJ 512 tomorrow) so trip answers show without the backend; the next real sync replaces it.
+- **Tests:** `IntentGoldenSetTest` (golden_phrases.tsv, 135 phrases, 4 languages, ≥ 90% intents AND languages; chips
   100%), `QuickAnswererTest`, `AnswerTextTest` (same keys/placeholders everywhere), `LexiconTest`, `LanguagePickerTest`,
-  UI `AskFragmentTest`. Lexicons/answers in hi, mr, Hinglish need a native speaker's review (phase P).
+  `DocumentFactsTest`, `DemoTripOnPhoneTest`, UI `AskFragmentTest`. Native-speaker review: `docs/ask-strings-review.md`
+  (generated from the properties files; regenerate after edits).
 
 ---
 

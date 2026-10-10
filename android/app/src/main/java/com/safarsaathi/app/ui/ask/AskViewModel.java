@@ -227,6 +227,5 @@ public class AskViewModel extends AndroidViewModel {
             }
         });
         worker.shutdown();
-        super.onCleared();
     }
 }

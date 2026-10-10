@@ -24,7 +24,6 @@
     <string name="ask_listening">Listening in %1$s…</string>
 
     <!-- Language chip -->
-    <string name="ask_language_auto">Auto</string>
     <string name="ask_language_auto_detail">Auto (reply in the language you ask in)</string>
     <string name="ask_language_chip_auto">Language: Auto</string>
     <string name="ask_language_chip_fixed">Language: %1$s</string>
@@ -49,5 +48,10 @@
     <string name="ask_voice_busy">Voice input is busy. Try again in a moment.</string>
     <string name="ask_voice_unavailable">This phone has no speech recognizer. Please type your question.</string>
     <string name="ask_voice_missing">No %1$s voice on this phone, so answers in it are not read aloud. You can add one in Settings, Text-to-speech.</string>
+    <!-- Debug builds only -->
+    <string name="ask_demo_trip_menu">Load demo trip on phone (debug)</string>
+    <string name="ask_demo_trip_confirm">Replace the trip saved on this phone with the demo trip (flight IJ 512 Mumbai to Bengaluru, tomorrow)? Debug builds only. The next sync with the backend replaces it again.</string>
+    <string name="ask_demo_trip_load">Load demo trip</string>
+    <string name="ask_demo_trip_loaded">Demo trip loaded on this phone</string>
     <string name="ask_mic_rationale">OnBoard uses the microphone only while it is listening for your question; your phone\'s speech service turns it into text. OnBoard keeps no recording.</string>
 </resources>

@@ -14,7 +14,10 @@ public enum AskIntent {
     BAGGAGE_BELT(true),
     BAG_STATUS(true),
     NEXT_STEP(true),
+    /** "When does my passport expire?": expiry and status from the vault's summaries. */
     DOCUMENT_EXPIRY(true),
+    /** "Is my visa saved?", "Am I missing any document?": what the vault has, and what it says is missing. */
+    DOCUMENT_MISSING(true),
     /** Washrooms, help desks and lifts on the terminal map. */
     WHERE_IS(true),
     HELP(true),

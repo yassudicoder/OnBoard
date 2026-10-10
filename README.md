@@ -63,7 +63,11 @@ has the full brief and the phases R0 → P). We build it phase by phase and stop
   airplane mode: answers come from the trip saved on the phone and the T2 demo map, never from a guess, so today the
   gate and boarding times honestly say "not announced yet" (no gate source until G4) and the chip under each answer
   says "Answered on your phone · as of 05:42". "Language" chip: Auto, or always one language. Flights/hotels/cabs:
-  it explains that needs the online assistant (A3) or points to Home's Uber buttons. It never reads the Document Vault.
+  it explains that needs the online assistant (A3) or points to Home's Uber buttons. Document questions ("Is my visa
+  saved?", "Majha passport kadhi expire hoto?") will answer from the Document Vault's summaries (type, first name,
+  dates, status only; never numbers) once the vault's reader is merged; until then they say the vault isn't on the
+  phone. Debug builds: Ask's menu → **Load demo trip on phone** shows trip answers without the backend. Hindi /
+  Marathi / Hinglish review sheet: [docs/ask-strings-review.md](docs/ask-strings-review.md).
 - **Profile → More → Document vault (V1):** opens only after fingerprint, face or phone PIN; locks itself after 5 minutes
   (1 / 5 / 15, your choice); screenshots of it come out black. **Load sample trip** adds Paramvir's made-up Delhi → Kigali
   → Kinshasa folder (8 SAMPLE documents, grouped by leg or by type). Open a document: key details, the number hidden

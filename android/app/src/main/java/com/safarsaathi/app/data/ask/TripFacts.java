@@ -26,7 +26,8 @@ import java.util.regex.Pattern;
  *   <li>{@link #gate}: gate and boarding times. Null until the gate data source exists (phase G4). Home says "Not
  *       announced yet" for the same reason.</li>
  *   <li>{@link #bag}: the registered bag and its belt. Null until Baggage Shield saves bags (phase B1).</li>
- *   <li>Travel documents: deliberately NOT here. They stay locked in the Document Vault (see QuickAnswerer).</li>
+ *   <li>{@link #documents}: travel document SUMMARIES from the Document Vault's read-only reader (no numbers, MRZ,
+ *       images or paths; see {@link DocumentFacts}). "Not available" until the vault is on this phone.</li>
  * </ul>
  */
 public final class TripFacts {
@@ -133,10 +134,12 @@ public final class TripFacts {
     /** The pilot terminal's walking map (washrooms, help desks, lifts); null when not on the phone. */
     @Nullable
     public final AirportMap map;
+    /** Travel document summaries (or "locked" / "not available"); never null. */
+    public final DocumentFacts documents;
 
     private TripFacts(Instant now, boolean tripSaved, @Nullable Instant asOf, @Nullable Flight flight,
                       @Nullable Flight connection, @Nullable BlockEntity nextUp, @Nullable GateInfo gate,
-                      @Nullable BagInfo bag, @Nullable AirportMap map) {
+                      @Nullable BagInfo bag, @Nullable AirportMap map, DocumentFacts documents) {
         this.now = now;
         this.tripSaved = tripSaved;
         this.asOf = asOf;
@@ -146,6 +149,7 @@ public final class TripFacts {
         this.gate = gate;
         this.bag = bag;
         this.map = map;
+        this.documents = documents;
     }
 
     /**
@@ -173,17 +177,22 @@ public final class TripFacts {
             connection = next == null ? null : new Flight(next);
         }
         return new TripFacts(now, trip != null, trip == null ? null : trip.lastSyncedAt, flight, connection,
-                overview.nextUp, null, null, map);
+                overview.nextUp, null, null, map, DocumentFacts.notAvailable());
     }
 
     /** The same facts with gate data (phase G4 fills this from its own table; tests use it directly). */
     public TripFacts withGate(@Nullable GateInfo newGate) {
-        return new TripFacts(now, tripSaved, asOf, flight, connection, nextUp, newGate, bag, map);
+        return new TripFacts(now, tripSaved, asOf, flight, connection, nextUp, newGate, bag, map, documents);
     }
 
     /** The same facts with a registered bag (phase B1). */
     public TripFacts withBag(@Nullable BagInfo newBag) {
-        return new TripFacts(now, tripSaved, asOf, flight, connection, nextUp, gate, newBag, map);
+        return new TripFacts(now, tripSaved, asOf, flight, connection, nextUp, gate, newBag, map, documents);
+    }
+
+    /** The same facts with the travel document summaries (from the vault reader, or locked / not available). */
+    public TripFacts withDocuments(DocumentFacts newDocuments) {
+        return new TripFacts(now, tripSaved, asOf, flight, connection, nextUp, gate, bag, map, newDocuments);
     }
 
     /** "IJ 512" from a block title, or the title itself when it has no flight number. */

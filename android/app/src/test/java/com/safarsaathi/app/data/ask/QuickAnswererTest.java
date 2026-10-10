@@ -190,13 +190,83 @@ public class QuickAnswererTest {
 
     // ---- Documents, places, help, cloud requests ----
 
+    // ---- Travel documents (vault summaries) ----
+
+    /** Paramvir's SAMPLE folder: a passport, a Rwanda e-visa expiring soon, an insurance whose file is missing. */
+    private static TripFacts withVault() {
+        java.util.List<DocumentFacts.Doc> docs = java.util.Arrays.asList(
+                new DocumentFacts.Doc("PASSPORT", "Paramvir", java.time.LocalDate.of(2031, 3, 12), null, null,
+                        Collections.singletonList("IN"), DocumentFacts.Status.READY, true),
+                new DocumentFacts.Doc("E_VISA", "Paramvir", java.time.LocalDate.of(2026, 10, 20), null, null,
+                        Collections.singletonList("RW"), DocumentFacts.Status.EXPIRES_SOON, true),
+                new DocumentFacts.Doc("INSURANCE", "Paramvir", null, java.time.LocalDate.of(2026, 10, 10),
+                        java.time.LocalDate.of(2026, 10, 25), Collections.<String>emptyList(),
+                        DocumentFacts.Status.MISSING, true));
+        return demoFacts().withDocuments(DocumentFacts.unlocked("Delhi → Kinshasa", docs));
+    }
+
     @Test
-    public void documents_areNotRead_theAnswerPointsToTheVault() {
+    public void documents_noVaultOnThePhone_saySo() {
         Answer answer = ask("When does my passport expire?", AskLanguage.EN, demoFacts());
         assertEquals(AskIntent.DOCUMENT_EXPIRY, answer.intent);
-        assertEquals(Answer.Action.OPEN_VAULT, answer.action);
-        assertTrue(answer.text.contains("Document Vault"));
+        assertEquals("There's no Document Vault on this phone yet, so I can't check your documents.", answer.text);
         assertNull(answer.asOf);
+    }
+
+    @Test
+    public void documents_lockedVault_asksToUnlock_andShowsNothing() {
+        TripFacts locked = demoFacts().withDocuments(DocumentFacts.locked(null));
+        Answer answer = ask("Kya mera visa saved hai?", AskLanguage.HINGLISH, locked);
+        assertEquals(AskIntent.DOCUMENT_MISSING, answer.intent);
+        assertEquals("Aapka Document Vault lock hai. Ise dekhne ke liye vault unlock kijiye.", answer.text);
+        assertEquals(Answer.Action.UNLOCK_VAULT, answer.action);
+    }
+
+    @Test
+    public void passportExpiry_fromTheSummary_withFirstNameAndSampleLabel() {
+        Answer answer = ask("When does my passport expire?", AskLanguage.EN, withVault());
+        assertEquals("In Delhi → Kinshasa: Passport (Paramvir): valid until 12 Mar 2031, ready (SAMPLE).",
+                answer.text);
+        assertEquals(Answer.Action.OPEN_VAULT, answer.action);
+    }
+
+    @Test
+    public void visaSaved_inMarathi_countsDaysLeft_andNeverSaysRequired() {
+        Answer answer = ask("Majha visa save aahe ka?", AskLanguage.MR, withVault());
+        assertEquals(AskIntent.DOCUMENT_MISSING, answer.intent);
+        // (The month's short name comes from the phone's own Marathi calendar data, so only the day is checked.)
+        assertTrue(answer.text, answer.text.contains("रवांडासाठी ई-व्हिसा (Paramvir): 20 "));
+        assertTrue(answer.text, answer.text.contains("लवकरच संपेल (8 दिवस बाकी)"));
+        assertTrue(answer.text, answer.text.endsWith("एअरलाइन किंवा दूतावासाला विचारा."));
+    }
+
+    @Test
+    public void missingStatus_meansTheFileIsMissingOnThePhone() {
+        Answer answer = ask("Am I missing any documents?", AskLanguage.EN, withVault());
+        assertEquals(AskIntent.DOCUMENT_MISSING, answer.intent);
+        assertTrue(answer.text, answer.text.startsWith("Needs your attention in Delhi → Kinshasa: "));
+        assertTrue(answer.text, answer.text.contains(
+                "Travel insurance (Paramvir): valid until 25 Oct 2026, its saved file is missing on this phone"));
+        assertFalse("the passport is ready, so not listed", answer.text.contains("Passport"));
+        assertTrue(answer.text, answer.text.endsWith(
+                "I can't tell which documents a country requires: check with the airline or embassy."));
+    }
+
+    @Test
+    public void noDocumentOfThatKind_saysNotSaved_withTheRequirementsNote() {
+        TripFacts empty = demoFacts().withDocuments(DocumentFacts.unlocked("Mumbai trip",
+                Collections.<DocumentFacts.Doc>emptyList()));
+        assertEquals("No visa is saved in Mumbai trip. I can't tell which documents a country requires: check with "
+                + "the airline or embassy.", ask("Is my visa saved?", AskLanguage.EN, empty).text);
+    }
+
+    @Test
+    public void allSavedDocumentsReady_saysSo_withoutClaimingNothingIsRequired() {
+        TripFacts ready = demoFacts().withDocuments(DocumentFacts.unlocked("Trip", Collections.singletonList(
+                new DocumentFacts.Doc("PASSPORT", "Aditi", java.time.LocalDate.of(2030, 1, 1), null, null,
+                        Collections.<String>emptyList(), DocumentFacts.Status.READY, false))));
+        assertEquals("All 1 saved documents in Trip are ready. I can't tell which documents a country requires: "
+                + "check with the airline or embassy.", ask("Am I missing any documents?", AskLanguage.EN, ready).text);
     }
 
     @Test

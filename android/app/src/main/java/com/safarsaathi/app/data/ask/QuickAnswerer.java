@@ -14,7 +14,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Locale;
 
@@ -27,8 +29,8 @@ import java.util.Locale;
  *   <li>Every gate, time, belt and flight number in a reply comes from {@link TripFacts}, inserted by this code.
  *       Missing data picks the "not announced yet" sentence; nothing is ever guessed.</li>
  *   <li>Estimates say "estimate"; the terminal map says it is a demo map.</li>
- *   <li>Travel documents (passport, visa) are not read here: they stay locked in the Document Vault, and the reply
- *       points there instead. (Whether Ask may read the vault is an open privacy decision, see CLAUDE.md.)</li>
+ *   <li>Travel documents: only the vault reader's summaries ({@link DocumentFacts}: type, first name, dates,
+ *       countries, status), never numbers or images; a locked vault is asked to unlock first.</li>
  * </ul>
  * Plain Java, checked by QuickAnswererTest in every reply language.
  */
@@ -81,7 +83,9 @@ public final class QuickAnswerer {
             case NEXT_STEP:
                 return nextStep(text, facts);
             case DOCUMENT_EXPIRY:
-                return new Reply(text.get("documents.vault"), null, Answer.Action.OPEN_VAULT);
+                return documents(text, facts, match, false);
+            case DOCUMENT_MISSING:
+                return documents(text, facts, match, true);
             case WHERE_IS:
                 return whereIs(text, facts, match);
             case HELP:
@@ -252,6 +256,112 @@ public final class QuickAnswerer {
         }
         return new Reply(text.fill("next.block", "title", next.title, "time", time(next.startTime, text, facts)),
                 facts.asOf, null);
+    }
+
+    // ---- Travel documents (summaries from the Document Vault's read-only reader) ----
+
+    /**
+     * Expiry / "is it saved?" answers. Everything comes from {@link DocumentFacts}: the vault decides each status,
+     * this code only words it. Locked vault: ask to unlock first (button), never a guess.
+     *
+     * @param askedIfSaved true for "is my visa saved?" / "am I missing a document?", false for expiry questions
+     */
+    private Reply documents(AnswerText text, TripFacts facts, IntentMatch match, boolean askedIfSaved) {
+        DocumentFacts documents = facts.documents;
+        if (documents.access == DocumentFacts.Access.NOT_AVAILABLE) {
+            return new Reply(text.get("documents.not_available"), null, null);
+        }
+        if (documents.access == DocumentFacts.Access.LOCKED) {
+            return new Reply(text.get("documents.locked"), null, Answer.Action.UNLOCK_VAULT);
+        }
+        String trip = documents.tripTitle != null ? documents.tripTitle : text.get("documents.your_vault");
+        List<DocumentFacts.Doc> wanted = new ArrayList<>();
+        for (DocumentFacts.Doc doc : documents.docs) {
+            if (match.document == null || kindOf(doc.type) == match.document) {
+                wanted.add(doc);
+            }
+        }
+        // Which documents a country REQUIRES is not known on the phone, so "saved?" questions say what is saved (or
+        // not) and add that note; they never say a document is required or that nothing is missing.
+        String note = askedIfSaved ? " " + text.get("documents.requirements_note") : "";
+        if (match.document != null && wanted.isEmpty()) {
+            return new Reply(text.fill("documents.none_of_type", "document", text.get("doc.kind_" + match.document.name()),
+                    "trip", trip) + note, null, Answer.Action.OPEN_VAULT);
+        }
+        if (match.document == null && askedIfSaved) {
+            // "Am I missing anything?": only the documents that need attention, or "all ready".
+            List<DocumentFacts.Doc> problems = new ArrayList<>();
+            for (DocumentFacts.Doc doc : wanted) {
+                if (doc.status != DocumentFacts.Status.READY) {
+                    problems.add(doc);
+                }
+            }
+            if (problems.isEmpty()) {
+                return new Reply(text.fill("documents.all_ready", "count", String.valueOf(wanted.size()), "trip", trip)
+                        + note, null, Answer.Action.OPEN_VAULT);
+            }
+            wanted = problems;
+        }
+        List<String> lines = new ArrayList<>();
+        for (DocumentFacts.Doc doc : wanted) {
+            lines.add(documentLine(doc, text, facts));
+        }
+        String key = match.document == null && askedIfSaved ? "documents.attention" : "documents.list";
+        return new Reply(text.fill(key, "trip", trip, "items", String.join(text.get("list.separator") + " ", lines))
+                + text.get("sentence.end") + note, null, Answer.Action.OPEN_VAULT);
+    }
+
+    /** "Visa for Rwanda (Paramvir): valid until 20 Oct 2026, ready". */
+    private static String documentLine(DocumentFacts.Doc doc, AnswerText text, TripFacts facts) {
+        String name = text.has("doc." + doc.type) ? text.get("doc." + doc.type) : text.get("doc.OTHER");
+        boolean identity = "PASSPORT".equals(doc.type) || "ID_CARD".equals(doc.type); // "passport for India" reads oddly
+        if (!doc.countries.isEmpty() && !identity) {
+            name = text.fill("doc.for_country", "document", name, "country", countryName(doc.countries.get(0), text));
+        }
+        LocalDate lastDay = doc.lastValidDay();
+        String validity = lastDay == null ? text.get("doc.no_date")
+                : text.fill("doc.valid_until", "date", date(lastDay, text));
+        String status = doc.status == DocumentFacts.Status.EXPIRES_SOON && lastDay != null
+                ? text.fill("status.EXPIRES_SOON", "days", String.valueOf(ChronoUnit.DAYS.between(today(facts), lastDay)))
+                : text.get("status." + doc.status.name());
+        String line = doc.holderFirstName == null
+                ? text.fill("doc.line", "document", name, "validity", validity, "status", status)
+                : text.fill("doc.line_named", "document", name, "name", doc.holderFirstName, "validity", validity,
+                "status", status);
+        return doc.sample ? line + " (" + text.get("documents.sample") + ")" : line;
+    }
+
+    /** Which of the three askable kinds a vault document type is (VISA covers e-visas and transit visas). */
+    @Nullable
+    private static IntentMatch.Document kindOf(String type) {
+        if ("PASSPORT".equals(type)) {
+            return IntentMatch.Document.PASSPORT;
+        }
+        if ("VISA".equals(type) || "E_VISA".equals(type) || "TRANSIT_VISA".equals(type)) {
+            return IntentMatch.Document.VISA;
+        }
+        if ("INSURANCE".equals(type)) {
+            return IntentMatch.Document.INSURANCE;
+        }
+        return null;
+    }
+
+    /** "Rwanda" / "रवांडा": the country's name in the reply language, from the phone's own country list. */
+    private static String countryName(String iso2, AnswerText text) {
+        try {
+            String name = new Locale.Builder().setRegion(iso2).build().getDisplayCountry(locale(text.language()));
+            return name.isEmpty() ? iso2 : name;
+        } catch (IllformedLocaleException e) {
+            return iso2; // not a country code: show it as it is rather than fail the answer
+        }
+    }
+
+    private static String date(LocalDate day, AnswerText text) {
+        return day.format(DateTimeFormatter.ofPattern("d MMM yyyy", locale(text.language())));
+    }
+
+    private static LocalDate today(TripFacts facts) {
+        return facts.now.atZone(AppConfig.TRIP_ZONE).toLocalDate();
     }
 
     // ---- Places in the terminal ----

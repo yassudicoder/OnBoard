@@ -40,8 +40,11 @@ public enum Concept {
     DOCUMENT,
     PASSPORT,
     VISA,
+    INSURANCE,
     /** expire, valid, khatam, संपणे, मुदत */
     EXPIRY,
+    /** saved, do I have, rakha hai, सेव्ह: "is my visa saved?" */
+    SAVED,
     WASHROOM,
     HELP_DESK,
     LIFT,
