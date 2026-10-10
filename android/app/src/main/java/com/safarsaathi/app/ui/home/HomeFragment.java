@@ -15,13 +15,21 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.color.MaterialColors;
 import com.safarsaathi.app.AppConfig;
 import com.safarsaathi.app.R;
+import com.safarsaathi.app.ServiceLocator;
 import com.safarsaathi.app.data.SyncState;
 import com.safarsaathi.app.data.local.BlockEntity;
 import com.safarsaathi.app.data.local.TripEntity;
+import com.safarsaathi.app.data.ride.RidePlace;
+import com.safarsaathi.app.data.ride.RidePlacement;
+import com.safarsaathi.app.data.ride.RidePoints;
+import com.safarsaathi.app.data.ride.RideProvider;
+import com.safarsaathi.app.data.ride.RideRequest;
 import com.safarsaathi.app.databinding.FragmentHomeBinding;
 import com.safarsaathi.app.ui.navigate.GoogleMapsLink;
+import com.safarsaathi.app.ui.ride.RidePlaceDialog;
 import com.safarsaathi.app.ui.trip.TripOverview;
 import com.safarsaathi.app.ui.trip.TripTime;
 import com.safarsaathi.app.ui.trip.TripUi;
@@ -42,6 +50,10 @@ import java.util.Locale;
  *
  * <p>Refreshes like before: when the tab opens (unless another screen just did), on pull-down or Retry, and every
  * 10 seconds while it is on screen.
+ *
+ * <p>Ride handoff (Uber deep links, see {@link #renderRides}): "Leave by … (estimate)" + a ride to the terminal on
+ * the flight card, and "After you land" with a ride to the hotel. (The ride to another airport for a Disruption
+ * Recovery alternative is added once those screens exist, after C3 merges.)
  */
 public class HomeFragment extends Fragment {
 
@@ -65,6 +77,9 @@ public class HomeFragment extends Fragment {
     private TripEntity trip;
     private List<BlockEntity> blocks = Collections.emptyList();
     private SyncState syncState = SyncState.idle();
+    /** A place the traveller typed or picked for the "After you land" ride; null = the hotel from the trip. */
+    @Nullable
+    private RidePlace arrivalChoice;
 
     // Android re-creates fragments by calling this no-argument constructor, so it must stay public.
     public HomeFragment() {
@@ -90,6 +105,13 @@ public class HomeFragment extends Fragment {
             }
         });
         binding.homeRegisterBag.setOnClickListener(button -> openTab(R.id.navigation_bags));
+        // The departure ride sits on the coloured flight card, so its notes use that card's text colour.
+        binding.homeRideDeparture.setTextColor(MaterialColors.getColor(binding.homeFlightCard,
+                com.google.android.material.R.attr.colorOnPrimaryContainer));
+        binding.homeArrivalChoose.setOnClickListener(button -> RidePlaceDialog.show(requireContext(), address -> {
+            arrivalChoice = RidePlace.typed(address);
+            render();
+        }));
 
         LifecycleOwner owner = getViewLifecycleOwner();
         viewModel.getTrip().observe(owner, newTrip -> {
@@ -148,6 +170,7 @@ public class HomeFragment extends Fragment {
         if (showContent) {
             BlockEntity flight = TripOverview.of(blocks, Instant.now()).flight;
             renderFlight(flight);
+            renderRides(flight);
         } else {
             renderNoSavedPlan();
         }
@@ -191,6 +214,75 @@ public class HomeFragment extends Fragment {
         String planned = TripUi.plannedText(requireContext(), flight);
         binding.homeFlightPlanned.setVisibility(planned == null ? View.GONE : View.VISIBLE);
         binding.homeFlightPlanned.setText(planned == null ? "" : planned);
+    }
+
+    /**
+     * The two ride buttons (Uber deep links, data/ride). Pickup is always "my location": Uber finds the phone
+     * itself, so OnBoard needs no location permission. Places and times come from ride-points.json (airport points,
+     * labelled "approximate" until the team checks them) and from the trip (the hotel); times say "estimate".
+     */
+    private void renderRides(@Nullable BlockEntity flight) {
+        RideProvider provider = ServiceLocator.get().getRideProvider();
+        RidePoints points = ServiceLocator.get().getRidePoints();
+        boolean cancelled = flight != null && BlockEntity.STATUS_CANCELLED.equals(flight.status);
+
+        // a. Departure: "Leave by 06:10 (estimate)" and a ride to the pilot terminal's drop-off point. Hidden when
+        //    the flight is cancelled: there is no point riding to it.
+        RidePoints.Point terminal = points.dropoff(AppConfig.PILOT_AIRPORT, AppConfig.PILOT_TERMINAL);
+        String terminalName = terminal != null ? terminal.buttonName()
+                : AppConfig.PILOT_AIRPORT + " " + AppConfig.PILOT_TERMINAL;
+        boolean showDeparture = flight != null && !cancelled;
+        binding.homeRideDeparture.setVisibility(showDeparture ? View.VISIBLE : View.GONE);
+        binding.homeRideDeparture.bind(provider, new RideRequest(RidePlacement.DEPARTURE, RidePlace.myLocation(),
+                terminal == null ? null : terminal.toPlace()), getString(R.string.ride_get_to, terminalName));
+        renderLeaveBy(showDeparture ? flight : null,
+                points.leaveByRule(AppConfig.PILOT_AIRPORT, AppConfig.PILOT_TERMINAL));
+
+        // b. After you land: a place the traveller chose, else the hotel from the trip, else nothing (disabled).
+        BlockEntity hotel = firstHotel();
+        RidePlace dropoff = null;
+        String placeLine = getString(R.string.home_arrival_none);
+        int buttonText = R.string.ride_to_hotel;
+        if (arrivalChoice != null) {
+            dropoff = arrivalChoice;
+            placeLine = getString(R.string.home_arrival_typed, arrivalChoice.label());
+            buttonText = R.string.ride_to_destination;
+        } else if (hotel != null) {
+            dropoff = RidePlace.point(hotel.locationName, null, hotel.lat, hotel.lng, false);
+            String name = hotel.locationName != null ? hotel.locationName : hotel.title;
+            placeLine = getString(R.string.home_arrival_hotel, name);
+        }
+        binding.homeArrivalPlace.setText(placeLine);
+        binding.homeArrivalChoose.setText(dropoff == null ? R.string.ride_choose_place : R.string.ride_somewhere_else);
+        binding.homeRideArrival.bind(provider, new RideRequest(RidePlacement.ARRIVAL, RidePlace.myLocation(), dropoff),
+                getString(buttonText));
+    }
+
+    /** "Leave by HH:mm (estimate)" with how it was worked out; hidden without a rule or once that time has passed. */
+    private void renderLeaveBy(@Nullable BlockEntity flight, @Nullable RidePoints.LeaveByRule rule) {
+        Instant leaveBy = flight == null || rule == null ? null : rule.leaveBy(flight.startTime);
+        boolean show = leaveBy != null && leaveBy.isAfter(Instant.now());
+        binding.homeLeaveBy.setVisibility(show ? View.VISIBLE : View.GONE);
+        binding.homeLeaveByDetail.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (show) {
+            binding.homeLeaveBy.setText(getString(R.string.ride_leave_by, TripTime.time(leaveBy)));
+            binding.homeLeaveByDetail.setText(getString(R.string.ride_leave_by_detail, rule.rideEstimateMin,
+                    rule.atAirportBeforeDepartureMin));
+        }
+    }
+
+    /** The trip's first hotel booking that says where it is, or null. */
+    @Nullable
+    private BlockEntity firstHotel() {
+        for (BlockEntity block : blocks) {
+            boolean located = (block.locationName != null && !block.locationName.trim().isEmpty())
+                    || (block.lat != null && block.lng != null);
+            if (BlockEntity.TYPE_HOTEL.equals(block.type) && !BlockEntity.STATUS_CANCELLED.equals(block.status)
+                    && located) {
+                return block;
+            }
+        }
+        return null;
     }
 
     private int greetingText() {

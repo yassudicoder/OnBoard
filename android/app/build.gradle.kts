@@ -45,6 +45,17 @@ val featureTripTimeline: Boolean = (localProperties.getProperty("feature.tripTim
 // mock/offline maps (AppConfig.mapsMode() says "MOCK").
 val mapsApiKey: String = localProperties.getProperty("MAPS_API_KEY", "").trim()
 
+// Ride handoff (Uber deep links, data/ride). UBER_CLIENT_ID is our Uber developer app's client id. Unlike a secret
+// key it is visible in every link the app opens, so it may go into BuildConfig; it still stays out of git like every
+// per-team value. Only letters, digits, "-" and "_" are kept, so a stray quote cannot break the generated Java.
+// Empty = links without client_id (they still open Uber; the app logs that it is missing).
+val uberClientId: String = localProperties.getProperty("UBER_CLIENT_ID", "").trim()
+    .filter { it.isLetterOrDigit() || it == '-' || it == '_' }
+// RIDE_PROVIDER=mock: the ride buttons show a demo dialog instead of opening Uber (emulators without Uber).
+// Anything else, or missing: the real Uber deep link (needs no key).
+val rideProviderMock: Boolean = localProperties.getProperty("RIDE_PROVIDER", "uber").trim()
+    .equals("mock", ignoreCase = true)
+
 android {
     namespace = "com.safarsaathi.app"   // Java package of the generated R and BuildConfig classes
     compileSdk = 37                     // Android API the code is compiled against (latest stable)
@@ -68,6 +79,9 @@ android {
         buildConfigField("boolean", "HAS_MAPS_KEY", mapsApiKey.isNotEmpty().toString())
         // The key itself only goes into AndroidManifest.xml (${MAPS_API_KEY}), where the Maps SDK reads it.
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+        // Ride handoff: see uberClientId and rideProviderMock above.
+        buildConfigField("String", "UBER_CLIENT_ID", "\"$uberClientId\"")
+        buildConfigField("boolean", "RIDE_PROVIDER_MOCK", rideProviderMock.toString())
 
         // Room (the offline database) writes a JSON description of every database version into app/schemas/.
         // Commit those files: they show in a code review exactly how the tables changed, and later phases
@@ -115,6 +129,11 @@ android {
         // (activity_main.xml -> ActivityMainBinding), so we never need findViewById().
         viewBinding = true
     }
+
+    // Ride handoff: the airport pickup / drop-off points (repo-root mock-data/rides/ride-points.json) ship inside the
+    // app as assets, so the ride buttons work offline. Kept apart from Gate Navigation's sourceSets block (which adds
+    // mock-data/airports), so the two never register the same folder twice.
+    sourceSets.getByName("main").assets.srcDir("../../mock-data/rides")
 }
 
 dependencies {

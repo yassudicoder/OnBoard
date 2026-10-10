@@ -383,6 +383,107 @@
                             android:minHeight="48dp"
                             android:text="@string/home_directions_to_airport"
                             app:icon="@drawable/ic_car_24" />
+
+                        <!-- Getting there by road: when to leave (an estimate from ride-points.json) and a ride to the
+                             terminal (RideButtonView: opens Uber with the places filled in; Uber does the booking). -->
+                        <TextView
+                            android:id="@+id/home_leave_by"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:drawablePadding="8dp"
+                            android:gravity="center_vertical"
+                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                            android:textColor="?attr/colorOnPrimaryContainer"
+                            android:visibility="gone"
+                            app:drawableStartCompat="@drawable/ic_schedule_24"
+                            app:drawableTint="?attr/colorOnPrimaryContainer"
+                            tools:text="Leave by 06:10 (estimate)"
+                            tools:visibility="visible" />
+
+                        <TextView
+                            android:id="@+id/home_leave_by_detail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?attr/colorOnPrimaryContainer"
+                            android:visibility="gone"
+                            tools:text="About 20 min by road, and at the airport 90 min before departure."
+                            tools:visibility="visible" />
+
+                        <com.safarsaathi.app.ui.ride.RideButtonView
+                            android:id="@+id/home_ride_departure"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 2b. After you land: a ride to the hotel from the trip, or to a place the traveller types or saved.
+                     (The Document Vault's hotel bookings are not read here: they have no address field and stay
+                     behind the vault lock.) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/home_arrival_card"
+                    style="?attr/materialCardViewOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:contentDescription="@null"
+                                android:src="@drawable/ic_block_hotel_24"
+                                app:tint="?attr/colorPrimary" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:text="@string/home_arrival_title"
+                                android:textAppearance="?attr/textAppearanceTitleMedium"
+                                android:textColor="?attr/colorOnSurface" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/home_arrival_place"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            tools:text="Whitefield Residency, Whitefield · from your trip" />
+
+                        <com.safarsaathi.app.ui.ride.RideButtonView
+                            android:id="@+id/home_ride_arrival"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/home_arrival_choose"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:minHeight="48dp"
+                            android:text="@string/ride_somewhere_else"
+                            app:icon="@drawable/ic_place_24" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 

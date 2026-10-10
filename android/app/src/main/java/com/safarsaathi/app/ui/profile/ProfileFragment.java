@@ -25,6 +25,9 @@ import com.safarsaathi.app.data.SyncState;
 import com.safarsaathi.app.data.WalletRepository;
 import com.safarsaathi.app.data.local.SavedCardEntity;
 import com.safarsaathi.app.data.local.TripEntity;
+import com.safarsaathi.app.data.ride.RidePlacement;
+import com.safarsaathi.app.data.ride.RideProvider;
+import com.safarsaathi.app.data.ride.RideTapCounter;
 import com.safarsaathi.app.databinding.DialogAddCardBinding;
 import com.safarsaathi.app.databinding.FragmentProfileBinding;
 import com.safarsaathi.app.databinding.ItemSavedCardBinding;
@@ -91,6 +94,13 @@ public class ProfileFragment extends Fragment {
 
         binding.profileServer.setText(ServiceLocator.get().getAppConfig().getBackendBaseUrl());
         binding.profileVersion.setText(getString(R.string.profile_version_value, BuildConfig.VERSION_NAME));
+        RideProvider rides = ServiceLocator.get().getRideProvider();
+        binding.profileRides.setText(rides.isMock() ? getString(R.string.profile_rides_mock)
+                : getString(R.string.profile_rides_real, getString(BuildConfig.UBER_CLIENT_ID.isEmpty()
+                        ? R.string.profile_rides_client_missing : R.string.profile_rides_client_set)));
+        binding.profileRideTaps.setText(getString(R.string.profile_ride_taps_value,
+                RideTapCounter.taps(context, RidePlacement.DEPARTURE),
+                RideTapCounter.taps(context, RidePlacement.ARRIVAL)));
         binding.profileAddCard.setOnClickListener(button -> showAddCardDialog());
 
         // More: the Wallet is always there; the parked trip-timeline screens only with feature.tripTimeline=true.

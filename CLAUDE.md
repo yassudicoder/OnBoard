@@ -152,6 +152,28 @@ live safety scoring (a country pack's official advisory link at most).
     expiry); to collect: government ID, boarding pass/ticket, authorisation letter if someone else collects. The app **pre-fills**
     the report fields and opens the official portal; it never submits for the user.
 
+## 3D. Ride handoff to Uber (built 2026-10-11)
+- **Deep links only.** We never use the Uber Drivers API (it serves a logged-in driver's own data) or the rider
+  ride-request API (needs partner approval). The universal link `https://m.uber.com/ul/?action=setPickup&client_id=…&
+  pickup=my_location&dropoff[latitude|longitude|nickname|formatted_address]=…` comes from Uber's own Android SDK
+  (`Deeplink.APP_LINK_URI`, `RideRequestDeeplink`) and the deep-link guide's `action=setPickup` example (checked
+  2026-10-11). Built in `data/ride/UberDeepLink` (pure Java, unit tested).
+- `RideProvider` interface: `UberDeepLinkProvider` (real, needs no key; ACTION_VIEW, then a forced browser, then a friendly
+  message) and `MockRideProvider` (demo dialog). `RIDE_PROVIDER=mock` / `UBER_CLIENT_ID` in `android/local.properties`.
+  Add other providers only with a link format from their official docs.
+- One shared button `ui/ride/RideButtonView`, on Home: flight card (to the pilot terminal, with "Leave by …
+  (estimate)"; hidden when the flight is cancelled) and "After you land" (hotel from the trip, or a typed / saved
+  place). **Recovery-alternative ride button to be added after C3 merges:** a ride to the nearby airport an alternative
+  leaves from, with the configured transfer time labelled "estimate". The data part is ready (`RidePoints.nearby` +
+  `nearbyAirports` in ride-points.json, unit tested); the button and a `RidePlacement.RECOVERY` come with C3's screens.
+- **Honesty:** after a tap only "Opened in Uber"; never booked / driver / car / ETA / price. Airport points live in
+  `mock-data/rides/ride-points.json` with `sourceUrl` + `lastChecked` + `verified`; unverified = "Approximate
+  drop-off point". Current points = OpenStreetMap terminal-building centres, `verified: false`. Offline: the link
+  still opens, with "You're offline. Uber needs internet to book."
+- **Privacy:** pickup is `my_location` (Uber finds it), so no location permission. Typed places stay on the phone
+  (excluded from backup). The Document Vault is NOT read (no address field; vault data stays behind its lock; using it
+  for rides needs the user's consent and a vault-side change). Tap counts per button are local only (Profile shows them).
+
 ---
 
 ## 3D. Feature D — Disruption Recovery (branch `feature/disruption-recovery`)

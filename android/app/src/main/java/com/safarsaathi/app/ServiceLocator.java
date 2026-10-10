@@ -1,6 +1,7 @@
 package com.safarsaathi.app;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -11,10 +12,16 @@ import com.safarsaathi.app.data.WalletRepository;
 import com.safarsaathi.app.data.airport.AirportMapRepository;
 import com.safarsaathi.app.data.local.AppDatabase;
 import com.safarsaathi.app.data.remote.SafarSaathiApi;
+import com.safarsaathi.app.data.ride.MockRideProvider;
+import com.safarsaathi.app.data.ride.RidePoints;
+import com.safarsaathi.app.data.ride.RideProvider;
+import com.safarsaathi.app.data.ride.UberDeepLinkProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.concurrent.ExecutorService;
@@ -52,6 +59,8 @@ public final class ServiceLocator {
     private final TripRepository tripRepository;
     private final WalletRepository walletRepository;
     private final AirportMapRepository airportMapRepository;
+    private final RideProvider rideProvider;
+    private final RidePoints ridePoints;
 
     /** Set only by instrumented tests, see {@link #setTripRepositoryForTests}. */
     @Nullable
@@ -96,6 +105,26 @@ public final class ServiceLocator {
         // Terminal maps (Gate Navigation): the copy inside the app comes from assets (mock-data/airports at build time).
         airportMapRepository = new AirportMapRepository(database.airportMapDao(), api,
                 path -> readAsset(app, path), ioExecutor, Clock.systemUTC());
+
+        // Ride handoff: the real Uber deep link needs no key, so it is the default; RIDE_PROVIDER=mock in
+        // local.properties swaps in the demo dialog. Logged like the backend logs its MOCK / REAL providers.
+        rideProvider = BuildConfig.RIDE_PROVIDER_MOCK
+                ? new MockRideProvider(BuildConfig.UBER_CLIENT_ID)
+                : new UberDeepLinkProvider(BuildConfig.UBER_CLIENT_ID);
+        Log.i("ServiceLocator", "Ride provider: " + (rideProvider.isMock() ? "MOCK" : "REAL")
+                + " (" + rideProvider.name() + ")");
+        // Airport pickup / drop-off points: a small JSON file inside the app (read once, a few kB).
+        ridePoints = loadRidePoints(app);
+    }
+
+    /** Reads ride-points.json from the app's assets (mock-data/rides at build time, see app/build.gradle.kts). */
+    private static RidePoints loadRidePoints(Application app) {
+        try (Reader reader = new InputStreamReader(app.getAssets().open(RidePoints.ASSET), StandardCharsets.UTF_8)) {
+            return RidePoints.parse(reader);
+        } catch (IOException e) {
+            Log.e("ServiceLocator", "Could not read " + RidePoints.ASSET + ": ride buttons have no airport points", e);
+            return RidePoints.empty();
+        }
     }
 
     /**
@@ -151,6 +180,16 @@ public final class ServiceLocator {
     /** The single background thread for database writes. */
     public ExecutorService getIoExecutor() {
         return ioExecutor;
+    }
+
+    /** Ride handoff: Uber deep link (real) or the demo dialog (RIDE_PROVIDER=mock). */
+    public RideProvider getRideProvider() {
+        return rideProvider;
+    }
+
+    /** Airport pickup / drop-off points and ride estimates (mock-data/rides/ride-points.json). */
+    public RidePoints getRidePoints() {
+        return ridePoints;
     }
 
     /** Trip data for the screens (the test replacement, if a test set one). */

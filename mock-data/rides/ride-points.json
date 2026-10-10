@@ -1,0 +1,58 @@
+{
+  "source": "Coordinates: OpenStreetMap (terminal building outlines, aeroway=terminal), looked up via the Overpass API on 2026-10-11. Times: the team's demo estimates.",
+  "attribution": "Map data © OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright)",
+  "preparedBy": "OnBoard team",
+  "note": "Ride hand-off points for Uber deep links (CLAUDE.md, Ride handoff). verified=false means the team has NOT checked the point on site or against the airport's own signage: the app then says 'Approximate drop-off point'. Never add a point without a sourceUrl. Set verified=true only after a teammate has checked it.",
+  "points": [
+    {
+      "id": "BOM-T2-DEPARTURES",
+      "airport": "BOM",
+      "terminal": "T2",
+      "kind": "DROPOFF",
+      "name": "Mumbai Airport Terminal 2, Departures",
+      "shortName": "Mumbai T2",
+      "address": "Chhatrapati Shivaji Maharaj International Airport Terminal 2, Mumbai",
+      "lat": 19.0969906,
+      "lng": 72.8739312,
+      "sourceUrl": "https://www.openstreetmap.org/way/315613914",
+      "lastChecked": "2026-10-11",
+      "verified": false,
+      "pointNote": "Centre of the Terminal 2 building in OpenStreetMap, not the departures kerb. Uber may move the pin to its own airport drop-off spot."
+    },
+    {
+      "id": "BOM-T1-DEPARTURES",
+      "airport": "BOM",
+      "terminal": "T1",
+      "kind": "DROPOFF",
+      "name": "Mumbai Airport Terminal 1, Departures",
+      "shortName": "BOM T1",
+      "address": "Chhatrapati Shivaji Maharaj International Airport Terminal 1, Santacruz, Mumbai",
+      "lat": 19.0928059,
+      "lng": 72.8546494,
+      "sourceUrl": "https://www.openstreetmap.org/way/61569813",
+      "lastChecked": "2026-10-11",
+      "verified": false,
+      "pointNote": "Centre of the Terminal 1 building in OpenStreetMap, not the departures kerb. Check on the airport's site that your airline flies from T1."
+    }
+  ],
+  "leaveBy": [
+    {
+      "airport": "BOM",
+      "terminal": "T2",
+      "rideEstimateMin": 20,
+      "atAirportBeforeDepartureMin": 90,
+      "source": "Team's demo values, not measured and not airline advice. Real ride times depend on where you start; check your airline's check-in closing time.",
+      "lastChecked": "2026-10-11"
+    }
+  ],
+  "nearbyAirports": [
+    {
+      "fromAirport": "BOM",
+      "fromTerminal": "T2",
+      "toPointId": "BOM-T1-DEPARTURES",
+      "transferEstimateMin": 35,
+      "source": "Team's demo estimate for the road transfer T2 to T1, not measured.",
+      "lastChecked": "2026-10-11"
+    }
+  ]
+}

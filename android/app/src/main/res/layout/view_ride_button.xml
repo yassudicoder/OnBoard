@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The shared "Get a ride" button (RideButtonView), used on the flight card and the "After you land" card (and,
+     after C3 merges, on Disruption Recovery alternatives that leave from another airport):
+       1. the button (opens Uber with pickup and drop-off pre-filled, or the demo dialog);
+       2. notes about the places: "Approximate drop-off point", "Check the drop-off in Uber before you book", or why
+          the button is disabled;
+       3. the offline warning ("You're offline. Uber needs internet to book.");
+       4. after a tap: "Opened in Uber". Never "booked", a driver, a car, an ETA or a price: Uber does not tell us.
+     Elevated (not tonal) button: a tonal one almost disappears on the flight card's blue background. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:orientation="vertical"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/ride_button"
+        style="@style/Widget.Material3.Button.ElevatedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        app:icon="@drawable/ic_car_24"
+        tools:text="Get a ride to Mumbai T2" />
+
+    <TextView
+        android:id="@+id/ride_note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:visibility="gone"
+        tools:text="Approximate drop-off point"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/ride_offline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:drawablePadding="8dp"
+        android:gravity="center_vertical"
+        android:text="@string/ride_offline"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:visibility="gone"
+        app:drawableStartCompat="@drawable/ic_offline_24"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/ride_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:accessibilityLiveRegion="polite"
+        android:drawablePadding="8dp"
+        android:gravity="center_vertical"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textColor="?attr/colorOnSurface"
+        android:visibility="gone"
+        tools:text="@string/ride_opened_app"
+        tools:visibility="visible" />
+</merge>

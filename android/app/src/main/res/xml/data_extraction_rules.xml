@@ -8,5 +8,7 @@
 <data-extraction-rules>
     <cloud-backup>
         <exclude domain="database" path="." />
+        <!-- Ride handoff: addresses the traveller typed for a ride stay on this phone (RecentRidePlaces). -->
+        <exclude domain="sharedpref" path="onboard_ride_places.xml" />
     </cloud-backup>
 </data-extraction-rules>
