@@ -24,6 +24,10 @@ public final class AppConfig {
      */
     public static final long DEMO_TRIP_ID = 1;
 
+    /** The pilot terminal for Gate Navigation (CLAUDE.md): Mumbai CSMIA Terminal 2. */
+    public static final String PILOT_AIRPORT = "BOM";
+    public static final String PILOT_TERMINAL = "T2";
+
     /** Every time in the app is shown in Indian time, whatever the phone's own time zone is (CLAUDE.md). */
     public static final ZoneId TRIP_ZONE = ZoneId.of("Asia/Kolkata");
 

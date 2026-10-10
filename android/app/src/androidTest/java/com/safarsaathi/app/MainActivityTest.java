@@ -9,6 +9,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -46,7 +47,9 @@ public class MainActivityTest {
     @Test
     public void eachBottomNavItem_showsItsOwnTab() {
         clickTab(R.id.navigation_navigate);
-        assertTabIsShown(R.string.title_navigate, R.string.navigate_headline);
+        // A full-screen map like Google Maps: its own search bar instead of the top bar.
+        onView(withId(R.id.navigate_search_bar)).check(matches(isDisplayed()));
+        onView(withId(R.id.app_bar)).check(matches(not(isDisplayed())));
 
         clickTab(R.id.navigation_bags);
         assertTabIsShown(R.string.title_bags, R.string.bags_headline);

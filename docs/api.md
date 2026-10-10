@@ -20,6 +20,7 @@ name for your laptop). The port changes if you set `PORT`. Requests and response
 | GET | `/actuator/info` | Standard Spring Boot info endpoint | 0 | Live (returns `{}` for now) |
 | GET | `/desk` | Front-desk dashboard (HTML page, not JSON) | 0 → 4 | Placeholder (real dashboard in Phase 4) |
 | GET | `/api/trips/{id}` | Full trip: blocks, links, statuses, version | 1 | **Live** |
+| GET | `/api/airports/{code}/{terminal}/map` | Terminal walking map for Gate Navigation (demo schematic) | G1 | **Live** |
 | POST | `/api/trips` | Create a trip (purpose, persona, language) | later* | Planned |
 | POST | `/api/trips/{id}/blocks` | Add a block (flight, cab, meeting, ...) | later* | Planned |
 | PUT | `/api/blocks/{id}` | Change a block | later* | Planned |
@@ -720,6 +721,51 @@ commands in front of the judges. Open <http://localhost:8080/demo> (`/demo/` wor
 
 The page is plain HTML, CSS and JavaScript with no outside files (it works without internet), in
 `backend/src/main/resources/static/demo/index.html`.
+
+---
+
+## Live in G1 (Gate Navigation): airport map
+
+### GET /api/airports/{code}/{terminal}/map
+
+One terminal's walking map: header, floors, places (nodes), walkways (edges), QR "You are here" anchors, plus
+`"areas"`, the hall and pier outlines (GeoJSON). The pilot has **BOM T2 only**. Case does not matter (`bom/t2` works).
+
+```bash
+curl -i http://localhost:8080/api/airports/BOM/T2/map
+```
+
+The map is a **demo schematic drawn by the team**, so the answer says so, and the app shows the `note` on screen:
+
+```json
+{
+  "airport": "BOM", "terminal": "T2", "version": 2,
+  "source": "Simplified schematic drawn from scratch by the OnBoard team ...",
+  "verified": false,
+  "note": "Demo schematic, not an official airport map",
+  "units": "metres in a local frame: x grows to the east, y grows to the north",
+  "floors": [{"id": "DEP", "order": 2, "names": {"en": "Departures", "hi": "प्रस्थान", "mr": "प्रस्थान"}}, ...],
+  "nodes": [{"id": "gate_32", "type": "GATE", "floor": "DEP", "x": 30, "y": 180, "zone": "AIRSIDE", "ref": "32",
+             "names": {"en": "Gate 32", "hi": "गेट 32", "mr": "गेट 32"}}, ...],
+  "edges": [{"from": "security", "to": "duty_free", "distanceM": 25.0, "kind": "WALK", "stepFree": true,
+             "oneWay": true, "zone": "AIRSIDE", "passesCheckpoint": true}, ...],
+  "anchors": [{"id": "BOM-T2-ENTRY-4", "node": "entry_4"}, ...],
+  "areas": {"type": "FeatureCollection", "features": [...]}
+}
+```
+
+- **Place types:** ENTRY, CHECKIN_ROW, BAG_DROP, SECURITY, IMMIGRATION, PIER_JUNCTION, GATE, LIFT, ESCALATOR, STAIRS,
+  TRAVELATOR, WASHROOM, HELP_DESK, BUGGY_STOP, LANDMARK, BAGGAGE_BELT, BAGGAGE_SERVICES, LOST_FOUND.
+- **Walkway kinds:** WALK, TRAVELATOR, LIFT, ESCALATOR, STAIRS. `stepFree` is false for STAIRS and ESCALATOR.
+  `oneWay` walkways go only from `from` to `to` (security, the travelators, the arrivals exit).
+- **Coordinates are metres in a local frame**, not longitude/latitude (also in `areas`).
+- **Caching:** `ETag: "BOM-T2-v2"` and `Cache-Control: max-age=300`. Send the ETag back in `If-None-Match` and the
+  answer is `304 Not Modified` with no body.
+- **Checked at startup:** the backend reads the map from `mock-data/airports/BOM-T2/` and checks it with routing-core's
+  `AirportMapValidator` (unique ids, lengths match positions, no way to airside around security, every gate reachable).
+  A map with mistakes stops the backend with a list of what is wrong.
+- **Errors:** unknown airport or terminal → `404` Problem Details, e.g.
+  `"detail": "No map for airport DEL terminal T1 (the pilot has BOM T2 only)"`.
 
 ---
 

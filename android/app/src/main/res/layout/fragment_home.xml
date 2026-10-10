@@ -371,6 +371,18 @@
                             android:minHeight="56dp"
                             android:text="@string/home_navigate_to_gate"
                             app:icon="@drawable/ic_navigate_24" />
+
+                        <!-- Getting TO the airport: opens the real Google Maps app (driving, from the phone's own
+                             location). Inside the terminal, "Navigate to gate" takes over. -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/home_directions_to_airport"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:minHeight="48dp"
+                            android:text="@string/home_directions_to_airport"
+                            app:icon="@drawable/ic_car_24" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
