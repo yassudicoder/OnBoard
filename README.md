@@ -1,6 +1,6 @@
-# Safar Saathi
+# OnBoard
 
-**A travel companion from your door to your destination.** Safar Saathi is an Android app with a Spring Boot backend
+**A travel companion from your door to your destination.** OnBoard is an Android app with a Spring Boot backend
 that guides a traveller through the whole journey (plan, book, get to the airport, find the gate, handle delays,
 arrive) in their own language, and keeps working when the internet doesn't.
 
@@ -9,6 +9,49 @@ falls over (cab, meeting, hotel, dinner), suggests 2–3 fixes, and applies the 
 
 Built for **Elevate 1.0 (DJSCE), Problem Statement 01 — "Seamless Aviation Journey Experience"**.
 The full project brief (rules, stack, phases) is in [CLAUDE.md](CLAUDE.md). Details are in [docs/](docs/).
+
+---
+
+## Where we are now (10 Oct 2026, evening)
+
+**Team:** Yash: backend · Divyesh: Android app · Anushree: integration testing.
+
+**Name:** the project is now called **OnBoard** (it was Safar Saathi). Code names stay as they were on purpose, so
+nothing breaks: the `com.safarsaathi.*` Java packages, the app id `com.safarsaathi.app` and the `safarsaathi` database.
+The Android app still shows "Safar Saathi" on screen until the Android side renames it.
+
+**Working end to end** (checked live on the emulator, 10 Oct, 22:15): the app's **Trip** tab loads demo trip 1 from
+the backend → a delay pressed on `/demo` reaches the phone within about 10 seconds (cards turn amber or red, plus a red
+banner for the meeting) → in airplane mode the app shows the saved plan marked "Offline" → **Reset demo** turns
+everything green again.
+
+| Branch | What's on it | State |
+|---|---|---|
+| `main` | Phases 0–2 as of the first commit | stable |
+| `feature/backend-hardening` | backend hardening (below) + this README update | pushed; pull request to `main` not opened yet |
+
+**Backend hardening, in short** (details: [backend/README.md](backend/README.md)):
+
+- The backend now listens on **this computer only** (`127.0.0.1`) by default, so nobody else on the Wi-Fi can press
+  our demo buttons. The emulator still reaches it at `http://10.0.2.2:8080`.
+- The demo buttons (`POST /api/demo/...`) exist only with `APP_MODE=demo` (the default). With `APP_MODE=prod` they
+  answer 404. A hosted server uses `SERVER_ADDRESS=0.0.0.0` **and** `APP_MODE=prod`.
+- Two delays at the same moment can no longer overwrite each other (the trip is locked while a change is saved),
+  and a change that fails to save is retried instead of lost.
+- A delay that breaks a flight connection is recorded as a `MISSED` event (demo trip 2: Pune → Delhi → Leh).
+- No database change: an existing database keeps its data. Tests: 119 backend tests, 34 Android unit tests and
+  10 emulator tests pass.
+
+**Known gaps** (not built yet):
+
+- The app shows trip 1 only. Trip 2's missed connection shows on `/demo` and in `GET /api/trips/2`, not in the app,
+  and `MISSED` events have no API yet.
+- A delayed flight's own card still says "On track"; only the bookings after it change colour.
+- Every delay press adds to the last one (two presses of +90 = +180 minutes). A shorter delay doesn't move bookings
+  back earlier. A cancelled first flight doesn't record a `MISSED` event for the connecting flight.
+- **Home** ("Do this now") is a placeholder until Phase 3. A Home mock-up with fixed sample text exists on Yash's
+  laptop but is not committed: it needs real trip data first, otherwise it contradicts the Trip tab during the demo
+  (it also makes `MainActivityTest` fail).
 
 ---
 
@@ -26,7 +69,7 @@ The full project brief (rules, stack, phases) is in [CLAUDE.md](CLAUDE.md). Deta
    `docker compose ps` shows `(healthy)`. It keeps running in the background (stop it with `docker compose down`).
 5. **Run the backend:** `cd backend`, then `./mvnw spring-boot:run` (Windows: `.\mvnw.cmd spring-boot:run`).
    The first run downloads Maven and libraries, so give it a few minutes. On its first start it also creates the
-   database tables and loads the two demo trips. It's ready when the log shows `Safar Saathi backend is ready` and a
+   database tables and loads the two demo trips. It's ready when the log shows `OnBoard backend is ready` and a
    MOCK/REAL table. It stopped with "Connection ... refused"? See [Troubleshooting](#troubleshooting).
 6. **Check it:** open <http://localhost:8080/api/health>. You should see `"status":"UP"` and every provider `MOCK`
    except `weather` (a service whose key you added in step 3 shows `REAL`).
@@ -50,11 +93,13 @@ bookings moved by themselves and which one needs the traveller's decision. It ke
 1. **Database:** Docker Desktop running, then `docker compose up -d` in the repo root. Wait until `docker compose ps`
    shows `(healthy)`. The backend can't start without it.
 2. **Backend:** `cd backend`, then `./mvnw spring-boot:run` (Windows: `.\mvnw.cmd spring-boot:run`), and wait for
-   `Safar Saathi backend is ready`. On an empty database it first loads the two demo trips from
+   `OnBoard backend is ready`. On an empty database it first loads the two demo trips from
    [mock-data/demo-trips.json](mock-data/demo-trips.json). Check <http://localhost:8080/api/trips/1>: trip 1, "Client
    visit: Mumbai to Bengaluru", with 6 blocks, dated tomorrow.
-3. **App:** run it on the emulator and open the **Trip** tab: flight 08:00 → bags → cab 10:05 → client meeting 12:00
-   (the star marks the anchor, the one block the traveller must not miss) → hotel 14:00 → dinner 20:00. All green.
+3. **App:** run it on the emulator. On Android 17 (API 37) it first asks "Allow Safar Saathi to find, connect to, and
+   determine the relative position of nearby devices?": tap **Allow**, or it can't reach the backend on your laptop
+   (see [Troubleshooting](#troubleshooting)). Open the **Trip** tab: flight 08:00 → bags → cab 10:05 → client meeting
+   12:00 (the star marks the anchor, the one block the traveller must not miss) → hotel 14:00 → dinner 20:00. All green.
 4. **Demo page:** on the laptop, open <http://localhost:8080/demo>. It shows trip 1 as a live timeline, and its
    "Booking to disrupt" list starts on the flight.
 5. **Delay:** press **Delay +90 min**. Within about 10 seconds (the Trip tab asks the backend every 10 seconds; pull
@@ -211,6 +256,18 @@ Now `localhost:8080` on the phone leads to the laptop, so set `BACKEND_BASE_URL=
 college Wi-Fi often blocks it, and it needs a network-settings change you must not commit.
 `android/local.properties.example` has both ways step by step, including where to find `adb`.
 
+**A phone on Wi-Fi or another laptop can't reach the backend, but the emulator can.**
+The backend listens on this computer only (`127.0.0.1`), so nobody else on the network can press the demo buttons.
+The emulator (`10.0.2.2`) and a USB phone (`adb reverse`) still work. If you really need Wi-Fi, put
+`SERVER_ADDRESS=0.0.0.0` in `.env` and restart the backend. Everyone on that Wi-Fi can then press the demo buttons,
+so switch it back afterwards ([backend/README.md](backend/README.md) explains the settings).
+
+**The Trip tab says "could not be reached", but <http://localhost:8080/api/health> works on the laptop.**
+Android 17 (API 37) blocks an app's connections to the local network (your laptop, `10.0.2.2`, `192.168.x.x`) until
+the user allows it, and the requests just time out. Debug builds ask once, on the first start: tap **Allow**. Tapped
+"Don't allow"? Open **Settings → Apps → Safar Saathi → Permissions → Nearby devices → Allow**, or run
+`adb shell pm grant com.safarsaathi.app android.permission.ACCESS_LOCAL_NETWORK`.
+
 **Backend stops at startup with "Connection to localhost:5432 refused".**
 The database isn't running, and from Phase 1 the backend needs it. Start Docker Desktop, run `docker compose up -d` in
 the repo root, wait until `docker compose ps` shows `(healthy)`, then start the backend again.
@@ -258,8 +315,9 @@ an empty database, and the next backend start loads the demo trips into it.
 
 **I pressed "Delay +90 min", but the phone doesn't change.**
 First look at "What just happened" on the `/demo` page: it shows the answer to each button press. An error there
-means the backend refused the request; for example "Error 409" after **Cancel it**, because a cancelled flight can't
-be delayed. Press **Reset demo** and try again. If the press worked, check the phone: the Trip tab must be open (it
+means the backend refused the request; for example "Error 409" after **Cancel booking**, because a cancelled flight
+can't be delayed. "Error 404" on every button means the backend runs with `APP_MODE=prod`, which switches the demo
+buttons off: start it with the default `APP_MODE=demo`. Press **Reset demo** and try again. If the press worked, check the phone: the Trip tab must be open (it
 asks the backend every 10 seconds, only while it's on screen), and the line under the trip title must not say
 "Offline" or "Could not update". If it does, the app can't reach the backend: see "The app can't reach the backend"
 above. To ask at once instead of waiting, pull the timeline down.
@@ -273,6 +331,8 @@ alive to speed up the next build. `./gradlew --stop` frees that memory.
 ## Learn more
 
 - [CLAUDE.md](CLAUDE.md): the full brief (rules, stack, data model, engines, phases, definition of done).
+- [backend/README.md](backend/README.md): backend settings for local vs hosted, the reset before every demo, notes
+  for testers.
 - [docs/architecture.md](docs/architecture.md): how the pieces fit, with diagrams.
 - [docs/api.md](docs/api.md): every backend endpoint and its status.
 - [docs/demo-script.md](docs/demo-script.md): tonight's 3-minute demo script, plus the draft of the full demo.
