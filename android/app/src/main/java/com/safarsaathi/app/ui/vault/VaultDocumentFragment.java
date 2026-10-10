@@ -106,6 +106,8 @@ public class VaultDocumentFragment extends VaultScreen {
                 : R.string.vault_doc_unconfirmed);
 
         binding.docFields.removeAllViews();
+        addField(R.string.vault_edit_place, document.placeName);
+        addField(R.string.vault_edit_address, document.address);
         addField(R.string.vault_doc_holder, document.holderName);
         if (document.numberEncrypted != null) {
             ItemVaultFieldBinding number = addField(R.string.vault_doc_number, "");

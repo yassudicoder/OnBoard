@@ -71,6 +71,15 @@ public final class Vault {
     }
 
     /**
+     * The ONE way for other parts of the app (Ask OnBoard, Ride hand-off) to know about the vault's documents:
+     * read-only, never numbers / MRZ / images / file paths / full names / birth dates, and only hotel name + address
+     * while locked. See {@link VaultSummaryReader}.
+     */
+    public VaultSummaryReader summaryReader() {
+        return new VaultSummaryReader(this, vaultExecutor, mainExecutor, clock);
+    }
+
+    /**
      * The vault's data, opening it the first time. Opening unwraps the database key with the Keystore (a few
      * milliseconds; the very first time Android also creates the master key). The database file itself is only
      * read later, on a background thread, by the first query.

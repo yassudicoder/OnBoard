@@ -159,10 +159,13 @@ public final class SampleVault {
         // Covers only 12-14 Nov, though the stay lasts until 18 Nov (the demo's deliberate gap).
         TravelDocumentEntity hotel = document(traveller.id, DocType.HOTEL, "Hotel booking, Kinshasa", now);
         hotel.bookingRef = "HTL-0001";
+        hotel.placeName = "SAMPLE Hotel Kinshasa";
+        hotel.address = "1 Sample Avenue, Kinshasa (made-up address)";
         hotel.validFrom = ONWARD;
         hotel.validTo = LocalDate.of(2026, 11, 14);
         add(content, hotel, null, LEG_STAY,
-                "Type: Hotel booking", "Guest: " + HOLDER, "Hotel: SAMPLE Hotel, Kinshasa",
+                "Type: Hotel booking", "Guest: " + HOLDER, "Hotel: SAMPLE Hotel Kinshasa",
+                "Address: 1 Sample Avenue, Kinshasa (made-up)",
                 "Check-in: 12 Nov 2026", "Check-out: 14 Nov 2026", "Confirmation: HTL-0001");
 
         TravelDocumentEntity ticketHome = ticket(traveller.id, "Return ticket Kinshasa → Delhi", "ZZ 306", "SMPL03",

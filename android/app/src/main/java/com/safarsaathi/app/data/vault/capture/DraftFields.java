@@ -14,7 +14,7 @@ public final class DraftFields {
 
     public enum Field {
         HOLDER, NUMBER, ISSUING_COUNTRY, ISSUE_DATE, EXPIRY_DATE, VALID_FROM, VALID_TO, COVERS_COUNTRIES, ENTRIES,
-        FLIGHT, BOOKING_REF
+        FLIGHT, BOOKING_REF, PLACE_NAME, ADDRESS
     }
 
     private DraftFields() {
@@ -39,7 +39,8 @@ public final class DraftFields {
             case BOARDING_PASS:
                 return EnumSet.of(Field.HOLDER, Field.FLIGHT, Field.VALID_FROM, Field.BOOKING_REF);
             case HOTEL:
-                return EnumSet.of(Field.HOLDER, Field.VALID_FROM, Field.VALID_TO, Field.BOOKING_REF);
+                return EnumSet.of(Field.HOLDER, Field.PLACE_NAME, Field.ADDRESS, Field.VALID_FROM, Field.VALID_TO,
+                        Field.BOOKING_REF);
             case INSURANCE:
                 return EnumSet.of(Field.HOLDER, Field.NUMBER, Field.VALID_FROM, Field.VALID_TO);
             case VACCINATION_CERT:
@@ -93,6 +94,12 @@ public final class DraftFields {
         }
         if (!shown.contains(Field.BOOKING_REF)) {
             draft.bookingRef = null;
+        }
+        if (!shown.contains(Field.PLACE_NAME)) {
+            draft.placeName = null;
+        }
+        if (!shown.contains(Field.ADDRESS)) {
+            draft.address = null;
         }
     }
 }

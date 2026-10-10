@@ -450,6 +450,8 @@
     <string name="vault_open_without_lock">Open without a lock this time</string>
     <!-- %1$s = the reason Android gives, e.g. "Too many attempts. Try again later." -->
     <string name="vault_unlock_failed">Could not unlock: %1$s</string>
+    <!-- Another screen (e.g. Ask OnBoard) asks to unlock the vault before showing vault details. -->
+    <string name="vault_unlock_for_other_screen">Unlock your vault to see this</string>
     <string name="vault_unavailable_title">This vault can\'t be opened on this phone</string>
     <string name="vault_unavailable_body">Its key is missing, for example after the phone\'s security storage was reset. The encrypted documents cannot be read without it. You can delete the vault and start again.</string>
     <string name="vault_delete_and_restart">Delete vault and start again</string>
@@ -642,6 +644,8 @@
     <string name="vault_entries_double">Double entry</string>
     <string name="vault_entries_multiple">Multiple entries</string>
     <string name="vault_entries_unknown">Not shown on the document</string>
+    <string name="vault_edit_place">Hotel name</string>
+    <string name="vault_edit_address">Address as on the booking</string>
     <string name="vault_edit_flight">Flight number</string>
     <string name="vault_edit_booking">Booking reference</string>
     <string name="vault_edit_leg">Part of the trip</string>

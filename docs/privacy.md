@@ -30,7 +30,7 @@ after each point.
 |---|---|---|---|
 | Traveller: name, nationality, date of birth | To match documents to a person; name checks *(V4)* | Vault database | Whole database encrypted |
 | Trip folders: title, dates, legs (e.g. "Kigali transit"), countries and their role | To group documents and run the pre-departure checks *(V4)* | Vault database | Whole database encrypted |
-| Document details: type, name on document, issuing country, dates, flight number, booking reference | To show key details above the image and run checks | Vault database | Whole database encrypted |
+| Document details: type, name on document, issuing country, dates, flight number, booking reference; for hotels the hotel's name and address | To show key details above the image, run checks, and (hotel address) plan a ride there | Vault database | Whole database encrypted |
 | **Document number** (passport, visa, policy, ...) | To show it to an official | Vault database | Encrypted **a second time** with the Keystore key, and shown masked (`••••••01`) |
 | Pages: scans, photos, PDFs | To show the document offline | `files/` folder | Each file has its **own** key; SHA-256 fingerprint stored |
 | Settings: lock on/off, auto-lock minutes, screenshot blocking | Your choices | App settings | None needed (no personal data) |
@@ -88,6 +88,24 @@ no_backup/vault/
 - The number field tells the keyboard not to learn or suggest what is typed (`textNoSuggestions`).
 - **Limit:** Google's scanner screen belongs to Play services, so the vault's screenshot blocking does not cover
   that one screen. Every vault screen of our own (camera, crop, confirm) is covered.
+
+---
+
+## 3c. What other parts of OnBoard may read (decided 2026-10-11)
+
+Two other features may read a **summary** of the vault, through one read-only window (`VaultSummaryReader`), and
+nothing else:
+
+| Who | May read | Where it goes |
+|---|---|---|
+| Ask OnBoard | per document: kind, holder's **first** name, expiry date, covered dates and countries, a status word, SAMPLE flag; hotel name and address | Answers made **on the phone** only; never sent to a cloud model or our server |
+| Ride hand-off | the hotel's name and address | Used on the phone to open the ride app with that address |
+
+- Never readable by them: document numbers, the machine-readable lines, page images, file names or paths, full
+  names, dates of birth. The summary does not even have fields for them (checked by a unit test).
+- **While the vault is locked**, only the hotel's name and address can be read (so a ride to the hotel can be planned
+  without unlocking). Everything else needs the vault unlocked, with the same fingerprint / face / PIN prompt.
+- Nothing from the vault is sent to our backend.
 
 ---
 

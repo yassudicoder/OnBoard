@@ -276,6 +276,8 @@ public class VaultRepository {
         document.entries = draft.entries;
         document.flightNo = blankToNull(draft.flightNo);
         document.bookingRef = blankToNull(draft.bookingRef);
+        document.placeName = blankToNull(draft.placeName);
+        document.address = blankToNull(draft.address);
         document.source = draft.source;
         // Read automatically or typed in, the traveller has looked at every field on the confirm screen.
         document.fieldsConfirmed = true;
@@ -419,6 +421,40 @@ public class VaultRepository {
             report.add(file.id, file.documentId, file.sizeBytes, files.check(file.id, file.wrappedKey, file.sha256));
         }
         return report;
+    }
+
+    /**
+     * Facts for {@link VaultSummaries} about every document of a trip: the document, its traveller's name and how many
+     * of its encrypted pages are missing on the phone. Nothing is decrypted. Background threads only
+     * (VaultSummaryReader).
+     */
+    List<VaultSummaries.DocumentFacts> summaryFactsNow(String tripId) {
+        List<VaultSummaries.DocumentFacts> facts = new ArrayList<>();
+        for (TripDocumentRow row : dao.tripDocuments(tripId)) {
+            TravellerEntity traveller = row.document.travellerId == null ? null
+                    : dao.traveller(row.document.travellerId);
+            List<VaultFileEntity> pages = dao.filesOf(row.document.id);
+            int missing = 0;
+            for (VaultFileEntity page : pages) {
+                if (!files.fileFor(page.id).isFile()) {
+                    missing++;
+                }
+            }
+            facts.add(new VaultSummaries.DocumentFacts(row.document, traveller == null ? null : traveller.name,
+                    pages.size(), missing));
+        }
+        return facts;
+    }
+
+    /** The trip row (background threads only). */
+    @Nullable
+    TripVaultEntity tripNow(String tripId) {
+        return dao.trip(tripId);
+    }
+
+    /** All trip rows (background threads only). */
+    List<TripVaultEntity> tripsNow() {
+        return dao.trips();
     }
 
     /** The database calls, for instrumented tests that check what was stored. Never used by app code. */

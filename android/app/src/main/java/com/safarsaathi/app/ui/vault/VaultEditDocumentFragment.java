@@ -262,6 +262,8 @@ public class VaultEditDocumentFragment extends VaultScreen {
         }
         binding.editFlight.setText(draft.flightNo);
         binding.editBooking.setText(draft.bookingRef);
+        binding.editPlace.setText(draft.placeName);
+        binding.editAddress.setText(draft.address);
         if (draft.title == null && draft.type != null) {
             autoTitle = defaultTitle(draft.type);
             binding.editTitle.setText(autoTitle);
@@ -335,6 +337,8 @@ public class VaultEditDocumentFragment extends VaultScreen {
         show(binding.editEntriesLayout, shown.contains(DraftFields.Field.ENTRIES));
         show(binding.editFlightLayout, shown.contains(DraftFields.Field.FLIGHT));
         show(binding.editBookingLayout, shown.contains(DraftFields.Field.BOOKING_REF));
+        show(binding.editPlaceLayout, shown.contains(DraftFields.Field.PLACE_NAME));
+        show(binding.editAddressLayout, shown.contains(DraftFields.Field.ADDRESS));
         if (type == null) {
             return;
         }
@@ -451,6 +455,8 @@ public class VaultEditDocumentFragment extends VaultScreen {
         draft.flightNo = emptyToNull(text(binding.editFlight.getText()).toUpperCase(Locale.ROOT));
         draft.bookingRef = emptyToNull(text(binding.editBooking.getText()).toUpperCase(Locale.ROOT));
         draft.coversCountries = emptyToNull(text(binding.editCovers.getText()));
+        draft.placeName = emptyToNull(text(binding.editPlace.getText()));
+        draft.address = emptyToNull(text(binding.editAddress.getText()));
         draft.entries = chosenEntries();
 
         boolean formOk = true;

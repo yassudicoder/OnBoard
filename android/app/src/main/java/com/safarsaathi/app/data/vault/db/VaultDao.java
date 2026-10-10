@@ -75,6 +75,19 @@ public interface VaultDao {
     @Query("SELECT * FROM documents WHERE id = :documentId")
     TravelDocumentEntity document(String documentId);
 
+    @Query("SELECT d.*, l.legId AS legId FROM trip_document_links l JOIN documents d ON d.id = l.documentId"
+            + " WHERE l.tripId = :tripId")
+    List<TripDocumentRow> tripDocuments(String tripId);
+
+    @Query("SELECT * FROM trips WHERE id = :tripId")
+    TripVaultEntity trip(String tripId);
+
+    @Query("SELECT * FROM trips")
+    List<TripVaultEntity> trips();
+
+    @Query("SELECT * FROM travellers WHERE id = :travellerId")
+    TravellerEntity traveller(String travellerId);
+
     @Query("SELECT COUNT(*) FROM trip_document_links WHERE tripId = :tripId AND documentId = :documentId")
     int linkCount(String tripId, String documentId);
 
