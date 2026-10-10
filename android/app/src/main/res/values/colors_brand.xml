@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- OnBoard brand colours from the team's Figma design ("Tea" file, screens "Loading 1-3").
+         Kept in their own file (not colors.xml) so the feature branches that add colours there merge cleanly.
+         The Material theme colours that every screen uses are in colors.xml / values-night/colors.xml. -->
+
+    <!-- Launch screen and app icon background (dark navy). -->
+    <color name="brand_navy">#010F23</color>
+    <!-- Logo orange: the "A" mark and the logo badge. On the navy background: contrast 4.1:1. -->
+    <color name="brand_logo_orange">#C84D17</color>
+</resources>

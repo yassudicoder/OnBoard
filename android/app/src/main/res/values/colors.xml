@@ -1,30 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Safar Saathi colours: Material 3 colour scheme, LIGHT mode.
-         Generated with Google's material-color-utilities (the engine behind Material Theme Builder) from
-         an aviation-blue seed (#1565C0) with a saffron accent (#FF9933) as the "tertiary" colour.
+    <!-- OnBoard colours: Material 3 colour scheme, LIGHT mode, matching the team's Figma design ("Tea" file).
+         Generated with Google's material-color-utilities 0.3.0 (the engine behind Material Theme Builder):
+         primary = the design's blue #1B4DFF, tertiary = its alert orange #FF5A1F, greys tinted with its navy
+         ink #0B1626. Then three values were set to the design's exact colours: screen background #F5F4EF
+         (warm paper), text #0B1626 (navy ink) and white cards (surfaceContainerLow). Contrast: text on the
+         background 16.5:1, white on the blue 5.9:1 (both pass WCAG AA). Brand-only colours (logo orange,
+         splash navy) are in colors_brand.xml.
          values-night/colors.xml has the SAME names with dark-mode values, and Android picks the right
          file automatically. values/themes.xml connects these colours to the theme.
          "on..." colours are for text/icons drawn ON TOP of the colour with the same name. -->
 
     <!-- Primary: main brand colour (buttons, active states) -->
-    <color name="md_theme_primary">#285EA7</color>
+    <color name="md_theme_primary">#1B4DFF</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
-    <color name="md_theme_primaryContainer">#D6E3FF</color>
-    <color name="md_theme_onPrimaryContainer">#00468C</color>
-    <color name="md_theme_inversePrimary">#A9C7FF</color>
+    <color name="md_theme_primaryContainer">#DEE1FF</color>
+    <color name="md_theme_onPrimaryContainer">#0032C3</color>
+    <color name="md_theme_inversePrimary">#B9C3FF</color>
 
     <!-- Secondary: calmer companion colour (e.g. the selected bottom-bar pill) -->
-    <color name="md_theme_secondary">#555F71</color>
+    <color name="md_theme_secondary">#5A5D72</color>
     <color name="md_theme_onSecondary">#FFFFFF</color>
-    <color name="md_theme_secondaryContainer">#DAE2F9</color>
-    <color name="md_theme_onSecondaryContainer">#3E4758</color>
+    <color name="md_theme_secondaryContainer">#DFE1F9</color>
+    <color name="md_theme_onSecondaryContainer">#434659</color>
 
     <!-- Tertiary: saffron accent -->
-    <color name="md_theme_tertiary">#8B5012</color>
+    <color name="md_theme_tertiary">#AE3200</color>
     <color name="md_theme_onTertiary">#FFFFFF</color>
-    <color name="md_theme_tertiaryContainer">#FFDCC2</color>
-    <color name="md_theme_onTertiaryContainer">#6D3A00</color>
+    <color name="md_theme_tertiaryContainer">#FFDBD0</color>
+    <color name="md_theme_onTertiaryContainer">#852400</color>
 
     <!-- Error -->
     <color name="md_theme_error">#BA1A1A</color>
@@ -33,21 +37,21 @@
     <color name="md_theme_onErrorContainer">#93000A</color>
 
     <!-- Backgrounds and surfaces (screens, bars, cards) -->
-    <color name="md_theme_background">#FAF9FD</color>
-    <color name="md_theme_onBackground">#1A1B1E</color>
-    <color name="md_theme_surface">#FAF9FD</color>
-    <color name="md_theme_onSurface">#1A1B1E</color>
+    <color name="md_theme_background">#F5F4EF</color>
+    <color name="md_theme_onBackground">#0B1626</color>
+    <color name="md_theme_surface">#F5F4EF</color>
+    <color name="md_theme_onSurface">#0B1626</color>
     <color name="md_theme_surfaceVariant">#E0E2EC</color>
     <color name="md_theme_onSurfaceVariant">#44474E</color>
-    <color name="md_theme_inverseSurface">#2F3033</color>
+    <color name="md_theme_inverseSurface">#0B1626</color>
     <color name="md_theme_inverseOnSurface">#F1F0F4</color>
-    <color name="md_theme_surfaceDim">#DAD9DD</color>
-    <color name="md_theme_surfaceBright">#FAF9FD</color>
+    <color name="md_theme_surfaceDim">#DBDAD5</color>
+    <color name="md_theme_surfaceBright">#FBFAF7</color>
     <color name="md_theme_surfaceContainerLowest">#FFFFFF</color>
-    <color name="md_theme_surfaceContainerLow">#F4F3F7</color>
-    <color name="md_theme_surfaceContainer">#EFEDF1</color>
-    <color name="md_theme_surfaceContainerHigh">#E9E7EC</color>
-    <color name="md_theme_surfaceContainerHighest">#E3E2E6</color>
+    <color name="md_theme_surfaceContainerLow">#FFFFFF</color>
+    <color name="md_theme_surfaceContainer">#FBFAF7</color>
+    <color name="md_theme_surfaceContainerHigh">#EFEEE9</color>
+    <color name="md_theme_surfaceContainerHighest">#E9E8E3</color>
 
     <!-- Outlines and dividers -->
     <color name="md_theme_outline">#74777F</color>
@@ -66,6 +70,6 @@
     <color name="status_done_container">#E3E2E6</color>
     <color name="status_done_on_container">#303033</color>
 
-    <!-- App icon background (same in light and dark mode, so it is only defined here). -->
-    <color name="ic_launcher_background">#285EA7</color>
+    <!-- App icon background: the splash navy from the design (same in light and dark mode, so only here). -->
+    <color name="ic_launcher_background">@color/brand_navy</color>
 </resources>

@@ -196,6 +196,12 @@ live safety scoring (a country pack's official advisory link at most).
   Gson · WorkManager · FCM · MapLibre Native · CameraX + ML Kit barcode scanning (bag tag ITF, QR anchors, boarding passes) ·
   sensors (step detector, rotation vector) · TextToSpeech · `java.security.MessageDigest` (SHA-256).
 - Localization: `values/` + `values-hi/`, `values-mr/` now; `values-ta/`, `values-bn/` later. Instruction templates localised too.
+- **Look & brand (2026-10-11, from the team's Figma file "Tea"):** colours are VALUES of the existing `md_theme_*` names
+  (blue #1B4DFF, warm background #F5F4EF, navy ink #0B1626, orange tertiary; white cards); screens use `?attr/` theme
+  colours, never hex codes. App icon = the "A" plane mark, redrawn as vector paths (`ic_launcher_foreground.xml`).
+  Android 12+ launch screen = `Theme.SafarSaathi.Splash` on MainActivity (`values-v31/themes_splash.xml`, no library).
+  The logo badge (`drawable-xxxhdpi/splash_branding.png`) is a capture of the Figma canvas: replace it with the
+  designer's PNG/SVG export when we get edit access. The full Figma redesign (41 screens, 4 tabs) is NOT adopted.
 
 ### Backend — `/backend`
 - **Spring Boot 3**, Maven wrapper, packages under `com.safarsaathi.backend`. PostgreSQL via Spring Data JPA + **Flyway**; local
