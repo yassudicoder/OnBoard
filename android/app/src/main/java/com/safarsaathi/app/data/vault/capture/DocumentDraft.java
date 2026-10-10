@@ -60,6 +60,11 @@ public final class DocumentDraft {
     public String flightNo;
     @Nullable
     public String bookingRef;
+    /** Hotel bookings: the hotel's name and address. */
+    @Nullable
+    public String placeName;
+    @Nullable
+    public String address;
     public DocSource source = DocSource.MANUAL;
 
     /** Helps the screen suggest a title: a country code ("IN") or a route ("DEL → KGL"). */

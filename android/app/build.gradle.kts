@@ -122,6 +122,14 @@ android {
         }
     }
 
+    // Room's exported schemas (app/schemas) as test assets: the Document Vault's migration test builds the OLD
+    // database version from them (VaultMigrationTest).
+    sourceSets {
+        getByName("androidTest") {
+            assets.srcDir("$projectDir/schemas")
+        }
+    }
+
     buildFeatures {
         // AGP 9 switches BuildConfig off by default; we need it for BACKEND_BASE_URL and HAS_MAPS_KEY.
         buildConfig = true

@@ -2,6 +2,7 @@ package com.safarsaathi.app.data.vault.db;
 
 import android.content.Context;
 
+import androidx.room.AutoMigration;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -22,15 +23,17 @@ import java.io.File;
  * <p>The key comes from {@link DatabaseKey} (32 random bytes, kept wrapped by the Keystore master key). The file
  * lives in {@code no_backup/vault/vault.db}, which Android never copies into cloud backups.
  *
- * <p>Version 1 = V1 tables. Everything in here exists ONLY on the phone, so every future version needs a
- * migration ({@code @AutoMigration}, schemas in app/schemas/); there is deliberately no destructive fallback.
+ * <p>Version 1 = V1 tables. Version 2 = documents.placeName + documents.address (a hotel's name and address).
+ * Everything in here exists ONLY on the phone, so every version change needs a migration ({@code @AutoMigration}
+ * from the schemas in app/schemas/, checked by VaultMigrationTest); there is deliberately no destructive fallback.
  */
 @Database(
         entities = {TravellerEntity.class, TripVaultEntity.class, TripTravellerEntity.class, TripLegEntity.class,
                 TripCountryEntity.class, TravelDocumentEntity.class, VaultFileEntity.class,
                 TripDocumentLinkEntity.class},
-        version = 1,
-        exportSchema = true)
+        version = 2,
+        exportSchema = true,
+        autoMigrations = {@AutoMigration(from = 1, to = 2)})
 @TypeConverters({TimeConverters.class, VaultConverters.class})
 public abstract class VaultDatabase extends RoomDatabase {
 

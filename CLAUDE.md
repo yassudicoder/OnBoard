@@ -214,6 +214,22 @@ live safety scoring (a country pack's official advisory link at most).
   behind a `RequirementProvider` interface; the demo uses the JSON pack provider.
 - **Privacy:** India's DPDP Act 2023 basics (minimum data, clear consent, full delete) in `docs/privacy.md`. Backup (V6) is off
   by default, encrypted on the phone before upload, server stores ciphertext only, restore needs a recovery phrase.
+- **Read-only API for other features (`VaultSummaryReader`, decided 2026-10-11):** the ONLY way Ask OnBoard and the
+  Ride hand-off may learn about vault documents. `ServiceLocator.get().getVault().summaryReader()` →
+  - `List<DocumentSummary> getSummaries(String tripId)` (background thread; or the overload with a main-thread
+    `VaultRepository.Callback`); `TripRef currentTrip()` (dates cover today, else next, else most recent; title null
+    while locked); `boolean isUnlocked()`.
+  - `DocumentSummary`: `documentId` (opaque), `type`, `holderFirstName`, `expiryDate`, `coveredFrom`/`coveredTo`,
+    `coveredCountries` (ISO2), `status` (`SummaryStatus`: MISSING / EXPIRED / MISMATCH / EXPIRES_SOON (printed expiry within 90 days) /
+    NOT_OFFLINE_YET / READY, worst first), `sample`, and for HOTEL only `hotelName` + `hotelAddress`.
+  - **Never** returned: document numbers, MRZ lines, images, file paths or ids, full names, dates of birth (not even
+    fields of the class; `VaultSummariesTest` checks fields and values).
+  - **Locked vault:** only HOTEL bookings, with only `hotelName`, `hotelAddress` and `sample` (`lockedView` = true).
+    Everything else needs unlocking: `ui.vault.VaultUnlockPrompt.attach(fragment, onUnlocked)` in onViewCreated, then
+    `.show()` on the traveller's tap (one BiometricPrompt per screen).
+  - **Callers allowed:** Ask OnBoard (on-device answers only, never sent to a cloud model) and Ride (hotel address only,
+    used on the phone). Nothing from the reader goes to the backend or any server. MISSING means a saved file is gone
+    from the phone, NOT "a required document is not saved" (requirements need sourced packs, V4).
 - **Open question for the team:** the older Wallet (Profile > More; boarding passes, Aadhaar last-4, PAN, visas) is NOT
   encrypted. Folding it into the vault is not decided yet.
 
@@ -406,7 +422,7 @@ Traveller        id, name, nationality(ISO2), dateOfBirth, sample
 TripVault        id, title, startDate, endDate, offlineReadyAt, sizeBytes, sample   (+ trip_travellers)
 TripLeg          id, tripId, position, kind(FLIGHT|TRANSIT|STAY), title, fromCode, toCode, countryIso2, startDate, endDate
 TripCountry      tripId, iso2, role(ORIGIN|TRANSIT|DESTINATION), fromDate, toDate
-TravelDocument   id, travellerId, type(PASSPORT|ID_CARD|VISA|E_VISA|TRANSIT_VISA|ENTRY_FORM|TICKET|BOARDING_PASS|HOTEL|
+TravelDocument   id, travellerId, placeName + address (HOTEL, v2), type(PASSPORT|ID_CARD|VISA|E_VISA|TRANSIT_VISA|ENTRY_FORM|TICKET|BOARDING_PASS|HOTEL|
                  INSURANCE|VACCINATION_CERT|OTHER), title, holderName, numberEncrypted, issuingCountry, issueDate, expiryDate,
                  validFrom, validTo (tickets: the flight day), coversCountries, entries, flightNo, bookingRef,
                  source(SCAN|PDF|MANUAL|IMPORT), fieldsConfirmed, sample
@@ -600,8 +616,10 @@ Exact Android library versions live in `android/gradle/libs.versions.toml`; back
 - **Vault V2 (adding documents):** pure-Java parts in `data/vault/capture/` (MRZ per ICAO 9303 with check digits,
   `DraftReader`, `DocumentDraft`, `DraftFields`, `CropMath`, `CountryCodes` from the JDK/Android ISO list). The add flow
   shares one `CaptureViewModel` scoped to `vault_graph` (pages in memory only). Google's scanner temp JPEGs are deleted
-  right after reading. Other sessions (Ask OnBoard, Ride) must NOT read vault data until the user decides that (open
-  question). Pure-Java vault tests can be run without the full app build (other sessions may have it mid-change).
+  right after reading. Other features read the vault ONLY through `VaultSummaryReader` (see 3C), never the DAO, the
+  repository or the files. Vault database version 2 = hotel `placeName` + `address` (`@AutoMigration`; `VaultMigrationTest`
+  builds a real v1 SQLCipher file from app/schemas/.../1.json, added as androidTest assets, and opens it with the app's
+  own `VaultDatabase.open`).
 - Backend reads keys from env vars (and a git-ignored root `.env` for local dev). Empty key = MOCK. Tests set providers explicitly.
 - Backend binds to `127.0.0.1` by default (`SERVER_ADDRESS`); demo controls exist only with `APP_MODE=demo` (see backend/README.md).
 

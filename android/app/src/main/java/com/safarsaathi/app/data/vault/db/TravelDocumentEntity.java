@@ -86,6 +86,16 @@ public class TravelDocumentEntity {
     @Nullable
     public String bookingRef;
 
+    /**
+     * Hotel bookings: the hotel's name and its address, as printed on the booking (added in database version 2).
+     * The Ride hand-off may read these two through VaultSummaryReader, even while the vault is locked.
+     */
+    @Nullable
+    public String placeName;
+
+    @Nullable
+    public String address;
+
     @NonNull
     public DocSource source = DocSource.MANUAL;
 

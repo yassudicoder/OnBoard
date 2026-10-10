@@ -3,7 +3,6 @@ package com.safarsaathi.app.ui.vault;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,7 +16,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -215,7 +213,7 @@ public abstract class VaultScreen extends Fragment {
                 .setTitle(getString(title))
                 .setSubtitle(getString(R.string.vault_prompt_subtitle))
                 // With DEVICE_CREDENTIAL allowed, Android shows "Use PIN" itself; a cancel button is not allowed.
-                .setAllowedAuthenticators(authenticators())
+                .setAllowedAuthenticators(VaultAuth.authenticators())
                 .build());
     }
 
@@ -261,20 +259,9 @@ public abstract class VaultScreen extends Fragment {
                 // onAuthenticationFailed (a finger that did not match) needs nothing: the prompt stays open.
             };
 
-    /**
-     * Which proofs the vault accepts: a strong biometric or the phone's PIN/pattern/password. Android 9 and 10 do not
-     * support "strong biometric OR PIN" in one prompt, so there it is "any biometric OR PIN" (androidx.biometric docs).
-     */
-    private static int authenticators() {
-        int biometric = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                ? BiometricManager.Authenticators.BIOMETRIC_STRONG
-                : BiometricManager.Authenticators.BIOMETRIC_WEAK;
-        return biometric | BiometricManager.Authenticators.DEVICE_CREDENTIAL;
-    }
-
     /** True when the phone has a screen lock (PIN, pattern, password or biometric) the prompt can ask for. */
     static boolean phoneHasLock(Context context) {
-        return BiometricManager.from(context).canAuthenticate(authenticators()) == BiometricManager.BIOMETRIC_SUCCESS;
+        return VaultAuth.phoneHasLock(context);
     }
 
     private void openSecuritySettings() {
