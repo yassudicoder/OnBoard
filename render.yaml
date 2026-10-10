@@ -1,0 +1,54 @@
+# Render Blueprint: the OnBoard backend + its PostgreSQL database, both on Render's free plan.
+#
+# One-time setup (needs a Render account; sign in with GitHub):
+#   Render dashboard -> New -> Blueprint -> pick this GitHub repo and branch -> Apply.
+#   Render builds the Dockerfile in the repo root and starts the database first.
+# Free plan limits: the web service sleeps after 15 min without requests (the next request wakes it, ~1 min), and
+# the free database expires 30 days after it is created.
+#
+# The backend runs with APP_MODE=prod: a public address must not offer the demo buttons (POST /api/demo/... answers
+# 404), see backend/README.md. Delay / cancel demos run against the backend on the demo laptop.
+
+services:
+  - type: web
+    name: onboard-backend
+    runtime: docker
+    plan: free
+    # Closest Render region to India.
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_MODE
+        value: prod
+      # The database address, piece by piece; application.yml builds the JDBC URL from them.
+      - key: DB_HOST
+        fromDatabase:
+          name: onboard-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: onboard-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: onboard-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: onboard-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: onboard-db
+          property: password
+
+databases:
+  - name: onboard-db
+    plan: free
+    region: singapore
+    databaseName: safarsaathi
+    user: safarsaathi
+    # Same major version as docker-compose.yml and Supabase.
+    postgresMajorVersion: "17"

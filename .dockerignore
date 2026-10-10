@@ -1,0 +1,11 @@
+# Only backend/, recovery-core/, routing-core/ and mock-data/ go into the Docker build (see Dockerfile).
+# Everything else stays out: smaller, faster uploads, and no local secrets in the image.
+*
+!backend/pom.xml
+!backend/src/
+!recovery-core/
+!routing-core/
+!mock-data/
+**/target/
+**/build/
+**/.env

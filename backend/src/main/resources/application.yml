@@ -33,8 +33,9 @@ spring:
     #   Local Docker database (the default): nothing to set.
     #   Supabase: DB_URL = the full JDBC URL ending in ?sslmode=require, plus DB_USERNAME and DB_PASSWORD
     #   (.env.example shows how). DB_NAME only names the local database, inside the default URL.
+    #   Render (render.yaml): gives the address in pieces, DB_HOST + DB_PORT + DB_NAME, used in the default URL.
     # There is no driver setting: Spring Boot picks the PostgreSQL driver from the "jdbc:postgresql:" URL.
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/${DB_NAME:safarsaathi}}
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:safarsaathi}}
     username: ${DB_USERNAME:safarsaathi}
     password: ${DB_PASSWORD:safarsaathi}
 
