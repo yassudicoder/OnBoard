@@ -30,11 +30,12 @@ local.properties
 google-services.json
 
 # Server-side Google / Firebase credential files = real secrets. Keep them OUTSIDE the
-# repo; these patterns are a safety net in case one lands here by mistake.
-service-account*.json
+# repo; these patterns are a safety net in case one lands here by mistake (any name that
+# contains "credentials" or "service-account", e.g. firebase-credentials.json).
+*service-account*.json
 *firebase-adminsdk*.json
 client_secret*.json
-**/credentials*.json
+*credentials*.json
 
 # Google Calendar sign-in tokens that the backend saves after you log in once (Phase 4).
 # Normally backend/.tokens/ - this pattern also covers a .tokens/ folder in the repo
@@ -77,6 +78,8 @@ target/
 .vscode/
 # Screenshots and logs from the Playwright browser-automation tool, if someone uses it here.
 .playwright-mcp/
+# Claude Code's own files for this folder (session locks, local settings): per person, never shared.
+.claude/
 
 
 # --- OS junk, logs, crash dumps ----------------------------------------------------
