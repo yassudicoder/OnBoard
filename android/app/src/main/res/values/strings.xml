@@ -373,6 +373,21 @@
     <string name="nav_help_footer">Need a wheelchair or a buggy ride? Ask at any help desk or your airline. This app does not book assistance.</string>
     <!-- Read aloud while navigating. %1$s = the next instruction. -->
     <string name="nav_map_description">Map, following you. Next: %1$s</string>
+    <!-- Shown (and said) while navigating when the counted steps went more than 20 m past a turn the phone did not feel. -->
+    <string name="nav_missed_turn">Missed a turn? Scan a QR code or tap \"I\'m here\".</string>
+    <!-- %1$s = the turn, e.g. "Expected: Turn left at Check-in row D". -->
+    <string name="nav_missed_turn_detail">Expected: %1$s</string>
+    <string name="nav_missed_turn_close">I did turn. Hide this.</string>
+    <!-- The notification while navigating (also with the screen off). -->
+    <string name="nav_notification_channel">Navigation</string>
+    <string name="nav_notification_channel_detail">Directions while you walk to your gate, also with the screen off</string>
+    <!-- %1$s = the destination, %2$s = time left, e.g. "Gate 32 · 4 min". -->
+    <string name="nav_notification_title">%1$s · %2$s</string>
+    <!-- %1$s = distance to the next instruction, %2$s = the instruction, e.g. "30 m · Turn left at Check-in row D". -->
+    <string name="nav_notification_text">%1$s · %2$s</string>
+    <!-- %1$s = arrival time, e.g. "Arrive 07:12 (estimate)". -->
+    <string name="nav_notification_arrival">Arrive %1$s (estimate)</string>
+    <string name="nav_notification_demo">Demo walk (simulation) · arrive %1$s (estimate)</string>
 
     <string name="profile_section_more">More</string>
     <string name="profile_open_wallet">Wallet: boarding passes, IDs and PDF</string>

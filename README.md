@@ -204,7 +204,7 @@ New plan (11 Oct 2026): Gate Navigation + Baggage Shield. Details of every phase
 | R0 | Refocus: new brief, new tabs (Home · Navigate · Bags · Help · Profile), old screens parked behind a flag | **Done** (11 Oct 2026) |
 | G1 | Airport map: Mumbai T2 demo schematic, map endpoint, offline cache, map with floors and points of interest | **Done** (11 Oct 2026) |
 | G2 | Routing: shortest walk, step-free option, walking speeds, landmark instructions (English, Hindi, Marathi) | **Done** (11 Oct 2026) |
-| G3 | Navigation screen: next instruction, route line, blue dot, QR "You are here", simulated walk, re-route, voice | **Done** (11 Oct 2026; the ongoing notification moved to G4) |
+| G3 | Navigation screen: next instruction, route line, blue dot, QR "You are here", simulated walk, re-route, voice, ongoing notification, "Missed a turn?" | **Done** (11 Oct 2026) |
 | G4 | Gate changes: gate watcher, push alert, automatic re-route mid-walk, `/demo` trigger | Planned |
 | B1 | Bag Shield capture: register bag, scan tag, guided photos, fingerprints (SHA-256), signed receipt | Planned |
 | B2 | Counter & Station pages, tamper-evident hash chain, verification | Planned |

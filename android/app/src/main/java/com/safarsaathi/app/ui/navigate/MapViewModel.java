@@ -1,5 +1,6 @@
 package com.safarsaathi.app.ui.navigate;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -26,7 +27,8 @@ import com.safarsaathi.routing.route.WalkProfile;
 /**
  * Data for the Navigate tab: the saved map of the pilot terminal (Room, so it works offline), how the last check with
  * the server went, and the navigation itself ({@link NavSession}: route, progress, turn-by-turn). It survives screen
- * rotation, so a walk keeps going. The screen never talks to the network itself.
+ * rotation, so a walk keeps going, and keeps the navigation notification ({@link NavNotification}) up to date, also
+ * while the screen is off. The screen never talks to the network itself.
  */
 public class MapViewModel extends ViewModel {
 
@@ -56,6 +58,7 @@ public class MapViewModel extends ViewModel {
     private static final long TICK_MS = 100;
 
     private final AirportMapRepository repository;
+    private final NavNotification notification;
     private final LiveData<AirportMapEntity> savedMap;
     private final LiveData<MapJson.MapData> mapData;
     private final NavSession session = new NavSession();
@@ -88,8 +91,9 @@ public class MapViewModel extends ViewModel {
         }
     };
 
-    public MapViewModel(AirportMapRepository repository) {
+    public MapViewModel(AirportMapRepository repository, NavNotification notification) {
         this.repository = repository;
+        this.notification = notification;
         savedMap = repository.observe(AppConfig.PILOT_AIRPORT, AppConfig.PILOT_TERMINAL);
         // Parsed once per saved copy (about 30 KB of JSON: a few milliseconds).
         mapData = Transformations.map(savedMap, MapViewModel::parseOrNull);
@@ -199,6 +203,18 @@ public class MapViewModel extends ViewModel {
         publish();
     }
 
+    /** "I did turn": closes the "Missed a turn?" hint (see {@link NavSession#missedTurn}). */
+    public void dismissMissedTurn() {
+        session.dismissMissedTurn();
+        publish();
+    }
+
+    /** The traveller answered the notification / step-counting question: show the notification again. */
+    public void onPermissionsChanged() {
+        notification.refresh();
+        publish();
+    }
+
     /** The phone's direction changed (see {@link NavSession#onHeading}). */
     public void onHeading(double degrees) {
         if (demoWalking) {
@@ -246,8 +262,10 @@ public class MapViewModel extends ViewModel {
 
     // ---- Inside ----
 
+    /** Tells the screen and the notification (which also works with the screen off). */
     private void publish() {
         nav.setValue(session);
+        notification.update(session, demoWalking);
     }
 
     private void report(NavSession.Event event) {
@@ -280,6 +298,7 @@ public class MapViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         stopDemoWalk();
+        notification.cancel();
         mapData.removeObserver(mapObserver);
         super.onCleared();
     }
@@ -297,14 +316,16 @@ public class MapViewModel extends ViewModel {
         }
     }
 
-    public static ViewModelProvider.Factory factory() {
+    public static ViewModelProvider.Factory factory(Context context) {
+        Context app = context.getApplicationContext();
         return new ViewModelProvider.Factory() {
             @NonNull
             @Override
             @SuppressWarnings("unchecked")
             public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
                 if (modelClass.isAssignableFrom(MapViewModel.class)) {
-                    return (T) new MapViewModel(ServiceLocator.get().getAirportMapRepository());
+                    return (T) new MapViewModel(ServiceLocator.get().getAirportMapRepository(),
+                            new NavNotification(app));
                 }
                 throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());
             }

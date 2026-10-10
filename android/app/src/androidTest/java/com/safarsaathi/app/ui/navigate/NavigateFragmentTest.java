@@ -11,12 +11,22 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
+import android.service.notification.StatusBarNotification;
 
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.room.Room;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -49,7 +59,8 @@ import java.util.concurrent.Executors;
 /**
  * UI test of the Navigate tab (G1-G3), with an empty database and NO network: the map inside the app is shown and
  * labelled as a demo schematic; search finds places; Directions asks where you are, previews the route with its time,
- * and Start shows Google-Maps-style turn-by-turn; the demo walk arrives at the gate.
+ * and Start shows Google-Maps-style turn-by-turn with an ongoing notification; steps past a turn ask "Missed a turn?";
+ * the demo walk arrives at the gate.
  */
 @RunWith(AndroidJUnit4.class)
 public class NavigateFragmentTest {
@@ -61,10 +72,15 @@ public class NavigateFragmentTest {
     public static void allowPermissions() {
         LocalNetworkAccess.allowForTests();
         // Step counting: answered in advance, so the question never covers the screen (on phones that count steps).
+        String app = InstrumentationRegistry.getInstrumentation().getTargetContext().getPackageName();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            String app = InstrumentationRegistry.getInstrumentation().getTargetContext().getPackageName();
             InstrumentationRegistry.getInstrumentation().getUiAutomation()
                     .grantRuntimePermission(app, Manifest.permission.ACTIVITY_RECOGNITION);
+        }
+        // The navigation notification (Android 13+), same reason.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            InstrumentationRegistry.getInstrumentation().getUiAutomation()
+                    .grantRuntimePermission(app, Manifest.permission.POST_NOTIFICATIONS);
         }
     }
 
@@ -184,7 +200,81 @@ public class NavigateFragmentTest {
         }
     }
 
+    @Test
+    public void navigating_showsTheOngoingNotification_andEndingRemovesIt() {
+        try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {
+            openNavigate();
+            planFrom("Entry Gate 4", "32", "Gate 32");
+            onView(withId(R.id.navigate_start)).perform(click());
+
+            eventually(() -> {
+                Notification shown = navNotification();
+                assertNotNull("no navigation notification", shown);
+                assertEquals("Gate 32 · 4 min", String.valueOf(shown.extras.getCharSequence(Notification.EXTRA_TITLE)));
+                assertEquals("30 m · Head towards Check-in row D",
+                        String.valueOf(shown.extras.getCharSequence(Notification.EXTRA_TEXT)));
+                assertTrue(String.valueOf(shown.extras.getCharSequence(Notification.EXTRA_SUB_TEXT))
+                        .matches("Arrive \\d\\d:\\d\\d \\(estimate\\)"));
+                assertTrue((shown.flags & Notification.FLAG_ONGOING_EVENT) != 0);
+            });
+
+            onView(withId(R.id.navigate_exit)).perform(click());
+            eventually(() -> assertNull(navNotification()));
+        }
+    }
+
+    @Test
+    public void stepsPastATurn_askMissedATurn_andImHereClearsIt() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            openNavigate();
+            planFrom("Entry Gate 4", "32", "Gate 32");
+            onView(withId(R.id.navigate_start)).perform(click());
+            onView(withId(R.id.navigate_missed_turn)).check(matches(not(isDisplayed())));
+
+            // The phone reports a direction, then counts 80 steps (56 m) straight on: 26 m past the left turn at
+            // Check-in row D, and the phone never turned. (All on the main thread at once, so the emulator's own
+            // sensors can't come in between.)
+            scenario.onActivity(activity -> {
+                MapViewModel model = navigateViewModel(activity);
+                model.onHeading(100);
+                for (int i = 0; i < 80; i++) {
+                    model.onStep();
+                }
+            });
+
+            onView(withId(R.id.navigate_missed_turn)).check(matches(isDisplayed()));
+            onView(withId(R.id.navigate_missed_turn_title))
+                    .check(matches(withText("Missed a turn? Scan a QR code or tap \"I'm here\".")));
+            onView(withId(R.id.navigate_missed_turn_detail))
+                    .check(matches(withText("Expected: Turn left at Check-in row D")));
+
+            onView(withId(R.id.navigate_missed_turn_here)).perform(click());
+            onView(withText("Pier C sign")).perform(click()); // off the route: new route from there
+            onView(withId(R.id.navigate_missed_turn)).check(matches(not(isDisplayed())));
+        }
+    }
+
     // ---- Helpers ----
+
+    /** The Navigate tab's own ViewModel (the one the screen uses). */
+    private static MapViewModel navigateViewModel(MainActivity activity) {
+        NavHostFragment host = (NavHostFragment) activity.getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
+        Fragment screen = host.getChildFragmentManager().getPrimaryNavigationFragment();
+        return new ViewModelProvider(screen).get(MapViewModel.class);
+    }
+
+    /** The navigation notification on show, or null. */
+    private static Notification navNotification() {
+        NotificationManager manager = ApplicationProvider.getApplicationContext()
+                .getSystemService(NotificationManager.class);
+        for (StatusBarNotification shown : manager.getActiveNotifications()) {
+            if (shown.getId() == NavNotification.ID) {
+                return shown.getNotification();
+            }
+        }
+        return null;
+    }
 
     private static void openNavigate() {
         onView(withId(R.id.navigation_navigate)).perform(click());

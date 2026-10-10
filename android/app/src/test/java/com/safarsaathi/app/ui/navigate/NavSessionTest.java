@@ -13,6 +13,7 @@ import com.safarsaathi.routing.map.NodeType;
 import com.safarsaathi.routing.route.InstructionText;
 import com.safarsaathi.routing.route.Maneuver;
 import com.safarsaathi.routing.route.RouteLeg;
+import com.safarsaathi.routing.route.RouteStep;
 import com.safarsaathi.routing.route.WalkProfile;
 
 import org.junit.Before;
@@ -25,7 +26,7 @@ import java.nio.file.Paths;
 
 /**
  * The Navigate tab's state machine on the real bundled BOM-T2 demo map: preview, turn-by-turn, arrival, QR codes on
- * and off the route, detours, settings, and the turn check from the motion sensors.
+ * and off the route, detours, settings, the turn check from the motion sensors, and "Missed a turn?".
  */
 public class NavSessionTest {
 
@@ -183,6 +184,82 @@ public class NavSessionTest {
 
         assertEquals(NavSession.Event.NONE, session.onHeading(270)); // 30 m before the turn: too far
         assertEquals(0, session.progress(), 0.001);
+    }
+
+    @Test
+    public void turningJustAfterTheCorner_stillCounts_whenTheStepsRanAhead() {
+        previewEntry4ToGate32();
+        session.start();
+        session.walk(30.4 + 5); // the counted steps are already 5 m past the left turn at Check-in row D
+
+        session.onHeading(100); // still walking straight on in reality
+        assertEquals(NavSession.Event.TURN_CONFIRMED, session.onHeading(20)); // now the left turn
+
+        assertEquals(30.9, session.progress(), 0.01); // back to the corner
+        session.walk(40);
+        assertNull(session.missedTurn());
+    }
+
+    @Test
+    public void stepsPastATurn_withNoTurnFelt_askMissedATurn() {
+        previewEntry4ToGate32();
+        session.start();
+        session.onHeading(100);
+
+        session.walk(30.4 + 19);
+        assertNull(session.missedTurn()); // 19 m past: maybe the steps just ran ahead
+        session.walk(2);
+        RouteStep missed = session.missedTurn();
+        assertNotNull(missed);
+        assertEquals(Maneuver.LEFT, missed.maneuver);
+        assertEquals("checkin_d", missed.at.id);
+
+        // "I'm here" somewhere else: a new route from there, nothing missed on it.
+        assertEquals(NavSession.Event.REROUTED, session.setHere("pier_d_sign", NavSession.HereSource.CHOSEN));
+        assertNull(session.missedTurn());
+    }
+
+    @Test
+    public void qrCodeAtTheCorner_theTurnThereIsStillToBeMade() {
+        previewEntry4ToGate32();
+        session.start();
+        session.onHeading(100);
+        session.walk(60);
+        assertNotNull(session.missedTurn());
+
+        session.setHere("checkin_d", NavSession.HereSource.QR); // back at the corner
+        assertNull(session.missedTurn());
+        session.walk(21); // walked straight on again
+        assertEquals("checkin_d", session.missedTurn().at.id);
+    }
+
+    @Test
+    public void closingTheHint_hidesIt_untilTheNextTurnIsMissed() {
+        previewEntry4ToGate32();
+        session.start();
+        session.onHeading(100);
+        session.walk(60);
+        RouteStep next = session.route().steps.get(2);
+        assertEquals(Maneuver.RIGHT, next.maneuver);
+
+        session.dismissMissedTurn();
+        assertNull(session.missedTurn());
+        session.walk(next.startMetres + 21 - session.progress());
+        assertEquals(next, session.missedTurn());
+    }
+
+    @Test
+    public void noMissedTurnHint_withoutDirectionSensors_orOnTheDemoWalk() {
+        previewEntry4ToGate32();
+        session.start();
+        session.walk(60); // the phone never reported a direction: it can't feel turns, so it can't tell
+        assertNull(session.missedTurn());
+
+        session.onHeading(100);
+        session.setHere("entry_4", NavSession.HereSource.QR);
+        session.walkFor(60); // a simulation follows the route exactly
+        assertTrue(session.progress() > 60);
+        assertNull(session.missedTurn());
     }
 
     @Test
