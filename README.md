@@ -8,6 +8,8 @@ air travellers, in their own language, even offline:
 - **Baggage Shield:** photograph your bag and scan its tag before you hand it over, and get a time-stamped record that
   cannot be changed later. If the bag arrives damaged, late or not at all, the app tells you exactly what to do, where
   and by when. Lost something at the airport? It points you to the right Lost & Found, with the form pre-filled.
+- **Document Vault** (added 11 Oct): your passport, visas, tickets, boarding passes, hotel and insurance in one encrypted
+  folder per trip that opens with no internet, for when you are stuck in transit. Copies never replace the originals.
 - **Disruption Recovery** (added 11 Oct): when a late or cancelled flight breaks your connection, OnBoard spots it early,
   tells you why in local airport time, prepares the request to the airline and ranks realistic alternatives, and keeps
   the plan on your phone for when you have no internet. It never books anything without your explicit OK.
@@ -62,6 +64,18 @@ has the full brief and the phases R0 → P). We build it phase by phase and stop
   gate and boarding times honestly say "not announced yet" (no gate source until G4) and the chip under each answer
   says "Answered on your phone · as of 05:42". "Language" chip: Auto, or always one language. Flights/hotels/cabs:
   it explains that needs the online assistant (A3) or points to Home's Uber buttons. It never reads the Document Vault.
+- **Profile → More → Document vault (V1):** opens only after fingerprint, face or phone PIN; locks itself after 5 minutes
+  (1 / 5 / 15, your choice); screenshots of it come out black. **Load sample trip** adds Paramvir's made-up Delhi → Kigali
+  → Kinshasa folder (8 SAMPLE documents, grouped by leg or by type). Open a document: key details, the number hidden
+  except its last 2 characters, and the page, decrypted in memory and checked against its SHA-256 fingerprint. Vault
+  settings: lock, auto-lock, screenshot blocking, **Check all files**, **Delete the whole vault**. Everything is
+  encrypted on the phone (Android Keystore + SQLCipher + AES-256-GCM per file); how and why: [docs/privacy.md](docs/privacy.md).
+- **Adding documents (V2):** in a trip folder, **Add document**: **Scan** (Google's scanner finds the edges and
+  straightens each page; without Play services the vault's own camera + a 4-corner crop), **Import a PDF or photo**,
+  **Type it in**, or **From your other trips** (a passport is stored once and used in many trips). A passport's
+  machine-readable lines (MRZ) and boarding pass barcodes are read on the phone, offline, with check digits; you
+  always confirm the fields before anything is saved. Try it: scan the sample passport page shown on another screen,
+  or switch off screenshot blocking (vault settings), screenshot that page and import the screenshot.
 
 **Disruption Recovery (C1 done and in `main`, backend only so far; C2 onward on `feature/disruption-recovery`):**
 every flight now knows its

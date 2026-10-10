@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Toolbar buttons on the Document Vault home (VaultHomeFragment adds them while it is showing). -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/vault_menu_lock"
+        android:icon="@drawable/ic_lock_24"
+        android:title="@string/vault_menu_lock"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/vault_menu_settings"
+        android:icon="@drawable/ic_settings_24"
+        android:title="@string/vault_menu_settings"
+        app:showAsAction="ifRoom" />
+</menu>

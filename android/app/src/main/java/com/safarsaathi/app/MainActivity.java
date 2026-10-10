@@ -16,11 +16,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.NavGraph;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.safarsaathi.app.databinding.ActivityMainBinding;
+import com.safarsaathi.app.ui.vault.VaultWindow;
 
 /**
  * The app's only activity: a top bar, the current tab's screen, and a bottom bar with five tabs
@@ -30,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     private NavController navController;
     private AppBarConfiguration appBarConfiguration;
+    /** True while a Document Vault screen is showing (any screen inside nav_graph's vault_graph). */
+    private boolean showingVault;
 
     /**
      * Shows Android's "allow access to devices on your local network?" question (see askForLocalNetworkAccess).
@@ -101,6 +106,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Document Vault: block screenshots on its screens only (VaultWindow), and remember that a vault screen is
+        // showing so taps there restart the vault's auto-lock countdown (onUserInteraction).
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            showingVault = isVaultScreen(destination);
+            VaultWindow.update(this, showingVault);
+        });
+
         // Only on a fresh start: after a screen rotation the question (or its answer) is already there.
         if (savedInstanceState == null) {
             askForLocalNetworkAccess();
@@ -133,6 +145,25 @@ public class MainActivity extends AppCompatActivity {
         if (tabs != null) {
             tabs.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
+    }
+
+    /** Every tap, swipe or key press in the app. In the vault it counts as "still using the vault" (auto-lock). */
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        if (showingVault) {
+            ServiceLocator.get().getVault().session().touch();
+        }
+    }
+
+    /** True for the vault's screens: they all sit inside the nested graph vault_graph (nav_graph.xml). */
+    private static boolean isVaultScreen(NavDestination destination) {
+        for (NavGraph parent = destination.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent.getId() == R.id.vault_graph) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** The toolbar's back arrow: go up one screen. (Never visible on the five tabs themselves.) */

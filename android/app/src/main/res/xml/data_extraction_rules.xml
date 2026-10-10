@@ -4,7 +4,10 @@
 
      The app's database (safar_saathi.db) holds the traveller's ID details (Aadhaar last 4 digits, PAN, visas), so it
      is NOT copied into Google's cloud backup. The trip itself downloads again from the server; wallet items are
-     re-added by the traveller. A direct phone-to-phone transfer (device-transfer) may still copy it. -->
+     re-added by the traveller. A direct phone-to-phone transfer (device-transfer) may still copy it.
+
+     The Document Vault needs no rule here: all of it lives in no_backup/vault/, which Android never backs up or
+     transfers (and its Keystore key could not be moved to another phone anyway). See docs/privacy.md. -->
 <data-extraction-rules>
     <cloud-backup>
         <exclude domain="database" path="." />

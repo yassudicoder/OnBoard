@@ -165,6 +165,22 @@ dependencies {
     // Ask OnBoard: on-device language identification (model inside the app, offline), to pick the reply language.
     implementation(libs.mlkit.language.id)
 
+    // Document Vault: the vault's own database file is encrypted with SQLCipher (Room still writes the SQL for us,
+    // SQLCipher encrypts every page of the file). androidx.sqlite is the small interface layer Room and SQLCipher
+    // both plug into; SQLCipher's README asks apps to add it next to SQLCipher.
+    implementation(libs.sqlcipher.android)
+    implementation(libs.androidx.sqlite)
+    // Document Vault: the fingerprint / face / device PIN prompt (BiometricPrompt) that unlocks the vault.
+    implementation(libs.androidx.biometric)
+    // Document Vault V2, adding documents: Google's document scanner (screen + models from Play services), text
+    // recognition with the model inside the app (passport MRZ, offline), and CameraX for the vault's own camera
+    // screen when the Google scanner cannot run.
+    implementation(libs.mlkit.document.scanner)
+    implementation(libs.mlkit.text.recognition)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+
     // Talking to our backend: Retrofit turns SafarSaathiApi into HTTP calls, Gson reads the JSON,
     // OkHttp does the actual networking (its logging interceptor prints requests in debug builds).
     implementation(libs.retrofit)

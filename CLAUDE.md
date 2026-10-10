@@ -4,10 +4,11 @@ Hackathon project for **Elevate 1.0 (DJSCE), Problem Statement 01 — "Seamless 
 4-person college team, strong in **Java**. This file is the condensed project brief. Every session follows it.
 If a decision changes, update this file in the same change.
 
-**Direction (since 2026-10-11): three main features, Gate Navigation, Disruption Recovery (§3D) and Baggage Shield,
-plus (added 2026-10-11) Ask OnBoard, the multilingual assistant (§3E).** The trip timeline UI and the old bookings /
-Plan B plan stay **parked**, not deleted (see "Parked" below); the ripple engine, flight watcher and disruption
-service are **un-parked** as the one engine behind Disruption Recovery (never a second disruption engine).
+**Direction (since 2026-10-11): four main features, Gate Navigation, Disruption Recovery (§3D), Baggage Shield and the
+Offline Travel Document Vault (§3C), plus (added 2026-10-11) Ask OnBoard, the multilingual assistant (§3E).** The
+trip timeline UI and the old bookings / Plan B plan stay **parked**, not deleted (see "Parked" below); the ripple engine,
+flight watcher and disruption service are **un-parked** as the one engine behind Disruption Recovery (never a second
+disruption engine).
 
 - App name **OnBoard** (was "Safar Saathi"). Code names stay on purpose so nothing breaks: Android package / applicationId
   `com.safarsaathi.app`, backend package `com.safarsaathi.backend`, database `safarsaathi`, settings prefix `safarsaathi.*`.
@@ -37,6 +38,8 @@ A mobile-first Android app (plus a Spring Boot backend and two small staff web p
   re-route automatically when the gate changes.
 - **B. Baggage Shield** — timestamped, tamper-evident photo evidence of the bag before hand-over; a guided flow for damaged /
   delayed / missing bags; a Lost & Found guide for things lost at the airport.
+- **C. Document Vault** — an encrypted, trip-by-trip folder of travel documents (passport, visas, tickets, boarding passes,
+  hotel, insurance, ...) that opens with no internet, with pre-departure checks and offline country guidance (§3C).
 - **D. Disruption Recovery** — when a delay or cancellation breaks a connection, OnBoard spots it early, explains it in local
   airport time, prepares the airline request, ranks realistic alternatives, helps ask for overnight assistance and keeps the
   recovery plan on the phone for offline use (§3D).
@@ -48,7 +51,8 @@ A mobile-first Android app (plus a Spring Boot backend and two small staff web p
 | Missed connections / cancellations | Disruption Recovery: server keeps watching, connection check with sourced minimum times, request draft, ranked alternatives, offline Plan B pack |
 | Track baggage | Bag tag registered, status from drop to belt |
 | Baggage problems | Damage / delay / loss guide, PIR help, claim pack, deadlines |
-| Offline, on-device vs cloud | Map, routing, evidence photos and guides work offline; photos upload when online |
+| Offline, on-device vs cloud | Map, routing, evidence photos and guides work offline; photos upload when online; the Document Vault is on-device only |
+| Travel documents / disruptions abroad | Document Vault: encrypted offline copies, pre-departure check, "If you're stuck" guide, emergency card |
 | Traveller profiles | Step-free route, slower walking speed, large text, voice, assistance info |
 | Multilingual | English, Hindi, Marathi now (Tamil, Bengali next); voice via TTS |
 | UI/UX | One clear next instruction at a time; nothing extra on screen |
@@ -176,6 +180,36 @@ live safety scoring (a country pack's official advisory link at most).
 
 ---
 
+## 3C. Feature C — Offline Travel Document Vault
+- **Goal / demo persona:** Paramvir (Indian passport) flies Delhi (DEL) → Kigali, Rwanda (KGL, transit) → Kinshasa, DRC (FIH),
+  is stranded in Kigali by an outage, and must show passport details, visa, tickets, boarding passes, hotel, insurance, onward
+  flight, emergency contacts and transit/entry documents **fully offline**. His data is a made-up SAMPLE (`SampleVault`).
+- **Features:** trip folders grouped by leg and by type, shared documents stored once and linked to many trips; add by camera
+  scan (auto edge-crop, multi-page; manual crop fallback), PDF/image import or manual entry; passport MRZ (ICAO 9303, check
+  digits) and BCBP read on the phone, the user always confirms fields; pre-departure checklist PASS / WARN / FAIL / UNKNOWN with
+  reason + source; expiry reminders 90/30/7 days; "make offline-ready" (decrypt-test every file, total size); viewer (zoom, page
+  swipe, number masked until biometric unlock, PdfRenderer); present mode (full screen, max brightness, one document, swipe
+  locked, banner "Copy for reference. Original document available." in English + local language); offline country guidance
+  (IN, RW, CD); "If you're stuck" guide linked to the folder's documents; emergency card in two languages (medical notes opt-in,
+  phone only); settings: lock, auto-lock, screenshot blocking, optional encrypted backup, "emergency packet" PDF export.
+- **Security (built in V1):** separate SQLCipher database + files in `no_backup/vault/` (never in cloud backup / device
+  transfer); envelope encryption: Android Keystore master key (AES-256-GCM, not exportable) wraps the database key, one AES-256-GCM
+  key per file, and document numbers (encrypted a second time); SHA-256 per file, checked on every open and in "Check all
+  files"; BiometricPrompt (strong biometric or PIN; weak biometric or PIN on Android 9–10), auto-lock 1/5/15 min (default 5),
+  FLAG_SECURE on every vault screen and dialog unless switched off; full delete = folder + Keystore key + settings. The Keystore
+  key is deliberately NOT bound to biometrics in V1 (reasons in `docs/privacy.md`). No Jetpack security-crypto.
+- **Honesty (strict):** never "verified": the app says "Checked". Vault home and present mode say copies don't replace
+  originals. Never invent visa/transit/vaccination rules, embassy addresses or phone numbers. Country data lives in versioned
+  JSON packs (IN, RW, CD) filled only from official sources, each item with `sourceUrl` + `lastChecked` + "Confirm with the
+  airline or embassy before you fly."; unchecked rules are left out and show UNKNOWN. Paid rule services (IATA Timatic) only
+  behind a `RequirementProvider` interface; the demo uses the JSON pack provider.
+- **Privacy:** India's DPDP Act 2023 basics (minimum data, clear consent, full delete) in `docs/privacy.md`. Backup (V6) is off
+  by default, encrypted on the phone before upload, server stores ciphertext only, restore needs a recovery phrase.
+- **Open question for the team:** the older Wallet (Profile > More; boarding passes, Aadhaar last-4, PAN, visas) is NOT
+  encrypted. Folding it into the vault is not decided yet.
+
+---
+
 ## 3D. Feature D — Disruption Recovery (branch `feature/disruption-recovery`)
 - **Three triggers, one `RecoveryPlan`:** DELAY_MISSED_CONNECTION (flight 1 late, connection at risk or missed);
   CANCELLED_BEFORE_DEPARTURE (plan starts at the departure airport; demo: `trigger-cancel`); CONNECTION_CANCELLED_AT_HUB
@@ -294,6 +328,9 @@ live safety scoring (a country pack's official advisory link at most).
   Gson · WorkManager · FCM · own Canvas map view (G1) · CameraX + ML Kit barcode scanning (bag tag ITF, boarding passes) ·
   Google code scanner (QR anchors, no camera permission) ·
   sensors (step detector, rotation vector) · TextToSpeech · `java.security.MessageDigest` (SHA-256).
+- Document Vault: SQLCipher for Android + androidx.sqlite (encrypted Room DB) · androidx.biometric · Android Keystore +
+  `javax.crypto` AES-256-GCM · (V2) ML Kit Document Scanner + text recognition (MRZ) · (V3) `PdfRenderer` · WorkManager
+  (reminders, pack updates).
 - Localization: `values/` + `values-hi/`, `values-mr/` now; `values-ta/`, `values-bn/` later. Instruction templates localised too.
 
 ### Backend — `/backend`
@@ -346,6 +383,21 @@ AirportPack (C1, file)  iata, city(en/hi/mr), country, timeZone, connectionRules
                         sourceUrl, lastChecked                          -> mock-data/recovery/airport-rules.json
 AirlinePolicyPack (C2, file)  airlineCode, delayAssistanceText, contactChannels, sourceUrl, lastChecked
 ```
+Document Vault (app only, its own SQLCipher Room DB `VaultDatabase`, ids are UUID strings):
+```
+Traveller        id, name, nationality(ISO2), dateOfBirth, sample
+TripVault        id, title, startDate, endDate, offlineReadyAt, sizeBytes, sample   (+ trip_travellers)
+TripLeg          id, tripId, position, kind(FLIGHT|TRANSIT|STAY), title, fromCode, toCode, countryIso2, startDate, endDate
+TripCountry      tripId, iso2, role(ORIGIN|TRANSIT|DESTINATION), fromDate, toDate
+TravelDocument   id, travellerId, type(PASSPORT|ID_CARD|VISA|E_VISA|TRANSIT_VISA|ENTRY_FORM|TICKET|BOARDING_PASS|HOTEL|
+                 INSURANCE|VACCINATION_CERT|OTHER), title, holderName, numberEncrypted, issuingCountry, issueDate, expiryDate,
+                 validFrom, validTo (tickets: the flight day), coversCountries, entries, flightNo, bookingRef,
+                 source(SCAN|PDF|MANUAL|IMPORT), fieldsConfirmed, sample
+VaultFile        id(=file name), documentId, page, mimeType, sizeBytes, sha256, wrappedKey   ("fileRef + sha256", per page)
+TripDocumentLink tripId, documentId, legId (null = whole trip)
+Later: CountryPack(iso2, version, requirements, embassies, emergencyNumbers, phrases, layoverTips) · Requirement(iso2,
+nationality, role ENTRY|TRANSIT, docType, ruleText, params, mandatory, sourceUrl, lastChecked) · CheckResult · EmergencyCard
+```
 Demo roles: PASSENGER (app), COUNTER (staff page), STATION (arrival page), ADMIN (demo page); simple demo login, no real auth.
 Times: `java.time` everywhere. Stored as an exact moment + the zone of its place (a flight: departure / arrival airport) and
 shown in that local time; times that belong to no place (createdAt, "as of") in **Asia/Kolkata**.
@@ -363,6 +415,9 @@ GET  /api/evidence/verify/{tag}                     chain + signature check
 POST /api/claims            create claim -> claim pack PDF
 POST /api/lost-items        save the pre-filled report (we don't submit to the airport)
 GET  /api/station/{code}/inbox                      arriving bags with counter photos
+GET  /api/country-packs/{iso2}                      vault country pack (cacheable JSON)        (V5)
+GET  /api/country-packs/versions                    pack versions for the update check          (V5/V6)
+PUT|GET /api/backup/{userId}                        encrypted vault backup blobs only           (V6)
 GET  /api/trips/{id}                                trip + blocks (+C1: local zones, "flight" fields) + links
 GET  /api/trips/{id}/connections                    connection status, certainty, reason, sources       (C1, built)
 GET  /api/connections/{id}/plan                     the recovery plan                                    (C2)
@@ -375,6 +430,7 @@ POST /api/demo/cancel-connection · set-flight-phase {flightNo, phase} · flight
 POST /api/demo/trigger-gate-change {flightNo, toGate}
 POST /api/demo/bag-status {tag, status, beltNo}
 POST /api/demo/reset
+POST /api/demo/seed-vault   Paramvir's SAMPLE documents (the app can also load them offline from Vault home)
 GET  /api/health                                    app status + MOCK/REAL provider modes
 ```
 
@@ -385,8 +441,9 @@ GET  /api/health                                    app status + MOCK/REAL provi
 3. **Bags:** register bag (scan tag) → guided 4-photo capture → signed receipt; status timeline; before/after compare;
    "Something went wrong".
 4. **Help:** "What happened?" decision tree; CSMIA Lost & Found card with source and last-checked date.
-5. **Profile:** language, voice guidance, elderly / step-free defaults, large text, notifications; "More" links to the Wallet
-   (boarding passes, Aadhaar last-4 / masked PAN / visas, PDF) and, with the flag on, the parked screens.
+5. **Profile:** language, voice guidance, elderly / step-free defaults, large text, notifications; "More" links to the
+   **Document Vault** (nested nav graph `vault_graph`), the Wallet (boarding passes, Aadhaar last-4 / masked PAN / visas, PDF)
+   and, with the flag on, the parked screens.
 6. **Disruption Recovery (C3-C5):** Home "At risk" connection card (independent of the parked timeline flag; chip On track /
    At risk / Likely missed / Missed / Cancelled / Rebooked) → connection detail (two-flight diagram, local times, minutes
    available vs needed, reason, data time stamp, ticket-type question) · Plan B pack banner before boarding · Recovery screen
@@ -434,6 +491,19 @@ GET  /api/health                                    app status + MOCK/REAL provi
     quote cards, confirmation-token flow, sandbox booking (TEST BOOKING CONFIRMED / PENDING / FAILED).
   - **A4 — Router and polish:** router rules (offline, documents never cloud, battery < 15% / saver, search → cloud),
     source chips, settings (reply language, voice, model, "never send to cloud"), airplane-mode test, demo script.
+
+- Document Vault (its own track, same stop-after-each rule):
+  - **V1 — Secure vault core:** Keystore key, encrypted files, SQLCipher, biometric lock, auto-lock, FLAG_SECURE, trip folders,
+    sample data, `docs/privacy.md`. Tests: encrypt/decrypt round trip, wrong key fails, hash check.
+  - **V2 — Capture:** document scanner (check Play-services need + offline; manual crop fallback), PDF/image import, manual
+    entry, MRZ parser (valid + bad check digits), BCBP parsing, confirm-fields screen.
+  - **V3 — Viewing:** viewer, masked numbers (biometric reveal), present mode, offline PDF rendering.
+  - **V4 — Checks engine (pure Java):** all pre-departure rules, check screen, expiry reminders. Golden tests: Paramvir happy
+    path, missing DRC visa, passport expiring too soon, name mismatch, insurance ending early, unknown rule.
+  - **V5 — Country guidance:** pack format, IN/RW/CD packs (sourced or left out), embassy + emergency info, phrases ("translation
+    needs review"), stuck-in-transit guide, emergency card.
+  - **V6 — Offline-ready and polish:** make offline-ready, pack update check, optional encrypted backup, emergency-packet PDF,
+    airplane-mode test of every screen, Hindi + Marathi strings, vault part of `docs/demo-script.md`.
 
 ## 9. Demo story (`docs/demo-script.md` in phase P)
 1. Home: **IJ 512, Gate 32, boarding closes 07:35** (from the mock gate provider) → Navigate to gate → scan the "Entry 4" QR →
@@ -483,6 +553,11 @@ GET  /api/health                                    app status + MOCK/REAL provi
 | ZXing core | 3.5.4 | Latest on Maven Central (checked 2026-10-10); draws QR codes into PDFs. |
 | Google code scanner (play-services-code-scanner) | 16.1.0 | Latest on Google Maven (checked 2026-10-11); QR "You are here" scanner, needs Google Play services. |
 | ML Kit language identification | 17.0.6 (bundled model) | Newest (checked 2026-10-11); Ask OnBoard's reply language, offline, no Play services; release added 16 KB support. |
+| SQLCipher for Android | 4.19.1 (+ androidx.sqlite 2.7.0) | Latest (checked 2026-10-11); its native lib is 16 KB-page aligned. |
+| androidx.biometric | 1.1.0 | Newest stable (checked 2026-10-11); 1.2.0 never left alpha, 1.4.0 is alpha. |
+| ML Kit document scanner | 16.0.0 (Play services) | Newest (checked 2026-10-11); screen + models from Play services, then offline. |
+| ML Kit text recognition | 16.0.1 (bundled Latin model) | Newest (checked 2026-10-11); MRZ reading offline, no Play services; 16 KB aligned. |
+| CameraX | 1.6.2 | Newest stable (checked 2026-10-11); the vault's own camera when Google's scanner cannot run. |
 Exact Android library versions live in `android/gradle/libs.versions.toml`; backend versions come from the Spring Boot parent POM.
 
 ## Conventions & gotchas
@@ -500,6 +575,16 @@ Exact Android library versions live in `android/gradle/libs.versions.toml`; back
   migration (`@AutoMigration`); never rely on the destructive fallback. Room is the UI's source of truth.
 - **ID privacy:** Aadhaar = last 4 digits only, ever; PAN always shown masked; IDs never leave the phone; the database is
   excluded from cloud backup (`res/xml/data_extraction_rules.xml`).
+- **Document Vault:** everything lives in `no_backup/vault/` (`Vault` class); `VaultDatabase` is separate from `AppDatabase` and
+  phone-only, so every new version needs a migration (no destructive fallback). Every vault screen extends `VaultScreen` (lock
+  cover + the screen's ONE BiometricPrompt; use `confirmIdentity()` for extra prompts) and sits inside nav `vault_graph`, which
+  is what makes MainActivity set FLAG_SECURE; vault dialogs call `VaultWindow.secure(dialog)`. Decrypted bytes stay in memory,
+  never on disk. Vault tests use their own folder + Keystore alias + settings file, never the real vault.
+- **Vault V2 (adding documents):** pure-Java parts in `data/vault/capture/` (MRZ per ICAO 9303 with check digits,
+  `DraftReader`, `DocumentDraft`, `DraftFields`, `CropMath`, `CountryCodes` from the JDK/Android ISO list). The add flow
+  shares one `CaptureViewModel` scoped to `vault_graph` (pages in memory only). Google's scanner temp JPEGs are deleted
+  right after reading. Other sessions (Ask OnBoard, Ride) must NOT read vault data until the user decides that (open
+  question). Pure-Java vault tests can be run without the full app build (other sessions may have it mid-change).
 - Backend reads keys from env vars (and a git-ignored root `.env` for local dev). Empty key = MOCK. Tests set providers explicitly.
 - Backend binds to `127.0.0.1` by default (`SERVER_ADDRESS`); demo controls exist only with `APP_MODE=demo` (see backend/README.md).
 
@@ -520,3 +605,6 @@ Exact Android library versions live in `android/gradle/libs.versions.toml`; back
   reconnect
 - [x] A1 — Ask OnBoard Quick answers (done 2026-10-11) · [ ] A2 — On-device AI (go-ahead 2026-10-11) ·
   [ ] A3 — Cloud AI + bookings · [ ] A4 — Router & polish (§3E)
+- [x] V1 — Secure vault core (done 2026-10-11)
+- [x] V2 — Capture (done 2026-10-11)
+- [ ] V3 — Viewing · [ ] V4 — Checks engine · [ ] V5 — Country guidance · [ ] V6 — Offline-ready & polish

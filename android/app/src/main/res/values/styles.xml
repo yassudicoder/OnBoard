@@ -21,6 +21,20 @@
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
+    <!-- Document Vault: the amber "SAMPLE" label on made-up demo trips and documents. It is words, not only a
+         colour, so it also works for colour-blind travellers and screen readers. -->
+    <style name="Widget.SafarSaathi.SampleChip" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_status_chip</item>
+        <item name="android:backgroundTint">@color/status_adjusted_container</item>
+        <item name="android:paddingHorizontal">8dp</item>
+        <item name="android:paddingVertical">2dp</item>
+        <item name="android:text">@string/vault_sample_chip</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelMedium</item>
+        <item name="android:textColor">@color/status_adjusted_on_container</item>
+    </style>
+
     <!-- Block details sheet: the information itself, e.g. "Sun, 11 Oct · 12:00–13:00". -->
     <style name="Widget.SafarSaathi.SheetValue" parent="">
         <item name="android:layout_marginTop">2dp</item>

@@ -570,4 +570,266 @@
     <string name="profile_rides_mock">Demo dialog (mock): Uber is not opened</string>
     <string name="profile_ride_taps">Ride button taps (kept on this phone)</string>
     <string name="profile_ride_taps_value">Departure %1$d · Arrival %2$d</string>
+
+    <!-- ===== Document Vault (feature C) ===== -->
+    <string name="title_vault">Document vault</string>
+    <string name="title_vault_trip">Trip folder</string>
+    <string name="title_vault_document">Document</string>
+    <string name="title_vault_settings">Vault settings</string>
+    <string name="profile_open_vault">Document vault: passport, visas, tickets (offline, encrypted)</string>
+
+    <string name="vault_headline">Your travel documents, offline</string>
+    <string name="vault_encrypted_note">Encrypted on this phone. Opens without internet.</string>
+    <string name="vault_originals_note">Copies in this app do not replace your original documents. Always carry the originals.</string>
+    <string name="vault_trips_title">Trip folders</string>
+    <string name="vault_trips_empty">No trip folders yet. Make one for your next journey, or load the sample trip to see how the vault works.</string>
+    <string name="vault_new_trip">New trip folder</string>
+    <string name="vault_load_sample">Load sample trip (Delhi → Kigali → Kinshasa)</string>
+    <string name="vault_sample_loading">Encrypting the sample documents…</string>
+    <string name="vault_sample_loaded">Sample trip added</string>
+    <string name="vault_sample_chip">SAMPLE</string>
+    <plurals name="vault_document_count">
+        <item quantity="one">%d document</item>
+        <item quantity="other">%d documents</item>
+    </plurals>
+    <!-- A date range, e.g. "11 Nov 2026 to 18 Nov 2026". -->
+    <string name="vault_dates">%1$s to %2$s</string>
+    <string name="vault_no_dates">No dates yet</string>
+    <string name="vault_menu_lock">Lock vault</string>
+    <string name="vault_menu_settings">Vault settings</string>
+    <string name="vault_error_generic">Something went wrong. Please try again.</string>
+
+    <!-- New trip folder dialog -->
+    <string name="vault_new_trip_name">Trip name</string>
+    <string name="vault_new_trip_name_error">Give the folder a name</string>
+    <string name="vault_new_trip_start">First day (DD/MM/YYYY, optional)</string>
+    <string name="vault_new_trip_end">Last day (DD/MM/YYYY, optional)</string>
+    <string name="vault_new_trip_date_error">Use DD/MM/YYYY, e.g. 11/11/2026</string>
+    <string name="vault_new_trip_order_error">The last day cannot be before the first day</string>
+    <string name="vault_create">Create</string>
+
+    <!-- Lock cover, shown over every vault screen while the vault is locked -->
+    <string name="vault_locked_title">Vault locked</string>
+    <string name="vault_locked_body">Use your fingerprint, face or phone PIN to open your documents.</string>
+    <string name="vault_unlock">Unlock</string>
+    <string name="vault_prompt_title">Open your document vault</string>
+    <string name="vault_prompt_subtitle">Confirm it is you</string>
+    <string name="vault_no_lock_title">This phone has no screen lock</string>
+    <string name="vault_no_lock_body">Anyone holding this phone could open the vault. Set a PIN, pattern or fingerprint in your phone\'s settings to protect it.</string>
+    <string name="vault_open_security_settings">Open security settings</string>
+    <string name="vault_open_without_lock">Open without a lock this time</string>
+    <!-- %1$s = the reason Android gives, e.g. "Too many attempts. Try again later." -->
+    <string name="vault_unlock_failed">Could not unlock: %1$s</string>
+    <string name="vault_unavailable_title">This vault can\'t be opened on this phone</string>
+    <string name="vault_unavailable_body">Its key is missing, for example after the phone\'s security storage was reset. The encrypted documents cannot be read without it. You can delete the vault and start again.</string>
+    <string name="vault_delete_and_restart">Delete vault and start again</string>
+
+    <!-- Trip folder -->
+    <string name="vault_by_leg">By leg</string>
+    <string name="vault_by_type">By type</string>
+    <string name="vault_whole_trip">Whole trip</string>
+    <string name="vault_whole_trip_hint">Documents for every part of the journey</string>
+    <string name="vault_folder_empty">No documents in this folder yet.</string>
+    <string name="vault_leg_flight">Flight</string>
+    <string name="vault_leg_transit">Transit</string>
+    <string name="vault_leg_stay">Stay</string>
+    <!-- Leg subtitle, e.g. "Transit · 11 Nov 2026 to 12 Nov 2026". -->
+    <string name="vault_leg_subtitle">%1$s · %2$s</string>
+    <string name="vault_empty_leg">No documents for this part yet</string>
+    <!-- Document row detail, e.g. "Expires 14 Mar 2029". -->
+    <string name="vault_detail_expires">Expires %1$s</string>
+    <string name="vault_delete_trip">Delete trip folder</string>
+    <string name="vault_delete_trip_title">Delete this trip folder?</string>
+    <string name="vault_delete_trip_body">Documents used only by this trip are deleted from the phone too. Documents other trips still use, such as your passport, stay.</string>
+    <string name="vault_delete">Delete</string>
+    <string name="vault_trip_deleted">Trip folder deleted</string>
+
+    <!-- Document types -->
+    <string name="vault_type_passport">Passport</string>
+    <string name="vault_type_id_card">ID card</string>
+    <string name="vault_type_visa">Visa</string>
+    <string name="vault_type_e_visa">E-visa</string>
+    <string name="vault_type_transit_visa">Transit visa</string>
+    <string name="vault_type_entry_form">Entry form</string>
+    <string name="vault_type_ticket">Ticket</string>
+    <string name="vault_type_boarding_pass">Boarding pass</string>
+    <string name="vault_type_hotel">Hotel booking</string>
+    <string name="vault_type_insurance">Insurance</string>
+    <string name="vault_type_vaccination">Vaccination certificate</string>
+    <string name="vault_type_other">Other</string>
+
+    <!-- Document screen -->
+    <string name="vault_doc_holder">Name on document</string>
+    <string name="vault_doc_number">Number</string>
+    <!-- Read by screen readers instead of the dots. %1$s = the visible last characters, e.g. "01". -->
+    <string name="vault_doc_number_hidden_end">Hidden number ending in %1$s</string>
+    <string name="vault_doc_number_hidden">Hidden number</string>
+    <string name="vault_doc_issuing">Issued by</string>
+    <string name="vault_doc_issued">Issued on</string>
+    <string name="vault_doc_expires">Expires on</string>
+    <string name="vault_doc_valid">Covers</string>
+    <string name="vault_doc_countries">Valid for</string>
+    <string name="vault_doc_flight">Flight</string>
+    <!-- Flight and its date, e.g. "ZZ 101 · 11 Nov 2026". -->
+    <string name="vault_doc_flight_value">%1$s · %2$s</string>
+    <string name="vault_doc_booking">Booking reference</string>
+    <plurals name="vault_doc_used_in">
+        <item quantity="one">Used in %d trip folder</item>
+        <item quantity="other">Used in %d trip folders</item>
+    </plurals>
+    <string name="vault_doc_sample_note">Sample document made up for the demo. It is not a real document.</string>
+    <string name="vault_doc_confirmed">Details checked by you against the original</string>
+    <string name="vault_doc_unconfirmed">Details not yet checked against the original</string>
+    <string name="vault_doc_pages">Pages</string>
+    <!-- %1$d = page number, %2$d = number of pages. -->
+    <string name="vault_doc_page">Page %1$d of %2$d</string>
+    <string name="vault_doc_file_ok">File check passed: unchanged since it was added (SHA-256 matches)</string>
+    <string name="vault_doc_file_changed">This file was changed or damaged after it was added. Do not rely on it.</string>
+    <string name="vault_doc_file_unreadable">This file could not be opened.</string>
+    <string name="vault_doc_file_pdf">This page is a PDF. Opening PDFs inside the vault is not available yet.</string>
+    <string name="vault_delete_document">Delete document</string>
+    <string name="vault_delete_document_title">Delete this document?</string>
+    <string name="vault_delete_document_body">It is removed from every trip folder that uses it, and its pages are deleted from the phone.</string>
+    <string name="vault_document_deleted">Document deleted</string>
+
+    <!-- Vault settings -->
+    <string name="vault_settings_security">Security</string>
+    <string name="vault_settings_lock">Ask for fingerprint, face or PIN</string>
+    <string name="vault_settings_lock_hint">Every time the vault opens, and again after it locks itself.</string>
+    <string name="vault_settings_lock_off_title">Turn off the vault lock</string>
+    <string name="vault_settings_auto_lock">Lock again after this long without using the vault</string>
+    <plurals name="vault_settings_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <string name="vault_settings_screenshots">Block screenshots and screen recording</string>
+    <string name="vault_settings_screenshots_hint">Vault screens show as black in screenshots, recordings and the recent apps view.</string>
+    <string name="vault_settings_files">Files</string>
+    <string name="vault_settings_check">Check all files</string>
+    <string name="vault_settings_checking">Checking…</string>
+    <!-- %1$d = number of files, %2$s = their total size, e.g. "1.2 MB". -->
+    <string name="vault_settings_check_ok">%1$d files checked: all open and are unchanged (%2$s).</string>
+    <!-- %1$d = files with a problem, %2$d = files checked. -->
+    <string name="vault_settings_check_problems">%1$d of %2$d files have a problem: changed, damaged or missing.</string>
+    <string name="vault_settings_check_none">No files in the vault yet.</string>
+    <string name="vault_settings_lock_now">Lock now</string>
+    <string name="vault_settings_privacy">Your data</string>
+    <string name="vault_settings_privacy_body">Everything stays on this phone, encrypted. Nothing is uploaded. Deleting the vault removes all documents, pages and keys for good.</string>
+    <string name="vault_settings_delete">Delete the whole vault</string>
+    <string name="vault_settings_delete_title">Delete the whole vault?</string>
+    <string name="vault_settings_delete_body">All trip folders, documents, pages and the vault\'s keys are deleted from this phone. This cannot be undone.</string>
+    <string name="vault_settings_delete_confirm">Delete everything</string>
+    <string name="vault_settings_deleted">Vault deleted</string>
+
+    <!-- ===== Document Vault V2: adding documents ===== -->
+    <string name="title_vault_camera">Photograph document</string>
+    <string name="title_vault_crop">Crop page</string>
+    <string name="title_vault_edit">Check the details</string>
+    <string name="vault_add_document">Add document</string>
+    <string name="vault_add_scan">Scan with the camera</string>
+    <string name="vault_add_scan_hint">Finds the edges and straightens each page</string>
+    <string name="vault_add_import">Import a PDF or photo</string>
+    <string name="vault_add_import_hint">An e-ticket, booking or photo already on your phone</string>
+    <string name="vault_add_manual">Type it in</string>
+    <string name="vault_add_manual_hint">No picture, just the details</string>
+    <string name="vault_add_existing">From your other trips</string>
+    <string name="vault_add_existing_hint">For example your passport: stored once, used in many trips</string>
+    <string name="vault_add_existing_none">All your saved documents are in this trip already.</string>
+    <string name="vault_add_existing_title">Add a saved document</string>
+    <string name="vault_add_where">Where in this trip?</string>
+    <string name="vault_add_linked">Added to this trip</string>
+    <string name="vault_import_too_large">This file is bigger than 25 MB. Please choose a smaller file.</string>
+    <string name="vault_import_failed">Could not read this file. Please try another one.</string>
+    <string name="vault_scanner_unavailable">Google\'s scanner cannot run on this phone right now, so the vault\'s own camera opens instead.</string>
+
+    <!-- The vault's own camera -->
+    <string name="vault_camera_hint">Hold the phone over the document so it fills the frame. Take one photo per page.</string>
+    <string name="vault_camera_preview">Camera preview</string>
+    <string name="vault_camera_denied">The camera is needed to photograph documents. Allow it in the phone\'s settings, or import a PDF or photo instead.</string>
+    <string name="vault_camera_take">Take photo</string>
+    <string name="vault_camera_done">Done</string>
+    <plurals name="vault_camera_pages">
+        <item quantity="one">%d page</item>
+        <item quantity="other">%d pages</item>
+    </plurals>
+    <string name="vault_camera_failed">Could not take the photo. Please try again.</string>
+
+    <!-- Manual crop -->
+    <string name="vault_crop_hint">Drag the four round handles onto the corners of the document.</string>
+    <string name="vault_crop_description">Photo with four corner handles for cropping the document</string>
+    <string name="vault_crop_whole">Use the whole picture</string>
+    <string name="vault_crop_use">Use this page</string>
+
+    <!-- Confirm screen -->
+    <string name="vault_edit_reading">Reading the document on your phone…</string>
+    <string name="vault_edit_heading">Check the details</string>
+    <string name="vault_edit_intro_read">The phone filled in what it could read. Compare every field with your document and correct anything that is wrong.</string>
+    <string name="vault_edit_intro_manual">Type the details exactly as they are printed on the document.</string>
+    <string name="vault_edit_start_again">Please add the document again.</string>
+    <string name="vault_note_mrz_read">Read from the machine-readable lines (MRZ) at the bottom of the page.</string>
+    <string name="vault_note_barcode_read">Read from the boarding pass barcode.</string>
+    <string name="vault_note_nothing_read">Nothing could be read automatically. Please type the details.</string>
+    <!-- %1$s = the code as printed, e.g. "UTO". -->
+    <string name="vault_note_country_unknown">The country code %1$s is not a country this phone knows. Choose the country yourself.</string>
+    <string name="vault_note_check_covers">Check which countries this visa is for: it was filled in from the country that issued it.</string>
+    <string name="vault_note_check_failed_number">The number may be misread (its check digit does not match). Compare it carefully.</string>
+    <string name="vault_note_check_failed_birth">The date of birth may be misread (its check digit does not match).</string>
+    <string name="vault_note_check_failed_expiry">The expiry date may be misread (its check digit does not match).</string>
+    <string name="vault_note_check_failed_personal">The personal number may be misread (its check digit does not match).</string>
+    <string name="vault_note_check_failed_whole">The overall check of the machine-readable lines failed. Compare every field carefully.</string>
+    <plurals name="vault_edit_pages">
+        <item quantity="one">%d page will be saved, encrypted on this phone.</item>
+        <item quantity="other">%d pages will be saved, encrypted on this phone.</item>
+    </plurals>
+    <string name="vault_edit_no_pages">No pages: only the details below are saved.</string>
+    <string name="vault_edit_type">Kind of document</string>
+    <string name="vault_edit_title">Name in the folder</string>
+    <string name="vault_edit_holder">Name as printed on the document</string>
+    <string name="vault_edit_number_passport">Passport number</string>
+    <string name="vault_edit_number_visa">Visa number</string>
+    <string name="vault_edit_number_id">ID number</string>
+    <string name="vault_edit_number_ticket">Ticket number</string>
+    <string name="vault_edit_number_insurance">Policy number</string>
+    <string name="vault_edit_number_certificate">Certificate number</string>
+    <string name="vault_edit_number_reference">Reference number</string>
+    <string name="vault_edit_number_other">Document number</string>
+    <string name="vault_edit_number_helper">Stored encrypted; shown hidden except its last 2 characters.</string>
+    <string name="vault_edit_number_check_failed">Does not match the check digit printed on the document: compare it carefully.</string>
+    <string name="vault_edit_number_check_ok">Matches the check digit printed on the document.</string>
+    <string name="vault_edit_country">Issuing country</string>
+    <string name="vault_edit_issue">Date of issue (DD/MM/YYYY)</string>
+    <string name="vault_edit_expiry">Date of expiry (DD/MM/YYYY)</string>
+    <string name="vault_edit_from_valid">Valid from (DD/MM/YYYY)</string>
+    <string name="vault_edit_to_valid">Valid until (DD/MM/YYYY)</string>
+    <string name="vault_edit_from_hotel">Check-in (DD/MM/YYYY)</string>
+    <string name="vault_edit_to_hotel">Check-out (DD/MM/YYYY)</string>
+    <string name="vault_edit_from_insurance">Cover starts (DD/MM/YYYY)</string>
+    <string name="vault_edit_to_insurance">Cover ends (DD/MM/YYYY)</string>
+    <string name="vault_edit_from_flight">Flight date (DD/MM/YYYY)</string>
+    <string name="vault_edit_covers">Valid for countries (2-letter codes, e.g. CD)</string>
+    <string name="vault_edit_entries">Entries</string>
+    <string name="vault_entries_single">Single entry</string>
+    <string name="vault_entries_double">Double entry</string>
+    <string name="vault_entries_multiple">Multiple entries</string>
+    <string name="vault_entries_unknown">Not shown on the document</string>
+    <string name="vault_edit_flight">Flight number</string>
+    <string name="vault_edit_booking">Booking reference</string>
+    <string name="vault_edit_leg">Part of the trip</string>
+    <string name="vault_edit_traveller">Whose document</string>
+    <string name="vault_edit_traveller_new">Someone new (the name on this document)</string>
+    <string name="vault_edit_traveller_nobody">Nobody in particular</string>
+    <string name="vault_edit_confirm">I compared these details with my document</string>
+    <string name="vault_edit_confirm_needed">Please compare the details with your document first.</string>
+    <string name="vault_edit_save">Save to vault</string>
+    <string name="vault_edit_cancel">Cancel</string>
+    <string name="vault_edit_saved">Document saved</string>
+    <string name="vault_edit_error_type">Choose the kind of document</string>
+    <string name="vault_edit_error_title">Give the document a name</string>
+    <string name="vault_edit_error_country">Choose a country from the list</string>
+    <string name="vault_edit_error_covers">Use 2-letter country codes, e.g. CD, or RW, UG</string>
+    <string name="vault_edit_error_expiry">The expiry date is before the date of issue</string>
+    <string name="vault_edit_error_to">The last day is before the first day</string>
+    <!-- Suggested names: "Passport (India)", "Boarding pass DEL → KGL". -->
+    <string name="vault_edit_title_country">%1$s (%2$s)</string>
+    <string name="vault_edit_title_route">%1$s %2$s</string>
 </resources>
