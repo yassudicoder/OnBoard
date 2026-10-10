@@ -307,10 +307,10 @@ Exact Android library versions live in `android/gradle/libs.versions.toml`; back
 - [x] Phase 0 — Setup (done 2026-10-10) · old phases 1–2 built (now parked) · backend hardening done (branch
   `feature/backend-hardening`, PR not opened yet)
 - [x] R0 — Refocus (done 2026-10-11)
-- [ ] G1 — Airport map (built 2026-10-11, waiting for the team's go-ahead)
-- [ ] G2 — Routing (built 2026-10-11, waiting for the team's go-ahead)
-- [ ] G3 — Navigation UX + positioning (built 2026-10-11 except the ongoing notification; waiting for the go-ahead)
-- [ ] G4 — Gate changes
+- [x] G1 — Airport map (done 2026-10-11)
+- [x] G2 — Routing (done 2026-10-11)
+- [x] G3 — Navigation UX + positioning (done 2026-10-11; the ongoing notification moved to G4)
+- [ ] G4 — Gate changes (waits for Disruption Recovery C1 in main: GateWatcher builds on its flight model)
 - [ ] B1 — Bag Shield capture
 - [ ] B2 — Counter & Station
 - [ ] B3 — Problems & claims
