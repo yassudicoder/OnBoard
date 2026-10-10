@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Profile tab (ProfileFragment):
+       1. the traveller (the demo's sample traveller, Aditi);
+       2. "This trip": purpose, traveller type, language and travellers, from the saved trip (same Room data as Trip);
+       3. "Display": large text, switched on here and applied to the whole app (AppSettings);
+       4. "Saved cards": bank + card type + last 4 digits only, kept on this phone (for card offers later);
+       5. "More": the Wallet (boarding passes, IDs, PDF) and, only with feature.tripTimeline=true, the parked
+          trip-timeline screens;
+       6. "Connection": which server the app uses and when it last heard from it.
+     MainActivity keeps the screen clear of the system bars (edge-to-edge), so no insets here. -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/profile_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp">
+
+        <!-- 1. The traveller -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/profile_avatar"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/bg_avatar"
+                android:gravity="center"
+                android:importantForAccessibility="no"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                tools:text="A" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/profile_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="Aditi" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_sample_traveller"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 2. This trip -->
+        <TextView
+            android:id="@+id/profile_trip_heading"
+            style="@style/Widget.SafarSaathi.ProfileSection"
+            android:text="@string/profile_section_trip" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/profile_trip_card"
+            style="?attr/materialCardViewOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/profile_trip_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="Client visit: Mumbai to Bengaluru" />
+
+                <TextView
+                    style="@style/Widget.SafarSaathi.SheetLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/profile_purpose" />
+
+                <TextView
+                    android:id="@+id/profile_purpose"
+                    style="@style/Widget.SafarSaathi.SheetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Business trip" />
+
+                <TextView
+                    style="@style/Widget.SafarSaathi.SheetLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_persona" />
+
+                <TextView
+                    android:id="@+id/profile_persona"
+                    style="@style/Widget.SafarSaathi.SheetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Business traveller" />
+
+                <TextView
+                    style="@style/Widget.SafarSaathi.SheetLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_language" />
+
+                <TextView
+                    android:id="@+id/profile_language"
+                    style="@style/Widget.SafarSaathi.SheetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="English" />
+
+                <TextView
+                    style="@style/Widget.SafarSaathi.SheetLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_travellers" />
+
+                <TextView
+                    android:id="@+id/profile_travellers"
+                    style="@style/Widget.SafarSaathi.SheetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="1" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/profile_trip_missing"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/profile_trip_missing"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone" />
+
+        <!-- 3. Display -->
+        <TextView
+            android:id="@+id/profile_display_heading"
+            style="@style/Widget.SafarSaathi.ProfileSection"
+            android:text="@string/profile_section_display" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="?attr/materialCardViewOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@id/profile_large_text"
+                        android:text="@string/profile_large_text"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/profile_large_text_detail"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/profile_large_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:contentDescription="@string/profile_large_text"
+                    android:minHeight="48dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 4. Saved cards -->
+        <TextView
+            android:id="@+id/profile_cards_heading"
+            style="@style/Widget.SafarSaathi.ProfileSection"
+            android:text="@string/profile_section_cards" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/profile_cards_hint"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <LinearLayout
+            android:id="@+id/profile_cards_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/profile_add_card"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:text="@string/profile_add_card" />
+
+        <!-- 5. More: the Document Vault, the Wallet, and the parked trip-timeline screens when feature.tripTimeline=true -->
+        <TextView
+            android:id="@+id/profile_more_heading"
+            style="@style/Widget.SafarSaathi.ProfileSection"
+            android:text="@string/profile_section_more" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/profile_open_vault"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:minHeight="48dp"
+            android:text="@string/profile_open_vault"
+            app:icon="@drawable/ic_lock_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/profile_open_wallet"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:text="@string/profile_open_wallet"
+            app:icon="@drawable/ic_wallet_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/profile_open_trip_status"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:text="@string/profile_open_trip_status"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/profile_open_trip"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:text="@string/profile_open_trip"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <!-- 6. Connection -->
+        <TextView
+            android:id="@+id/profile_connection_heading"
+            style="@style/Widget.SafarSaathi.ProfileSection"
+            android:text="@string/profile_section_connection" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="?attr/materialCardViewOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="16dp">
+
+                <TextView
+                    style="@style/Widget.SafarSaathi.SheetLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_server" />
+
+                <TextView
+                    android:id="@+id/profile_server"
+                    style="@style/Widget.SafarSaathi.SheetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="http://10.0.2.2:8080/" />
+
+                <TextView
+                    style="@style/Widget.SafarSaathi.SheetLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_last_update" />
+
+                <TextView
+                    android:id="@+id/profile_sync"
+                    style="@style/Widget.SafarSaathi.SheetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Updated 22:50" />
+
+                <TextView
+                    style="@style/Widget.SafarSaathi.SheetLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_app_version" />
+
+                <TextView
+                    android:id="@+id/profile_version"
+                    style="@style/Widget.SafarSaathi.SheetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="OnBoard 0.1.0" />
+
+                <!-- Ride handoff: which ride provider is on (REAL Uber link or MOCK demo dialog) and the local-only
+                     tap counts per ride button (RideTapCounter; never sent anywhere). -->
+                <TextView
+                    style="@style/Widget.SafarSaathi.SheetLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_rides" />
+
+                <TextView
+                    android:id="@+id/profile_rides"
+                    style="@style/Widget.SafarSaathi.SheetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Uber link (real) · client_id not set" />
+
+                <TextView
+                    style="@style/Widget.SafarSaathi.SheetLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_ride_taps" />
+
+                <TextView
+                    android:id="@+id/profile_ride_taps"
+                    style="@style/Widget.SafarSaathi.SheetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Departure 2 · Arrival 1 · Recovery 0" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Paste code" dialog of the Wallet tab: the text inside a boarding pass barcode (IATA BCBP), e.g. from an airline
+     app's "copy" button. Spaces matter in this text, so it is kept exactly as pasted. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="8dp">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/paste_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/wallet_paste_hint">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/paste_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:importantForAutofill="no"
+            android:inputType="textNoSuggestions|textMultiLine|textCapCharacters"
+            android:minLines="2" />
+    </com.google.android.material.textfield.TextInputLayout>
+</FrameLayout>

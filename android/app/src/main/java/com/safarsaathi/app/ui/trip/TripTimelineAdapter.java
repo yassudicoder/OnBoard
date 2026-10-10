@@ -145,7 +145,11 @@ final class TripTimelineAdapter extends ListAdapter<TripRow, RecyclerView.ViewHo
                     ? paintFlags | Paint.STRIKE_THRU_TEXT_FLAG
                     : paintFlags & ~Paint.STRIKE_THRU_TEXT_FLAG);
 
-            TripUi.styleStatusChip(binding.blockStatus, block.status);
+            TripUi.styleStatusChip(binding.blockStatus, block);
+            // "Planned for 08:00 · 2 hours later" when it moved from the original plan.
+            String planned = TripUi.plannedText(context, block);
+            binding.blockPlanned.setText(planned == null ? "" : planned);
+            binding.blockPlanned.setVisibility(planned == null ? View.GONE : View.VISIBLE);
             binding.blockMoved.setVisibility(
                     BlockEntity.STATUS_AUTO_ADJUSTED.equals(block.status) ? View.VISIBLE : View.GONE);
             binding.blockAnchor.setVisibility(block.anchor ? View.VISIBLE : View.GONE);

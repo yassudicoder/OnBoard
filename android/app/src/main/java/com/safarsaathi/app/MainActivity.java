@@ -1,9 +1,11 @@
 package com.safarsaathi.app;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -14,20 +16,25 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.NavGraph;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.safarsaathi.app.databinding.ActivityMainBinding;
+import com.safarsaathi.app.ui.vault.VaultWindow;
 
 /**
  * The app's only activity: a top bar, the current tab's screen, and a bottom bar with five tabs
- * (Home, Trip, Assistant, Wallet, Profile). Jetpack Navigation swaps the tab screens (fragments) for us.
+ * (Home, Navigate, Bags, Help, Profile). Jetpack Navigation swaps the tab screens (fragments) for us.
  */
 public class MainActivity extends AppCompatActivity {
 
     private NavController navController;
     private AppBarConfiguration appBarConfiguration;
+    /** True while a Document Vault screen is showing (any screen inside nav_graph's vault_graph). */
+    private boolean showingVault;
 
     /**
      * Shows Android's "allow access to devices on your local network?" question (see askForLocalNetworkAccess).
@@ -40,6 +47,15 @@ public class MainActivity extends AppCompatActivity {
                     ServiceLocator.get().getTripRepository().refresh(AppConfig.DEMO_TRIP_ID, false);
                 }
             });
+
+    /**
+     * Large text (Profile tab, {@link AppSettings}): runs before any view exists, so every screen, dialog and sheet
+     * of this activity draws its text 30% bigger when the traveller switched it on.
+     */
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(AppSettings.applyTo(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +79,13 @@ public class MainActivity extends AppCompatActivity {
                 .findFragmentById(R.id.nav_host_fragment);
         navController = navHostFragment.getNavController();
 
-        // All five tabs are "top-level" screens, so the toolbar shows no back arrow on them.
+        // The five tabs are "top-level" screens, so the toolbar shows no back arrow on them. Screens opened from a tab
+        // (the Wallet, parked screens) get a back arrow.
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home,
-                R.id.navigation_trip,
-                R.id.navigation_assistant,
-                R.id.navigation_wallet,
+                R.id.navigation_navigate,
+                R.id.navigation_bags,
+                R.id.navigation_help,
                 R.id.navigation_profile)
                 .build();
 
@@ -78,6 +95,23 @@ public class MainActivity extends AppCompatActivity {
         // keeps its own back stack. (Never use a Java switch on R.id values: with AGP 9 they are not
         // compile-time constants. NavigationUI matches the ids for us; elsewhere use if/else.)
         NavigationUI.setupWithNavController(binding.bottomNav, navController);
+
+        // Document Vault: block screenshots on its screens only (VaultWindow), and remember that a vault screen is
+        // showing so taps there restart the vault's auto-lock countdown (onUserInteraction).
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            showingVault = isVaultScreen(destination);
+            VaultWindow.update(this, showingVault);
+        });
+
+        // Navigate tab: a full-screen map like Google Maps, with its own search bar, so no toolbar there. Leaving the
+        // tab always brings the bottom tabs back (they are hidden while navigating, see setTabsVisible).
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            boolean navigate = destination.getId() == R.id.navigation_navigate;
+            binding.appBar.setVisibility(navigate ? View.GONE : View.VISIBLE);
+            if (!navigate) {
+                setTabsVisible(true);
+            }
+        });
 
         // Only on a fresh start: after a screen rotation the question (or its answer) is already there.
         if (savedInstanceState == null) {
@@ -99,6 +133,36 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_LOCAL_NETWORK)
                 != PackageManager.PERMISSION_GRANTED) {
             localNetworkQuestion.launch(Manifest.permission.ACCESS_LOCAL_NETWORK);
+        }
+    }
+
+    /** Every tap, swipe or key press in the app. In the vault it counts as "still using the vault" (auto-lock). */
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        if (showingVault) {
+            ServiceLocator.get().getVault().session().touch();
+        }
+    }
+
+    /** True for the vault's screens: they all sit inside the nested graph vault_graph (nav_graph.xml). */
+    private static boolean isVaultScreen(NavDestination destination) {
+        for (NavGraph parent = destination.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent.getId() == R.id.vault_graph) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Navigate tab, turn-by-turn: hides the bottom tabs so the map and the instructions get the whole screen (like
+     * Google Maps), and shows them again afterwards.
+     */
+    public void setTabsVisible(boolean visible) {
+        View tabs = findViewById(R.id.bottom_nav);
+        if (tabs != null) {
+            tabs.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
     }
 

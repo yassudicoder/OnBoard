@@ -1,15 +1,28 @@
 package com.safarsaathi.app;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.content.ContextCompat;
 import androidx.room.Room;
 
 import com.safarsaathi.app.data.TripRepository;
+import com.safarsaathi.app.data.WalletRepository;
+import com.safarsaathi.app.data.airport.AirportMapRepository;
 import com.safarsaathi.app.data.local.AppDatabase;
 import com.safarsaathi.app.data.remote.SafarSaathiApi;
+import com.safarsaathi.app.data.ride.MockRideProvider;
+import com.safarsaathi.app.data.ride.RidePoints;
+import com.safarsaathi.app.data.ride.RideProvider;
+import com.safarsaathi.app.data.ride.UberDeepLinkProvider;
+import com.safarsaathi.app.data.vault.Vault;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,10 +57,21 @@ public final class ServiceLocator {
     private final SafarSaathiApi api;
     private final ExecutorService ioExecutor;
     private final TripRepository tripRepository;
+    private final WalletRepository walletRepository;
+    private final AirportMapRepository airportMapRepository;
+    private final Vault vault;
+    private final RideProvider rideProvider;
+    private final RidePoints ridePoints;
 
     /** Set only by instrumented tests, see {@link #setTripRepositoryForTests}. */
     @Nullable
     private volatile TripRepository tripRepositoryForTests;
+    @Nullable
+    private volatile WalletRepository walletRepositoryForTests;
+    @Nullable
+    private volatile AirportMapRepository airportMapRepositoryForTests;
+    @Nullable
+    private volatile Vault vaultForTests;
 
     private ServiceLocator(Application app) {
         // Settings from local.properties, baked into BuildConfig at build time (see app/build.gradle.kts).
@@ -79,6 +103,35 @@ public final class ServiceLocator {
         ioExecutor = Executors.newSingleThreadExecutor(task -> new Thread(task, "safar-saathi-io"));
 
         tripRepository = new TripRepository(database.tripDao(), api, ioExecutor, Clock.systemUTC());
+        // Boarding passes and saved cards: phone-only data, written on the same background thread.
+        walletRepository = new WalletRepository(database.walletDao(), ioExecutor, Clock.systemUTC());
+        // Terminal maps (Gate Navigation): the copy inside the app comes from assets (mock-data/airports at build time).
+        airportMapRepository = new AirportMapRepository(database.airportMapDao(), api,
+                path -> readAsset(app, path), ioExecutor, Clock.systemUTC());
+        // Document Vault: its own encrypted database and files, opened the first time a vault screen needs them.
+        // It gets its OWN background thread, so encrypting a large scan never delays a trip save (and the other
+        // way round).
+        ExecutorService vaultExecutor = Executors.newSingleThreadExecutor(task -> new Thread(task, "onboard-vault"));
+        vault = Vault.create(app, vaultExecutor, ContextCompat.getMainExecutor(app), Clock.systemUTC());
+
+        // Ride handoff: the real Uber deep link needs no key, so it is the default; RIDE_PROVIDER=mock in
+        // local.properties swaps in the demo dialog. Logged like the backend logs its MOCK / REAL providers.
+        rideProvider = BuildConfig.RIDE_PROVIDER_MOCK
+                ? new MockRideProvider(BuildConfig.UBER_CLIENT_ID)
+                : new UberDeepLinkProvider(BuildConfig.UBER_CLIENT_ID);
+        Log.i("ServiceLocator", "Ride provider: " + (rideProvider.isMock() ? "MOCK" : "REAL")
+                + " (" + rideProvider.name() + ")");
+        // Airport pickup / drop-off points: a small JSON file inside the app (read once, a few kB).
+        ridePoints = loadRidePoints(app);
+    }
+
+    private static RidePoints loadRidePoints(Application app) {
+        try {
+            return RidePoints.parse(readAsset(app, RidePoints.ASSET));
+        } catch (IOException e) {
+            Log.e("ServiceLocator", "Could not read " + RidePoints.ASSET + ": ride buttons have no airport points", e);
+            return RidePoints.empty();
+        }
     }
 
     /**
@@ -142,6 +195,47 @@ public final class ServiceLocator {
         return replacement != null ? replacement : tripRepository;
     }
 
+    /** Ride handoff: Uber deep link (real) or the demo dialog (RIDE_PROVIDER=mock). */
+    public RideProvider getRideProvider() {
+        return rideProvider;
+    }
+
+    /** Airport pickup / drop-off points and ride estimates (mock-data/airports/ride-points.json). */
+    public RidePoints getRidePoints() {
+        return ridePoints;
+    }
+
+    /** Terminal maps for the Navigate tab (the test replacement, if a test set one). */
+    public AirportMapRepository getAirportMapRepository() {
+        AirportMapRepository replacement = airportMapRepositoryForTests;
+        return replacement != null ? replacement : airportMapRepository;
+    }
+
+    /** A text file that ships inside the app (src/main/assets, plus mock-data/airports, see app/build.gradle.kts). */
+    private static String readAsset(Application app, String path) throws IOException {
+        try (InputStream in = app.getAssets().open(path)) {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                bytes.write(buffer, 0, read);
+            }
+            return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
+        }
+    }
+
+    /** Boarding passes and saved cards (the test replacement, if a test set one). */
+    public WalletRepository getWalletRepository() {
+        WalletRepository replacement = walletRepositoryForTests;
+        return replacement != null ? replacement : walletRepository;
+    }
+
+    /** The Document Vault (the test replacement, if a test set one). */
+    public Vault getVault() {
+        Vault replacement = vaultForTests;
+        return replacement != null ? replacement : vault;
+    }
+
     // ============================================================================================
     // TEST HOOK - for instrumented tests (src/androidTest) only. Never call this from app code.
     // A UI test builds a TripRepository with an in-memory database and a fake SafarSaathiApi, puts a
@@ -151,5 +245,23 @@ public final class ServiceLocator {
     @VisibleForTesting
     public void setTripRepositoryForTests(@Nullable TripRepository replacement) {
         tripRepositoryForTests = replacement;
+    }
+
+    /** Same idea for the terminal maps. Pass null to go back to the real one. */
+    @VisibleForTesting
+    public void setAirportMapRepositoryForTests(@Nullable AirportMapRepository replacement) {
+        airportMapRepositoryForTests = replacement;
+    }
+
+    /** Same idea for the Wallet and Profile data. Pass null to go back to the real one. */
+    @VisibleForTesting
+    public void setWalletRepositoryForTests(@Nullable WalletRepository replacement) {
+        walletRepositoryForTests = replacement;
+    }
+
+    /** Same idea for the Document Vault: tests use a vault in a temporary folder. Pass null to go back. */
+    @VisibleForTesting
+    public void setVaultForTests(@Nullable Vault replacement) {
+        vaultForTests = replacement;
     }
 }

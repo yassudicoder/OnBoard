@@ -20,7 +20,9 @@ personal data in this folder. It is committed to git.
 | `cabs.json` | Cab types (e.g. mini, sedan, SUV) with base fare and per-km price; night surge 1.8× from 00:00 to 05:00 | Phase 4 | MockCab, cost compare |
 | `restaurants.json` | A few restaurants (Bengaluru, Leh) with table slots and party sizes | Phase 4 | MockTable |
 | `offers.json` | 6–8 card offers: bank, card type, % off, max discount ₹, valid airlines, valid from/to, minimum spend ₹ | Phase 7 | True-cost compare (F7) |
-| `terminal-map.json` | Points for ONE terminal (Mumbai T2 or Delhi T1, picked in Phase 7): gates, security, check-in rows, washrooms, food, exits. Each has x/y coordinates on our own vector map, plus walking minutes between neighbouring points | Phase 7 | Airport map screen, entry → gate directions |
+| `airports/BOM-T2/map.json` + `areas.geojson` | **Gate Navigation (G1, here now).** The Mumbai T2 walking map: floors, places, walkways, QR anchors (map.json) and hall/pier outlines (areas.geojson). A **demo schematic drawn by the team** (`"verified": false`), not an official map; coordinates are metres in a local frame | **G1** | The backend (`GET /api/airports/BOM/T2/map`, checked at startup) and the app (bundled as assets for offline use) |
+| `airports/ride-points.json` | **Ride handoff to Uber (11 Oct).** Airport drop-off points (`name`, `lat`, `lng`, `terminal`, `sourceUrl`, `lastChecked`, `verified`), the "Leave by" estimate (ride + time at the airport) and nearby terminals with a transfer estimate. Coordinates are terminal-building centres from OpenStreetMap (© OpenStreetMap contributors, ODbL), **`"verified": false`** until a teammate checks them, so the app says "Approximate drop-off point". A point without `sourceUrl` is ignored; never invent one | Ride handoff | The app only (bundled as an asset; nothing is sent to our server) |
+| `terminal-map.json` | PARKED (old plan, replaced by `airports/BOM-T2/`). Points for ONE terminal (Mumbai T2 or Delhi T1, picked in Phase 7): gates, security, check-in rows, washrooms, food, exits. Each has x/y coordinates on our own vector map, plus walking minutes between neighbouring points | Phase 7 | Airport map screen, entry → gate directions |
 
 The partner rules (free-change windows, fees) come from CLAUDE.md §5. Phase 4 decides whether they live in these
 files or in the mock partner code:
@@ -191,3 +193,15 @@ Text limits (from the database tables): `title` and `locationName` up to 200 cha
 - **How the backend reads these files:** from the classpath (`classpath:mock-data/<file>.json`). `backend/pom.xml`
   copies every `*.json` file in this folder into the backend at build time, so after editing a file, restart the
   backend (`./mvnw spring-boot:run` copies it again).
+
+## airports/BOM-T2: the demo terminal map (G1)
+
+- **Ours, and labelled so.** Drawn from scratch as a simplified schematic; nothing traced or copied from any map.
+  Positions, distances, gate numbers and landmarks are made up for the demo. Both files say `"verified": false` and
+  `"note": "Demo schematic, not an official airport map"`, and the app shows that note on screen.
+- **Editing it:** every walkway's `distanceM` must match the straight line between its places (within 1 m), lifts /
+  escalators / stairs join the same x/y on two floors, and the only way from LANDSIDE to AIRSIDE is the one-way walkway
+  through security. `AirportMapValidatorTest` (run by `./mvnw test` in `backend/`) checks all of this; a broken map
+  also stops the backend at startup. Raise `version` after any change, so phones replace their saved copy.
+- **Where it goes:** `backend/pom.xml` copies `*.json` and `*.geojson` into the backend; `android/app/build.gradle.kts`
+  ships the `airports/` folder inside the app as assets.

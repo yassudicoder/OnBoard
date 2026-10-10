@@ -3,19 +3,124 @@
        android:id     -> the destination id. The bottom bar items (menu/bottom_nav_menu.xml) use the SAME ids.
        android:name   -> the Fragment class that draws the screen.
        android:label  -> the title shown in the top bar.
-     startDestination = the screen the app opens on (Home, "Do this now").
-     Later phases add more screens here (e.g. block details, the Fix-it screen) and the routes between them. -->
+     startDestination = the screen the app opens on (Home).
+
+     The five tabs come first. Then screens opened from Profile: the Wallet, and the PARKED screens of the old
+     trip-timeline plan (CLAUDE.md "Parked"). Parked screens stay in the graph so their code and tests keep working;
+     the app only links to them when feature.tripTimeline=true (android/local.properties). -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/navigation_home">
 
+    <!-- ===== The five tabs ===== -->
+
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.safarsaathi.app.ui.home.HomeFragment"
         android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_navigate"
+        android:name="com.safarsaathi.app.ui.navigate.NavigateFragment"
+        android:label="@string/title_navigate"
         tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/navigation_bags"
+        android:name="com.safarsaathi.app.ui.bags.BagsFragment"
+        android:label="@string/title_bags"
+        tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/navigation_help"
+        android:name="com.safarsaathi.app.ui.help.HelpFragment"
+        android:label="@string/title_help"
+        tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.safarsaathi.app.ui.profile.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <!-- ===== Opened from Profile ===== -->
+
+    <fragment
+        android:id="@+id/navigation_wallet"
+        android:name="com.safarsaathi.app.ui.wallet.WalletFragment"
+        android:label="@string/title_wallet"
+        tools:layout="@layout/fragment_wallet" />
+
+    <!-- ===== Document Vault (feature C), opened from Profile > More =====
+         A nested graph: every screen inside it shows documents, so MainActivity treats "the current screen is inside
+         vault_graph" as "block screenshots" (FLAG_SECURE), and only taps there keep the vault's auto-lock from
+         running out. Navigate to @id/vault_graph to open the vault home. -->
+    <navigation
+        android:id="@+id/vault_graph"
+        app:startDestination="@id/vault_home">
+
+        <fragment
+            android:id="@+id/vault_home"
+            android:name="com.safarsaathi.app.ui.vault.VaultHomeFragment"
+            android:label="@string/title_vault"
+            tools:layout="@layout/fragment_vault_home" />
+
+        <fragment
+            android:id="@+id/vault_trip"
+            android:name="com.safarsaathi.app.ui.vault.VaultTripFragment"
+            android:label="@string/title_vault_trip"
+            tools:layout="@layout/fragment_vault_trip">
+            <argument
+                android:name="tripId"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/vault_document"
+            android:name="com.safarsaathi.app.ui.vault.VaultDocumentFragment"
+            android:label="@string/title_vault_document"
+            tools:layout="@layout/fragment_vault_document">
+            <argument
+                android:name="documentId"
+                app:argType="string" />
+        </fragment>
+
+        <!-- Adding a document (V2): the vault's own camera, the manual crop, and the confirm screen. -->
+        <fragment
+            android:id="@+id/vault_camera"
+            android:name="com.safarsaathi.app.ui.vault.VaultCameraFragment"
+            android:label="@string/title_vault_camera"
+            tools:layout="@layout/fragment_vault_camera" />
+
+        <fragment
+            android:id="@+id/vault_crop"
+            android:name="com.safarsaathi.app.ui.vault.VaultCropFragment"
+            android:label="@string/title_vault_crop"
+            tools:layout="@layout/fragment_vault_crop" />
+
+        <fragment
+            android:id="@+id/vault_edit_document"
+            android:name="com.safarsaathi.app.ui.vault.VaultEditDocumentFragment"
+            android:label="@string/title_vault_edit"
+            tools:layout="@layout/fragment_vault_edit_document" />
+
+        <fragment
+            android:id="@+id/vault_settings"
+            android:name="com.safarsaathi.app.ui.vault.VaultSettingsFragment"
+            android:label="@string/title_vault_settings"
+            tools:layout="@layout/fragment_vault_settings" />
+    </navigation>
+
+    <!-- ===== PARKED (old trip-timeline plan), only linked when feature.tripTimeline=true ===== -->
+
+    <fragment
+        android:id="@+id/navigation_trip_status"
+        android:name="com.safarsaathi.app.ui.trip.TripStatusFragment"
+        android:label="@string/title_trip_status"
+        tools:layout="@layout/fragment_trip_status" />
 
     <fragment
         android:id="@+id/navigation_trip"
@@ -28,17 +133,4 @@
         android:name="com.safarsaathi.app.ui.assistant.AssistantFragment"
         android:label="@string/title_assistant"
         tools:layout="@layout/fragment_placeholder" />
-
-    <fragment
-        android:id="@+id/navigation_wallet"
-        android:name="com.safarsaathi.app.ui.wallet.WalletFragment"
-        android:label="@string/title_wallet"
-        tools:layout="@layout/fragment_placeholder" />
-
-    <fragment
-        android:id="@+id/navigation_profile"
-        android:name="com.safarsaathi.app.ui.profile.ProfileFragment"
-        android:label="@string/title_profile"
-        tools:layout="@layout/fragment_placeholder" />
-
 </navigation>

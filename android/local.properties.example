@@ -38,3 +38,14 @@ MAPS_API_KEY=
 #       Windows asked, and usually blocks it anyway on a Wi-Fi marked "Public". Venue/college Wi-Fi also
 #       often keeps devices apart. In those cases use the USB way.
 BACKEND_BASE_URL=http://10.0.2.2:8080/
+
+# Ride handoff (Uber deep links). No key or partner approval is needed: the app only opens Uber with pickup and
+# drop-off filled in. UBER_CLIENT_ID = the client id of the team's app on developer.uber.com (optional; empty =
+# links without client_id, which still open Uber). RIDE_PROVIDER=mock shows a demo dialog instead of opening Uber
+# (handy on an emulator without Uber); leave it out (or "uber") for the real link.
+UBER_CLIENT_ID=
+# RIDE_PROVIDER=mock
+
+# Parked feature flag (CLAUDE.md "Parked"). true = Profile > More links to the old trip timeline and trip status
+# screens (the delay / ripple demo). Leave it out, or false, for the Gate Navigation + Baggage Shield app.
+# feature.tripTimeline=false

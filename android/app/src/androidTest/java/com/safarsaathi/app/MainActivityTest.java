@@ -8,6 +8,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -39,33 +41,42 @@ public class MainActivityTest {
 
     @Test
     public void appOpensOnHomeTab() {
-        assertTabIsShown(R.string.title_home, R.string.home_headline);
+        assertHomeIsShown();
     }
 
     @Test
     public void eachBottomNavItem_showsItsOwnTab() {
-        // The Trip tab is a real screen since Phase 1. What it lists depends on whether a backend is
-        // running (TripFragmentTest checks the content), so here we only check that the screen opened.
-        clickTab(R.id.navigation_trip);
-        assertToolbarTitle(R.string.title_trip);
-        onView(withId(R.id.trip_root)).check(matches(isDisplayed()));
+        clickTab(R.id.navigation_navigate);
+        // A full-screen map like Google Maps: its own search bar instead of the top bar.
+        onView(withId(R.id.navigate_search_bar)).check(matches(isDisplayed()));
+        onView(withId(R.id.app_bar)).check(matches(not(isDisplayed())));
 
-        clickTab(R.id.navigation_assistant);
-        assertTabIsShown(R.string.title_assistant, R.string.assistant_headline);
+        clickTab(R.id.navigation_bags);
+        assertTabIsShown(R.string.title_bags, R.string.bags_headline);
 
-        clickTab(R.id.navigation_wallet);
-        assertTabIsShown(R.string.title_wallet, R.string.wallet_headline);
+        clickTab(R.id.navigation_help);
+        assertTabIsShown(R.string.title_help, R.string.help_headline);
 
         clickTab(R.id.navigation_profile);
-        assertTabIsShown(R.string.title_profile, R.string.profile_headline);
+        assertToolbarTitle(R.string.title_profile);
+        onView(withId(R.id.profile_name)).check(matches(allOf(isDisplayed(), withText("Aditi"))));
 
         clickTab(R.id.navigation_home);
-        assertTabIsShown(R.string.title_home, R.string.home_headline);
+        assertHomeIsShown();
     }
 
     /** Taps a bottom-bar item. Each item view carries its menu item id (R.id.navigation_...). */
     private static void clickTab(int tabId) {
         onView(withId(tabId)).perform(click());
+    }
+
+    /**
+     * Checks the Home tab: its title in the top bar and the greeting for the sample traveller. What else it shows
+     * depends on whether a backend is running (HomeFragmentTest checks the flight card).
+     */
+    private static void assertHomeIsShown() {
+        assertToolbarTitle(R.string.title_home);
+        onView(withId(R.id.home_greeting)).check(matches(allOf(isDisplayed(), withText(containsString("Aditi")))));
     }
 
     /** Checks a placeholder tab's headline on screen and its title in the top bar. */

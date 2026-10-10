@@ -10,10 +10,45 @@
         <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
+    <!-- Profile tab: the heading above each section, e.g. "Saved cards". -->
+    <style name="Widget.SafarSaathi.ProfileSection" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginHorizontal">16dp</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- Document Vault: the amber "SAMPLE" label on made-up demo trips and documents. It is words, not only a
+         colour, so it also works for colour-blind travellers and screen readers. -->
+    <style name="Widget.SafarSaathi.SampleChip" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_status_chip</item>
+        <item name="android:backgroundTint">@color/status_adjusted_container</item>
+        <item name="android:paddingHorizontal">8dp</item>
+        <item name="android:paddingVertical">2dp</item>
+        <item name="android:text">@string/vault_sample_chip</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelMedium</item>
+        <item name="android:textColor">@color/status_adjusted_on_container</item>
+    </style>
+
     <!-- Block details sheet: the information itself, e.g. "Sun, 11 Oct · 12:00–13:00". -->
     <style name="Widget.SafarSaathi.SheetValue" parent="">
         <item name="android:layout_marginTop">2dp</item>
         <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- Navigate tab: the cards at the bottom of the map (place, route, navigation) have rounded TOP corners only,
+         like a Google Maps bottom sheet. -->
+    <style name="ShapeAppearance.SafarSaathi.BottomCard" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">24dp</item>
+        <item name="cornerSizeTopRight">24dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
     </style>
 </resources>

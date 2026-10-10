@@ -49,7 +49,8 @@ Numbers to remember (trip 1, delay +90): flight 08:00 → **09:30**, cab pickup 
 - [ ] Backend running (`./mvnw spring-boot:run` in `backend/`), and the log shows `Safar Saathi backend is ready`.
 - [ ] Press **Reset demo** once: fresh dates (trip day = tomorrow) and everything green.
 - [ ] Emulator started, app opened on the **Trip** tab **while online**, showing all green. This also saves the plan on
-      the phone for the offline step.
+      the phone for the offline step. (First start on Android 17: tap **Allow** on the "nearby devices" question,
+      or the app can't reach the backend.)
 - [ ] Airplane mode is **off**, and the driver knows where the switch is (swipe down from the top of the emulator).
 - [ ] `/demo` open in the browser, zoomed in so the buttons are readable on the projector.
 - [ ] One full dry run (delay → airplane mode → back online → reset), then leave it reset.

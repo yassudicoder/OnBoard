@@ -1,0 +1,282 @@
+{
+  "type": "FeatureCollection",
+  "source": "Simplified schematic drawn from scratch by the OnBoard team for the demo; not traced or copied from any map. Positions, distances, gate numbers and landmarks are illustrative only. The one real-world fact used, the Lost & Found place (T2 Ground Transportation Lobby, Level 1), comes from the team brief and must still be checked against the official CSMIA page.",
+  "preparedBy": "OnBoard team, 2026-10-11 (v2: drawn tall, piers to the north, to fit a phone screen)",
+  "verified": false,
+  "note": "Demo schematic, not an official airport map. Coordinates are metres in the same local frame as map.json (x east, y north), NOT longitude and latitude.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "floor": "DEP",
+        "kind": "LANDSIDE",
+        "names": {
+          "en": "Departures hall",
+          "hi": "प्रस्थान हॉल",
+          "mr": "प्रस्थान दालन"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              -6
+            ],
+            [
+              162,
+              -6
+            ],
+            [
+              162,
+              47
+            ],
+            [
+              0,
+              47
+            ],
+            [
+              0,
+              -6
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "floor": "DEP",
+        "kind": "CHECKPOINT",
+        "names": {
+          "en": "Security",
+          "hi": "सुरक्षा",
+          "mr": "सुरक्षा"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              60,
+              47
+            ],
+            [
+              100,
+              47
+            ],
+            [
+              100,
+              63
+            ],
+            [
+              60,
+              63
+            ],
+            [
+              60,
+              47
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "floor": "DEP",
+        "kind": "AIRSIDE",
+        "names": {
+          "en": "Airside",
+          "hi": "एयरसाइड",
+          "mr": "एअरसाइड"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              45,
+              63
+            ],
+            [
+              115,
+              63
+            ],
+            [
+              115,
+              148
+            ],
+            [
+              45,
+              148
+            ],
+            [
+              45,
+              63
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "floor": "DEP",
+        "kind": "PIER",
+        "names": {
+          "en": "Pier C",
+          "hi": "पियर C",
+          "mr": "पियर C"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              15,
+              130
+            ],
+            [
+              52,
+              130
+            ],
+            [
+              52,
+              262
+            ],
+            [
+              15,
+              262
+            ],
+            [
+              15,
+              130
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "floor": "DEP",
+        "kind": "PIER",
+        "names": {
+          "en": "Pier D",
+          "hi": "पियर D",
+          "mr": "पियर D"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              108,
+              130
+            ],
+            [
+              145,
+              130
+            ],
+            [
+              145,
+              262
+            ],
+            [
+              108,
+              262
+            ],
+            [
+              108,
+              130
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "floor": "ARR",
+        "kind": "AIRSIDE",
+        "names": {
+          "en": "Baggage hall",
+          "hi": "बैगेज हॉल",
+          "mr": "बॅगेज हॉल"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              15,
+              48
+            ],
+            [
+              155,
+              48
+            ],
+            [
+              155,
+              112
+            ],
+            [
+              15,
+              112
+            ],
+            [
+              15,
+              48
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "floor": "ARR",
+        "kind": "LANDSIDE",
+        "names": {
+          "en": "Arrivals lobby",
+          "hi": "आगमन लॉबी",
+          "mr": "आगमन लॉबी"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              15,
+              -6
+            ],
+            [
+              162,
+              -6
+            ],
+            [
+              162,
+              48
+            ],
+            [
+              15,
+              48
+            ],
+            [
+              15,
+              -6
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

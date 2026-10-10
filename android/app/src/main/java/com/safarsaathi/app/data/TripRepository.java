@@ -16,6 +16,7 @@ import com.safarsaathi.app.data.remote.TripDto;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -141,6 +142,9 @@ public class TripRepository {
             Instant now = clock.instant();
             TripEntity saved = tripDao.getTrip(tripId);
             if (SyncDecision.shouldReplace(saved, fresh.trip)) {
+                // Carry over each block's originally planned times (or set them, for a trip seen at version 1).
+                List<BlockEntity> savedBlocks = saved == null ? Collections.emptyList() : tripDao.getBlocks(tripId);
+                PlannedTimes.fill(saved, savedBlocks, fresh.trip, fresh.blocks);
                 fresh.trip.lastSyncedAt = now;
                 tripDao.replaceTrip(fresh.trip, fresh.blocks, fresh.links);
                 Log.i(TAG, "Saved " + fresh.trip + " with " + fresh.blocks.size() + " blocks");

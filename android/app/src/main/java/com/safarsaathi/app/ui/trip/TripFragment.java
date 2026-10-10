@@ -26,7 +26,6 @@ import com.safarsaathi.app.databinding.FragmentTripBinding;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Trip tab, "My trip": the whole trip as a timeline (layout: res/layout/fragment_trip.xml).
@@ -114,8 +113,8 @@ public class TripFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        // The tab is now visible: refresh once now, then every 10 seconds.
-        viewModel.refresh();
+        // The tab is now visible: refresh now (unless another tab just did), then every 10 seconds.
+        viewModel.refreshOnOpen();
         mainHandler.removeCallbacks(autoRefresh);
         mainHandler.postDelayed(autoRefresh, AppConfig.AUTO_REFRESH_INTERVAL_MS);
     }
@@ -160,16 +159,7 @@ public class TripFragment extends Fragment {
     }
 
     private void renderHeader(TripEntity currentTrip) {
-        String purpose = getString(TripUi.purposeLabel(currentTrip.purpose));
-        String summary;
-        if (blocks.isEmpty()) {
-            summary = purpose;
-        } else {
-            Locale locale = getResources().getConfiguration().getLocales().get(0);
-            String firstDay = TripTime.dayHeader(TripTime.localDate(blocks.get(0).startTime), locale);
-            String count = getResources().getQuantityString(R.plurals.trip_bookings, blocks.size(), blocks.size());
-            summary = getString(R.string.trip_summary, purpose, firstDay, count);
-        }
+        String summary = TripUi.tripSummary(requireContext(), currentTrip, blocks);
         String syncLine = TripUi.syncLine(requireContext(), syncState, currentTrip.lastSyncedAt);
         boolean offline = syncState.kind == SyncState.Kind.OFFLINE;
         headerAdapter.setHeader(new TripHeaderAdapter.Header(currentTrip.title, summary, syncLine, offline));

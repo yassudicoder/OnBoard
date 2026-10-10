@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Auto Backup rules for Android 11 (API 30) and older; uncomment and customise as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup for details.
-   Android 12+ uses data_extraction_rules.xml instead.
--->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Auto Backup rules for Android 11 (API 30) and older (Android 12+ uses data_extraction_rules.xml).
+     See https://developer.android.com/guide/topics/data/autobackup for details.
+
+     The app's database holds the traveller's ID details (Aadhaar last 4 digits, PAN, visas), so it is left out of the
+     cloud backup. -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <exclude domain="database" path="." />
+    <!-- Ride handoff: addresses the traveller typed for a ride stay on this phone (RecentRidePlaces). -->
+    <exclude domain="sharedpref" path="onboard_ride_places.xml" />
 </full-backup-content>

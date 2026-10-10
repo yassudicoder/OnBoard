@@ -1,0 +1,140 @@
+# Ask OnBoard golden phrase set: questions a traveller might type or say, with the intent and reply language we expect.
+# Columns (TAB separated): expected intent, expected reply language (EN, HI, MR, HINGLISH), the question.
+# IntentGoldenSetTest needs 90% or better on both columns. Add phrases you hear from real travellers; when one fails,
+# improve the lexicon files rather than this file. MR also covers Marathi typed in English letters (answered in Marathi).
+# Written by the developer who wrote the lexicons: a native Hindi and Marathi speaker should add phrases (phase P).
+
+# ---- English ----
+GATE	EN	Where is my gate?
+GATE	EN	which gate is my flight
+GATE	EN	gate number for IJ 512?
+GATE	EN	has my gate changed
+BOARDING_TIME	EN	When does boarding start?
+BOARDING_TIME	EN	what time do we board
+BOARDING_CLOSE	EN	When does boarding close?
+BOARDING_CLOSE	EN	what time is the last call for boarding
+BOARDING_CLOSE	EN	when does the gate close
+FLIGHT_STATUS	EN	Is my flight on time?
+FLIGHT_STATUS	EN	is my flight delayed
+FLIGHT_STATUS	EN	has my flight been cancelled
+FLIGHT_STATUS	EN	what time does my flight land
+FLIGHT_STATUS	EN	flight status please
+CONNECTION_STATUS	EN	Will I miss my connection?
+CONNECTION_STATUS	EN	how long is my layover
+CONNECTION_STATUS	EN	is my connecting flight on time
+BAG_STATUS	EN	Where is my bag?
+BAG_STATUS	EN	is my luggage delayed
+BAG_STATUS	EN	status of my suitcase
+BAGGAGE_BELT	EN	Which belt will my bags come on?
+BAGGAGE_BELT	EN	where do I collect my baggage
+BAGGAGE_BELT	EN	carousel number?
+NEXT_STEP	EN	What should I do next?
+NEXT_STEP	EN	what now
+NEXT_STEP	EN	where do I go now
+DOCUMENT_EXPIRY	EN	When does my passport expire?
+DOCUMENT_EXPIRY	EN	is my visa still valid
+WHERE_IS	EN	Where are the washrooms?
+WHERE_IS	EN	nearest toilet please
+WHERE_IS	EN	is there a lift near gate 32
+WHERE_IS	EN	where is the help desk
+HELP	EN	help
+HELP	EN	what can you do
+SEARCH_HOTELS	EN	Find me a hotel near the airport tonight
+SEARCH_FLIGHTS	EN	Show the best flights to London tomorrow
+SEARCH_FLIGHTS	EN	find another flight to Delhi
+CAB	EN	Get me a cab to my hotel
+CAB	EN	book a taxi
+UNKNOWN	EN	tell me a joke
+# English with typos
+BOARDING_CLOSE	EN	wen does bording close
+BAG_STATUS	EN	where is my baggege
+GATE	EN	wich gate
+
+# ---- Hindi (Devanagari) ----
+GATE	HI	मेरा गेट कहाँ है?
+GATE	HI	मेरी फ्लाइट का गेट नंबर क्या है
+GATE	HI	गेट कौनसा है
+BOARDING_TIME	HI	बोर्डिंग कब शुरू होगी?
+BOARDING_TIME	HI	बोर्डिंग कितने बजे है
+BOARDING_CLOSE	HI	बोर्डिंग कब बंद होगी?
+BOARDING_CLOSE	HI	गेट कितने बजे बंद होगा
+FLIGHT_STATUS	HI	क्या मेरी फ्लाइट समय पर है?
+FLIGHT_STATUS	HI	मेरी फ्लाइट लेट है क्या
+FLIGHT_STATUS	HI	फ़्लाइट रद्द हो गई क्या
+CONNECTION_STATUS	HI	मेरी कनेक्टिंग फ्लाइट छूट जाएगी क्या?
+BAG_STATUS	HI	मेरा बैग कहाँ है?
+BAG_STATUS	HI	मेरा सामान कहां है
+BAGGAGE_BELT	HI	मेरा बैग किस बेल्ट पर आएगा?
+NEXT_STEP	HI	अब मुझे क्या करना है?
+NEXT_STEP	HI	अब कहाँ जाना है
+DOCUMENT_EXPIRY	HI	मेरा पासपोर्ट कब ख़त्म होगा?
+WHERE_IS	HI	शौचालय कहाँ है?
+WHERE_IS	HI	लिफ्ट किधर है
+WHERE_IS	HI	सहायता डेस्क कहाँ है
+HELP	HI	मुझे मदद चाहिए
+SEARCH_HOTELS	HI	एयरपोर्ट के पास होटल ढूँढो
+CAB	HI	होटल के लिए टैक्सी चाहिए
+
+# ---- Marathi (Devanagari) ----
+GATE	MR	माझे गेट कोणते आहे?
+GATE	MR	माझ्या फ्लाइटचे गेट कुठे आहे
+BOARDING_TIME	MR	बोर्डिंग कधी सुरू होईल?
+BOARDING_CLOSE	MR	बोर्डिंग किती वाजता बंद होईल?
+BOARDING_CLOSE	MR	गेट कधी बंद होणार
+FLIGHT_STATUS	MR	माझी फ्लाइट वेळेवर आहे का?
+FLIGHT_STATUS	MR	विमान उशिरा आहे का?
+FLIGHT_STATUS	MR	माझे विमान रद्द झाले का
+CONNECTION_STATUS	MR	माझी कनेक्टिंग फ्लाइट चुकेल का?
+BAG_STATUS	MR	माझी बॅग कुठे आहे?
+BAG_STATUS	MR	माझे सामान कुठे आहे
+BAGGAGE_BELT	MR	बॅग कोणत्या बेल्टवर येईल?
+NEXT_STEP	MR	आता पुढे काय करायचे?
+NEXT_STEP	MR	मी आता काय करू?
+DOCUMENT_EXPIRY	MR	माझ्या पासपोर्टची मुदत कधी संपते?
+WHERE_IS	MR	स्वच्छतागृह कुठे आहे?
+WHERE_IS	MR	लिफ्ट कुठे आहे
+WHERE_IS	MR	मदत कक्ष कुठे आहे
+HELP	MR	मला मदत हवी आहे
+SEARCH_HOTELS	MR	विमानतळाजवळ हॉटेल शोधा
+
+# ---- Hinglish (Hindi in English letters) ----
+GATE	HINGLISH	Mera gate kahan hai?
+GATE	HINGLISH	meri flight ka gate number kya hai
+GATE	HINGLISH	mera get kaha hai
+GATE	HINGLISH	gate kidhar hai bhai
+BOARDING_TIME	HINGLISH	boarding kab shuru hogi
+BOARDING_CLOSE	HINGLISH	Boarding kitne baje band hogi?
+BOARDING_CLOSE	HINGLISH	gate kab band hoga
+FLIGHT_STATUS	HINGLISH	Meri flight time pe hai?
+FLIGHT_STATUS	HINGLISH	flight late hai kya
+FLIGHT_STATUS	HINGLISH	meri flight cancel ho gayi kya
+CONNECTION_STATUS	HINGLISH	Doha connection miss hoga kya?
+CONNECTION_STATUS	HINGLISH	connecting flight chhoot jayegi kya
+BAG_STATUS	HINGLISH	mera samaan kahan hai
+BAG_STATUS	HINGLISH	Mera bag kahaan hai?
+BAGGAGE_BELT	HINGLISH	bag kis belt pe aayega
+BAGGAGE_BELT	HINGLISH	saman kahan milega
+NEXT_STEP	HINGLISH	ab kya karna hai
+NEXT_STEP	HINGLISH	ab kya karu
+DOCUMENT_EXPIRY	HINGLISH	passport kab expire hoga
+WHERE_IS	HINGLISH	Washroom kidhar hai?
+WHERE_IS	HINGLISH	toilet kahan hai
+WHERE_IS	HINGLISH	lift kidhar hai
+HELP	HINGLISH	madad chahiye
+SEARCH_HOTELS	HINGLISH	airport ke paas hotel dhundo
+CAB	HINGLISH	mujhe taxi chahiye
+UNKNOWN	HINGLISH	kal mausam kaisa hoga
+
+# ---- Marathi in English letters (answered in Marathi) ----
+GATE	MR	maza gate konta aahe?
+BOARDING_CLOSE	MR	boarding kiti vajta band hoil?
+FLIGHT_STATUS	MR	vimaan ushira aahe ka?
+FLIGHT_STATUS	MR	majhi flight velevar aahe ka
+CONNECTION_STATUS	MR	Majhi connection miss honar ka?
+BAG_STATUS	MR	Majhi bag kuthe aahe?
+BAGGAGE_BELT	MR	majhi bag kontya belt var yeil
+NEXT_STEP	MR	aata kay karu?
+DOCUMENT_EXPIRY	MR	passport kadhi sampel
+WHERE_IS	MR	toilet kuthe aahe
+WHERE_IS	MR	lift kuthay aahe
+HELP	MR	mala madat pahije
