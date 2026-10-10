@@ -11,6 +11,7 @@ this file covers how the backend should be configured and how to run the demo re
 | `APP_MODE` | `demo` | `demo`: the demo controls exist. `prod`: they do not (every `POST /api/demo/...` answers 404); health and trip APIs work as usual. |
 | `PORT` | `8080` | Port to listen on. |
 | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | local Docker DB | Where PostgreSQL is. |
+| `DB_HOST`, `DB_PORT`, `DB_NAME` | `localhost`, `5432`, `safarsaathi` | Used to build the URL when `DB_URL` is not set (Render gives the address in these pieces). |
 
 **Local development / demo laptop:** keep the defaults (`127.0.0.1`, `demo`).
 
@@ -18,6 +19,13 @@ this file covers how the backend should be configured and how to run the demo re
 `APP_MODE=prod`. Binding to 127.0.0.1 is not a security boundary on its own: any address other devices can reach
 must run in prod mode. The startup log prints the address, whether the demo controls are on, and a WARNING for
 demo mode on a public address.
+
+**Render (how the hackathon build is hosted):** `render.yaml` + `Dockerfile` in the repo root. Render dashboard →
+New → Blueprint → this repo, branch `release/demo` → Apply. It creates `onboard-db` (free Postgres 17) and
+`onboard-backend` (free web service, Singapore, `APP_MODE=prod`, `SERVER_ADDRESS=0.0.0.0` from the Dockerfile). Every
+push to that branch redeploys. Free plan: the service sleeps after 15 min without requests and the first request
+then takes about a minute, so open `/api/health` before a demo; the free database expires after 30 days. The app
+points at it with `BACKEND_BASE_URL=https://<service>.onrender.com/` in `android/local.properties`.
 
 **Phone over Wi-Fi (fallback only):** needs `SERVER_ADDRESS=0.0.0.0`, which exposes the demo controls to everyone on
 that network. Prefer USB + `adb reverse`.
