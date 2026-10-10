@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- First row of the trip timeline (TripHeaderAdapter): trip title, a one-line summary and the sync line
+     ("Updated 17:42" / "Refreshing…" / "Offline · showing your saved plan from 17:42").
+     It is part of the list, so it scrolls away and leaves room for the bookings on small screens. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="4dp">
+
+    <TextView
+        android:id="@+id/header_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:textColor="?attr/colorOnSurface"
+        tools:text="Client visit: Mumbai to Bengaluru" />
+
+    <TextView
+        android:id="@+id/header_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        tools:text="Business trip · Sun, 11 Oct · 6 bookings" />
+
+    <!-- The sync line. When offline, the code puts a small "cloud off" icon in front of the text
+         (a "compound drawable": one view holds both the icon and the text). -->
+    <TextView
+        android:id="@+id/header_sync"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:drawablePadding="8dp"
+        android:gravity="center_vertical"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        tools:drawableStart="@drawable/ic_offline_24"
+        tools:text="Offline · showing your saved plan from 17:42" />
+</LinearLayout>

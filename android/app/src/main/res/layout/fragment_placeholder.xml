@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Phase 0 "coming soon" screen, shared by all five tabs. PlaceholderFragment fills in the icon and texts.
+     It is wrapped in a ScrollView so nothing gets cut off with very large font sizes or in landscape;
+     fillViewport="true" + gravity="center" keep the content in the middle when it is short. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Decorative: the headline below already says what this tab is, so screen readers skip the icon
+             (contentDescription="@null"). -->
+        <ImageView
+            android:id="@+id/placeholder_icon"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:contentDescription="@null"
+            app:tint="?attr/colorPrimary"
+            tools:src="@drawable/ic_home_24" />
+
+        <TextView
+            android:id="@+id/placeholder_headline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="@string/home_headline" />
+
+        <TextView
+            android:id="@+id/placeholder_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:maxWidth="480dp"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="@string/home_description" />
+
+        <!-- "Coming in Phase N" in a rounded pill (background: drawable/bg_phase_badge.xml). -->
+        <TextView
+            android:id="@+id/placeholder_phase"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_phase_badge"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:textAppearance="?attr/textAppearanceLabelLarge"
+            android:textColor="?attr/colorOnSecondaryContainer"
+            tools:text="@string/placeholder_coming_in_phase" />
+    </LinearLayout>
+</ScrollView>

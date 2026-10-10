@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MainActivity's screen, three rows from top to bottom:
+       1. the top bar (AppBarLayout + MaterialToolbar),
+       2. the area where the current tab's screen (a Fragment) is shown, and
+       3. the bottom bar with the five tabs.
+
+     Edge-to-edge (required since targetSdk 35): the app draws behind the status bar at the top and the
+     gesture/navigation bar at the bottom, so each bar makes room for them itself:
+       - AppBarLayout with fitsSystemWindows="true" adds space for the status bar above the toolbar;
+       - BottomNavigationView adds space for the navigation bar below its icons (and beside them when
+         the phone is held sideways), all by itself;
+       - left/right space for the toolbar and the tab screens (phone held sideways) is added in
+         MainActivity.applySideInsets().
+     The middle area sits between the two bars, so tab screens need no extra padding. -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Becomes the activity's action bar (setSupportActionBar); its title follows the current tab. -->
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- The NavHostFragment shows the screen of the selected tab, as listed in navigation/nav_graph.xml.
+         defaultNavHost="true" lets it handle the phone's Back button. -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:defaultNavHost="true"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/app_bar"
+        app:navGraph="@navigation/nav_graph" />
+
+    <!-- The five tabs from menu/bottom_nav_menu.xml. labelVisibilityMode="labeled" always shows the tab
+         names under the icons (clearer for first-time and elderly travellers). -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

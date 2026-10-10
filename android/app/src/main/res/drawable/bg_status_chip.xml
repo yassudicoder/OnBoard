@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rounded background of a status chip ("On track", "Needs you", ...) on the trip timeline.
+     It is drawn white here; the code tints it with the status colour (TripUi.styleStatusChip),
+     so one drawable serves every status in light and dark mode. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@android:color/white" />
+    <corners android:radius="8dp" />
+</shape>

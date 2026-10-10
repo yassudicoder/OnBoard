@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+   Auto Backup rules for Android 11 (API 30) and older; uncomment and customise as necessary.
+   See https://developer.android.com/guide/topics/data/autobackup for details.
+   Android 12+ uses data_extraction_rules.xml instead.
+-->
+<full-backup-content>
+    <!--
+   <include domain="sharedpref" path="."/>
+   <exclude domain="sharedpref" path="device.xml"/>
+-->
+</full-backup-content>

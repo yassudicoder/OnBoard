@@ -1,0 +1,70 @@
+# Version catalog: the ONE place where library and plugin versions live.
+# Build files refer to these entries by name, e.g. libs.androidx.appcompat or libs.plugins.android.application
+# (a "-" in a name below becomes a "." in build files).
+#
+# Rules for the team:
+#   - Pin exact versions (no "+", no ranges) so every laptop builds exactly the same app.
+#   - Only add a library when a phase really uses it.
+#   - Check the version on the official release page before changing it, then rebuild and run the tests.
+
+[versions]
+# Android Gradle Plugin (AGP). Newest AGP each Android Studio version can open, from the official table at
+# developer.android.com/build/releases/about-agp:
+#   Panda 2 and 3 -> 9.1 | Panda 4 and Quail 1 -> 9.2 | Quail 2 and 3 -> 9.3 | Quail 4 and Rabbit 1 -> 9.4
+# So AGP 9.1.x needs Android Studio Panda 2 (2025.3.2) or newer. It is pinned to 9.1.1 on purpose, together with
+# Gradle 9.3.1 in gradle/wrapper/gradle-wrapper.properties, because the team uses Panda 3 (2025.3.3).
+# Do not go lower: compileSdk/targetSdk 37 needs at least AGP 9.1.1 (and, per the same page, Android Studio
+# Panda 3 Patch 1). Lint's "AndroidGradlePluginVersion" warnings about newer AGP/Gradle versions are expected;
+# only upgrade when every teammate's Android Studio supports the new AGP.
+agp = "9.1.1"
+appcompat = "1.8.0"
+material = "1.14.0"
+constraintlayout = "2.2.2"
+navigation = "2.10.2"
+# Phase 1: the Trip timeline (list + pull-to-refresh), ViewModel/LiveData, offline storage (Room)
+# and the backend client (Retrofit + OkHttp).
+recyclerview = "1.4.0"
+swiperefreshlayout = "1.2.0"
+lifecycle = "2.11.0"
+room = "2.8.5"
+retrofit = "3.0.0"
+# Keep this equal to the OkHttp version that Retrofit 3.0.0 itself uses (4.12.0), so there is only one OkHttp.
+okhttp = "4.12.0"
+junit = "4.13.2"
+androidxTestExtJunit = "1.3.0"
+espressoCore = "3.7.0"
+# Hamcrest = the "matchers" Espresso tests use (allOf, withText...). espresso-contrib brings Hamcrest 2.2 into the
+# test APK at RUN time, but junit 4.13.2 puts the old 1.3 on the COMPILE classpath. Tests compiled against 1.3 then
+# crash on the phone with "NoSuchMethodError: CoreMatchers.allOf". Asking for 2.2 here makes both sides the same.
+hamcrest = "2.2"
+
+[libraries]
+# App code
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigation" }
+androidx-navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigation" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycle" }
+androidx-lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata", version.ref = "lifecycle" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+# Room's code generator. It runs as a plain Java "annotationProcessor", so no KSP or Kotlin plugin is needed.
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+
+# Tests on the laptop (src/test)
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+
+# Tests on a phone or emulator (src/androidTest)
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestExtJunit" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+# RecyclerViewActions: scroll a list to a given row in UI tests. Same version as espresso-core on purpose.
+androidx-espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espressoCore" }
+hamcrest-library = { group = "org.hamcrest", name = "hamcrest-library", version.ref = "hamcrest" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }

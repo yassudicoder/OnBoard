@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- App icon as an "adaptive icon": a background layer plus a foreground layer, which each phone cuts
+     into its own shape (circle, rounded square, ...) and may animate. ic_launcher and ic_launcher_round
+     are identical; the manifest names both because some launchers ask for the round one.
+     minSdk 26 means every supported phone understands adaptive icons, so this folder needs no "-v26"
+     qualifier and the app needs no PNG copies of the icon. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <!-- Android 13+ "themed icons": the phone tints this single-colour layer to match the wallpaper. -->
+    <monochrome android:drawable="@drawable/ic_launcher_foreground" />
+</adaptive-icon>

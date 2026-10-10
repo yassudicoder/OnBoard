@@ -1,0 +1,90 @@
+# Local PostgreSQL database for Safar Saathi.
+#
+# Why Docker? Everyone on the team gets the SAME database version with ONE command,
+# without installing PostgreSQL on their laptop.
+#
+# From Phase 1 the backend NEEDS this database: start it BEFORE the backend, or the backend
+# stops at startup with "Connection to localhost:5432 refused". On its first start the backend
+# creates the tables here (Flyway) and loads the demo trips from mock-data/demo-trips.json.
+#
+# Everyday commands (run them in the repo root, next to this file; Docker Desktop must be running):
+#   docker compose up -d      start the database in the background (-d = "detached")
+#   docker compose ps         check it - wait until STATUS shows "(healthy)"
+#   docker compose logs -f    watch the database log (Ctrl+C stops watching, not the database)
+#   docker compose down       stop it - your data is KEPT in the volume below
+#   docker compose down -v    stop it AND delete all data. Next "up" gives an empty database, and
+#                             the next backend start re-creates the tables and re-loads the demo trips.
+#
+# There is no "version:" line at the top on purpose: it is obsolete in Docker Compose v2
+# and would only print a warning.
+
+# Project name, so containers and volumes get the same names whatever folder you cloned into.
+name: safarsaathi
+
+services:
+  postgres:
+    # Exact version, so everyone runs the same database. Postgres 17 = the same major
+    # version as Supabase (our hosted database). "alpine" = a small Linux base image.
+    image: postgres:17.11-alpine
+    container_name: safarsaathi-db
+
+    # The official image creates this database and user the FIRST time it starts
+    # (when the data volume is empty).
+    #
+    # The values use the SAME names as the Spring Boot backend: DB_NAME, DB_USERNAME and
+    # DB_PASSWORD. So both sides always agree, and one change in .env updates both.
+    # The POSTGRES_* names on the left exist only INSIDE the container. This file never reads
+    # POSTGRES_* variables from your laptop, so leftovers from other projects don't matter.
+    #
+    # Where each value comes from, first match wins:
+    #   1. a variable already set in your terminal / Windows environment variables,
+    #   2. the root .env file,
+    #   3. the default after ":-" (also used when a value is empty).
+    # "docker compose config" shows the values that will really be used - including the
+    # password, so never paste or screenshot its output.
+    # "safarsaathi" everywhere is fine for a local, laptop-only database - never reuse it
+    # for a hosted one.
+    #
+    # Changing a value AFTER the first start does nothing by itself: the database already
+    # exists, so Postgres ignores these settings. To start over with the new values, run
+    # "docker compose down -v" (this DELETES the local data), then "docker compose up -d".
+    environment:
+      POSTGRES_DB: ${DB_NAME:-safarsaathi}
+      POSTGRES_USER: ${DB_USERNAME:-safarsaathi}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-safarsaathi}
+
+    ports:
+      # Format: "laptop-address:laptop-port:container-port".
+      # 127.0.0.1 = reachable only from this laptop, not from other devices on the
+      # network - safer on hackathon Wi-Fi. The backend connects to localhost:5432
+      # (the default DB_URL).
+      - "127.0.0.1:5432:5432"
+
+    volumes:
+      # Keep the data in a named Docker volume, so it survives restarts and
+      # "docker compose down". /var/lib/postgresql/data is where Postgres 17 keeps its
+      # files. (Postgres 18+ images expect /var/lib/postgresql instead - change this
+      # line if we ever upgrade.)
+      - safarsaathi-pgdata:/var/lib/postgresql/data
+
+    # Docker runs this check every few seconds; "healthy" = ready for connections.
+    healthcheck:
+      # pg_isready is a tiny tool inside the image that asks "are you accepting connections?".
+      #   $$  = a plain $ for the container's shell, so it reads the container's own
+      #   POSTGRES_USER / POSTGRES_DB (set from DB_USERNAME / DB_NAME above), not your laptop's.
+      #   -h 127.0.0.1 = ask over the network port, the same way the backend connects,
+      #   so "healthy" only appears once the real server is up (not during first-time setup).
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    # Start again automatically after a reboot or a Docker Desktop restart -
+    # unless you stopped it yourself (docker compose stop / down).
+    restart: unless-stopped
+
+volumes:
+  # Created automatically by the first "docker compose up". "docker volume ls" shows it
+  # as safarsaathi_safarsaathi-pgdata (project name + volume name).
+  safarsaathi-pgdata:

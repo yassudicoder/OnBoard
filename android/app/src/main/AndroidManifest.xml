@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The manifest tells Android what is inside the app: its permissions, its Application class,
+     its screens (activities) and which screen opens from the launcher icon. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- The app talks to our backend (and later to Google Maps). -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- android:name=".SafarSaathiApp" = our own Application class; it runs once when the app process starts.
+         networkSecurityConfig = which servers may be reached over plain http (see res/xml/network_security_config.xml). -->
+    <application
+        android:name=".SafarSaathiApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SafarSaathi"
+        tools:targetApi="31">
+
+        <!-- Google Maps key, filled in at build time from MAPS_API_KEY in android/local.properties
+             (empty when there is no key). The Maps SDK reads it from here; used from Phase 7. -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
+        <!-- The one and only activity. It hosts the five tabs (Home, Trip, Assistant, Wallet, Profile).
+             exported="true" + the MAIN/LAUNCHER filter = it opens when you tap the app icon. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

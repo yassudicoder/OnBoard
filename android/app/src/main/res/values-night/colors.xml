@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Safar Saathi colours: Material 3 colour scheme, DARK mode (used when the phone is in dark theme).
+         Same names as values/colors.xml (light mode); see the notes there. -->
+
+    <!-- Primary: main brand colour (buttons, active states) -->
+    <color name="md_theme_primary">#A9C7FF</color>
+    <color name="md_theme_onPrimary">#003063</color>
+    <color name="md_theme_primaryContainer">#00468C</color>
+    <color name="md_theme_onPrimaryContainer">#D6E3FF</color>
+    <color name="md_theme_inversePrimary">#285EA7</color>
+
+    <!-- Secondary: calmer companion colour (e.g. the selected bottom-bar pill) -->
+    <color name="md_theme_secondary">#BDC7DC</color>
+    <color name="md_theme_onSecondary">#283141</color>
+    <color name="md_theme_secondaryContainer">#3E4758</color>
+    <color name="md_theme_onSecondaryContainer">#DAE2F9</color>
+
+    <!-- Tertiary: saffron accent -->
+    <color name="md_theme_tertiary">#FFB77A</color>
+    <color name="md_theme_onTertiary">#4C2700</color>
+    <color name="md_theme_tertiaryContainer">#6D3A00</color>
+    <color name="md_theme_onTertiaryContainer">#FFDCC2</color>
+
+    <!-- Error -->
+    <color name="md_theme_error">#FFB4AB</color>
+    <color name="md_theme_onError">#690005</color>
+    <color name="md_theme_errorContainer">#93000A</color>
+    <color name="md_theme_onErrorContainer">#FFDAD6</color>
+
+    <!-- Backgrounds and surfaces (screens, bars, cards) -->
+    <color name="md_theme_background">#121316</color>
+    <color name="md_theme_onBackground">#E3E2E6</color>
+    <color name="md_theme_surface">#121316</color>
+    <color name="md_theme_onSurface">#E3E2E6</color>
+    <color name="md_theme_surfaceVariant">#44474E</color>
+    <color name="md_theme_onSurfaceVariant">#C4C6CF</color>
+    <color name="md_theme_inverseSurface">#E3E2E6</color>
+    <color name="md_theme_inverseOnSurface">#2F3033</color>
+    <color name="md_theme_surfaceDim">#121316</color>
+    <color name="md_theme_surfaceBright">#38393C</color>
+    <color name="md_theme_surfaceContainerLowest">#0D0E11</color>
+    <color name="md_theme_surfaceContainerLow">#1A1B1E</color>
+    <color name="md_theme_surfaceContainer">#1E2023</color>
+    <color name="md_theme_surfaceContainerHigh">#292A2D</color>
+    <color name="md_theme_surfaceContainerHighest">#343538</color>
+
+    <!-- Outlines and dividers -->
+    <color name="md_theme_outline">#8E9099</color>
+    <color name="md_theme_outlineVariant">#44474E</color>
+
+    <!-- Trip timeline status colours, DARK mode (see values/colors.xml): dark fills with light text,
+         except the red banner/chip, which uses a light red fill so it still stands out on a dark screen. -->
+    <color name="status_ok_container">#134A28</color>
+    <color name="status_ok_on_container">#C4EED0</color>
+    <color name="status_adjusted_container">#4A3600</color>
+    <color name="status_adjusted_on_container">#FFDF99</color>
+    <color name="status_needs_user_container">#FFB4AB</color>
+    <color name="status_needs_user_on_container">#5C0004</color>
+    <color name="status_done_container">#46464A</color>
+    <color name="status_done_on_container">#E3E2E6</color>
+</resources>

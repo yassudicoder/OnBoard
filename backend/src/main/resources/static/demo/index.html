@@ -1,0 +1,440 @@
+<!doctype html>
+<!--
+  Demo control page for the judges' laptop. Served at /demo, /demo/ and /demo/index.html (see WebConfig).
+  Plain HTML + CSS + JavaScript, no outside files, so it works offline and needs no build step.
+
+  What it does:
+    - shows a demo trip as a live timeline: it asks GET /api/trips/{id} every 2 seconds (the same data the app syncs);
+    - the buttons play the airline: POST /api/demo/trigger-delay, /api/demo/trigger-cancel and /api/demo/reset;
+    - "What just happened" explains the last answer in plain words (or shows the error).
+  Status colours are the Android app's chip colours (res/values/colors.xml and values-night/colors.xml).
+  All addresses start with "/", so the page works at /demo as well as /demo/.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Safar Saathi demo</title>
+  <!-- An empty icon, so the browser does not ask the server for /favicon.ico (which does not exist). -->
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      --bg: #faf9fd; --card: #ffffff; --text: #1a1b20; --muted: #5d5e66; --line: #d9d9e0;
+      --primary: #285ea7; --on-primary: #ffffff; --danger: #a8221b; --danger-bg: #fde8e6;
+      --ok-bg: #c4eed0; --ok-fg: #00391a;
+      --adj-bg: #ffdf99; --adj-fg: #3d2b00;
+      --need-bg: #a8221b; --need-fg: #ffffff;
+      --done-bg: #e3e2e6; --done-fg: #303033;
+      --flash: #fff4c2;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121316; --card: #1d1e23; --text: #e3e2e6; --muted: #a9aab3; --line: #3a3b42;
+        --primary: #a9c7ff; --on-primary: #003063; --danger: #ffb4ab; --danger-bg: #3b1412;
+        --ok-bg: #134a28; --ok-fg: #c4eed0;
+        --adj-bg: #4a3600; --adj-fg: #ffdf99;
+        --need-bg: #ffb4ab; --need-fg: #5c0004;
+        --done-bg: #46464a; --done-fg: #e3e2e6;
+        --flash: #3d3500;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 1.5rem; margin: 0.25rem 0; }
+    h2 { font-size: 1.1rem; margin: 0 0 0.75rem; }
+    p { margin: 0.25rem 0; }
+    .muted { color: var(--muted); }
+    .layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; margin-top: 16px; }
+    @media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+    .controls { display: grid; gap: 12px; }
+    label { font-weight: 600; display: block; margin-bottom: 4px; }
+    select {
+      width: 100%; min-height: 44px; font: inherit; color: var(--text); background: var(--bg);
+      border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px;
+    }
+    .buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+    button {
+      min-height: 44px; padding: 8px 16px; font: inherit; font-weight: 600; border-radius: 22px; cursor: pointer;
+      border: 1px solid var(--primary); background: var(--primary); color: var(--on-primary);
+    }
+    button.secondary { background: transparent; color: var(--primary); }
+    button.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+    button:disabled { opacity: 0.5; cursor: wait; }
+    .trip-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; justify-content: space-between; }
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 12px; border: 1px solid var(--line);
+      font-weight: 600; font-size: 0.9rem;
+    }
+    .badge.bumped { background: var(--flash); }
+    .live { font-size: 0.85rem; }
+    .live.offline { color: var(--danger); font-weight: 600; }
+    ol.timeline { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
+    .block {
+      display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; gap: 4px 12px; align-items: start;
+      border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; transition: background 0.6s;
+    }
+    .block.needs { border: 2px solid var(--need-bg); }
+    .block.changed { background: var(--flash); }
+    .time { font-variant-numeric: tabular-nums; font-weight: 700; }
+    .was { font-size: 0.8rem; color: var(--muted); font-weight: 400; }
+    .title { font-weight: 600; overflow-wrap: anywhere; }
+    .title.cancelled { text-decoration: line-through; }
+    .sub { font-size: 0.85rem; color: var(--muted); overflow-wrap: anywhere; }
+    .star { color: #c98a00; font-weight: 700; }
+    .chip { padding: 3px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
+    .chip.OK { background: var(--ok-bg); color: var(--ok-fg); }
+    .chip.AUTO_ADJUSTED { background: var(--adj-bg); color: var(--adj-fg); }
+    .chip.NEEDS_USER { background: var(--need-bg); color: var(--need-fg); }
+    .chip.DONE, .chip.CANCELLED, .chip.UNKNOWN { background: var(--done-bg); color: var(--done-fg); }
+    .link-row { font-size: 0.8rem; color: var(--muted); padding: 4px 0 4px 104px; }
+    @media (max-width: 480px) { /* phone: the status chip moves under the title, so the title gets the width */
+      .block { grid-template-columns: 84px minmax(0, 1fr); }
+      .block .chip { grid-column: 2; justify-self: start; }
+      .link-row { padding-left: 96px; }
+    }
+    #result .headline { font-weight: 700; margin-bottom: 8px; }
+    #result ul { margin: 8px 0 0; padding-left: 0; list-style: none; display: grid; gap: 8px; }
+    #result li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: start; }
+    .error { background: var(--danger-bg); color: var(--danger); border-radius: 8px; padding: 10px 12px; font-weight: 600; }
+    .broken { color: var(--danger); font-weight: 600; }
+    footer { margin-top: 16px; font-size: 0.85rem; }
+    a { color: var(--primary); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Safar Saathi &middot; live demo</h1>
+  <p class="muted">These buttons play the airline: delay or cancel a booking, and watch the plan ripple down the
+    trip. The phone app shows the same trip within a few seconds.</p>
+
+  <div class="layout">
+    <section class="card" aria-labelledby="trip-title">
+      <div class="trip-head">
+        <h2 id="trip-title">Loading trip&hellip;</h2>
+        <span class="badge" id="version" title="Goes up by 1 on every change. The app refreshes when it does.">version &ndash;</span>
+      </div>
+      <p class="live muted" id="live">Connecting to the backend&hellip;</p>
+      <ol class="timeline" id="timeline"></ol>
+    </section>
+
+    <div class="controls">
+      <section class="card controls" aria-label="Demo controls">
+        <div>
+          <label for="trip">Trip</label>
+          <select id="trip">
+            <option value="1">Trip 1: Client visit, Mumbai to Bengaluru</option>
+            <option value="2">Trip 2: Leh holiday via Delhi</option>
+          </select>
+        </div>
+        <div>
+          <label for="block">Booking to disrupt</label>
+          <select id="block"><option value="">Loading&hellip;</option></select>
+          <p class="muted" style="font-size:0.85rem">Starts on the trip's first flight.</p>
+        </div>
+        <div class="buttons" role="group" aria-label="Delay">
+          <button type="button" data-delay="30">Delay +30 min</button>
+          <button type="button" data-delay="90">Delay +90 min</button>
+          <button type="button" data-delay="180">Delay +180 min</button>
+        </div>
+        <div class="buttons">
+          <button type="button" class="danger" id="cancel">Cancel booking</button>
+          <button type="button" class="secondary" id="reset">Reset demo</button>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="result-title">
+        <h2 id="result-title">What just happened</h2>
+        <div id="result" aria-live="polite"><p class="muted">Press a button. The answer appears here.</p></div>
+      </section>
+    </div>
+  </div>
+
+  <footer class="muted">
+    Raw data: <a id="raw-link" href="/api/trips/1">/api/trips/1</a> &middot;
+    <a href="/api/health">/api/health</a> &middot; <a href="/desk">front desk</a>
+  </footer>
+</main>
+
+<script>
+  "use strict";
+
+  const STATUS_LABELS = {
+    OK: "On track", AUTO_ADJUSTED: "Auto-adjusted", NEEDS_USER: "Needs you", DONE: "Done", CANCELLED: "Cancelled"
+  };
+  const TRAVEL = { WALK: "walk", CAB: "by cab", METRO: "by metro", NONE: "" };
+
+  const tripSelect = document.getElementById("trip");
+  const blockSelect = document.getElementById("block");
+  const buttons = Array.from(document.querySelectorAll("button"));
+
+  let latestTrip = null;   // the last GET /api/trips/{id} answer
+  let shownVersion = null; // to highlight what changed when the version goes up
+  let previousState = {};  // block id -> "start|end|status" at the last poll
+  let highlightUntil = {}; // block id -> until when (ms) its row is highlighted as "just changed"
+  let plannedTimes = {};   // block id -> {start, end} as first seen for this load of the data ("was 08:00")
+  let plannedFor = null;   // "tripId|createdAt" that plannedTimes belongs to (a reset gives a new createdAt)
+  let refreshAgain = false; // a refresh was asked for while one was running: run it again afterwards
+  let polling = false;
+
+  // ---- small helpers ----
+
+  /** "2026-10-11T09:30:00+05:30" -> "09:30". The backend already sends Indian time, so no conversion here. */
+  function hhmm(iso) { return iso ? iso.substring(11, 16) : "--:--"; }
+  function day(iso) { return iso ? iso.substring(0, 10) : ""; }
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = text;
+    return node;
+  }
+
+  function chip(status) {
+    const known = STATUS_LABELS[status] ? status : "UNKNOWN";
+    return el("span", "chip " + known, STATUS_LABELS[status] || status || "Unknown");
+  }
+
+  function timeText(block, tripDay) {
+    let text = hhmm(block.startTime);
+    if (block.endTime && block.endTime !== block.startTime) text += "–" + hhmm(block.endTime);
+    if (day(block.startTime) !== tripDay) text += " (+1 day)";
+    return text;
+  }
+
+  function titleOf(blockId) {
+    const block = latestTrip && latestTrip.blocks.find(b => b.id === blockId);
+    return block ? block.title : "Block " + blockId;
+  }
+
+  // ---- the live timeline ----
+
+  async function refresh() {
+    if (polling) { refreshAgain = true; return; } // one request at a time
+    polling = true;
+    const tripId = tripSelect.value;
+    const live = document.getElementById("live");
+    try {
+      const response = await fetch("/api/trips/" + tripId, { cache: "no-store" });
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const trip = await response.json();
+      if (String(trip.id) !== tripSelect.value) return; // the trip was switched meanwhile
+      render(trip);
+      live.className = "live muted";
+      live.textContent = "Live: refreshed every 2 s, last at " + new Date().toLocaleTimeString();
+    } catch (e) {
+      live.className = "live offline";
+      live.textContent = "Backend not reachable (" + e.message + "). Is it running? Retrying every 2 s…";
+    } finally {
+      polling = false;
+      if (refreshAgain) { refreshAgain = false; refresh(); }
+    }
+  }
+
+  function render(trip) {
+    latestTrip = trip;
+    const key = trip.id + "|" + trip.createdAt;
+    if (plannedFor !== key) { // first look at this trip, or the demo was reset: remember the planned times
+      plannedFor = key;
+      plannedTimes = {};
+      previousState = {};
+      highlightUntil = {};
+      shownVersion = null;
+      trip.blocks.forEach(b => { plannedTimes[b.id] = { start: b.startTime, end: b.endTime }; });
+    }
+
+    document.getElementById("trip-title").textContent = trip.title;
+    const versionBadge = document.getElementById("version");
+    versionBadge.textContent = "version " + trip.version;
+    const versionWentUp = shownVersion !== null && trip.version !== shownVersion;
+    if (versionWentUp) { // flash the badge for 4 s: this is the number the app watches
+      versionBadge.classList.add("bumped");
+      setTimeout(() => versionBadge.classList.remove("bumped"), 4000);
+    }
+
+    const tripDay = trip.blocks.length ? day(trip.blocks[0].startTime) : "";
+    const list = document.getElementById("timeline");
+    list.replaceChildren();
+    trip.blocks.forEach((block, index) => {
+      const item = el("li", "block");
+      if (block.status === "NEEDS_USER") item.classList.add("needs");
+      // Highlight a row for 4 s when its times or status changed with the new version. The list is redrawn every
+      // 2 s, so remember until when, instead of relying on a timer on this one element.
+      const nowState = block.startTime + "|" + block.endTime + "|" + block.status;
+      if (versionWentUp && previousState[block.id] !== undefined && previousState[block.id] !== nowState) {
+        highlightUntil[block.id] = Date.now() + 4000;
+      }
+      if ((highlightUntil[block.id] || 0) > Date.now()) item.classList.add("changed");
+      previousState[block.id] = nowState;
+
+      const time = el("div", "time", timeText(block, tripDay));
+      const planned = plannedTimes[block.id];
+      if (planned && planned.start !== block.startTime) {
+        time.appendChild(el("div", "was", "was " + hhmm(planned.start)));
+      }
+      const main = el("div");
+      const title = el("div", "title" + (block.status === "CANCELLED" ? " cancelled" : ""), block.title);
+      if (block.anchor) {
+        const star = el("span", "star", " ★");
+        star.title = "Anchor: the reason for the trip, never moved automatically";
+        title.appendChild(star);
+      }
+      main.appendChild(title);
+      const sub = [block.locationName, block.anchor ? "Must not miss" : null].filter(Boolean).join(" · ");
+      if (sub) main.appendChild(el("div", "sub", sub));
+      item.append(time, main, chip(block.status));
+      list.appendChild(item);
+
+      // The link to the next block, e.g. "75 min by cab", like the app's timeline.
+      const next = trip.blocks[index + 1];
+      const link = next && trip.links.find(l => l.fromBlockId === block.id && l.toBlockId === next.id);
+      if (link && (link.travelMinutes > 0 || link.minGapMinutes > 0)) {
+        const parts = [];
+        if (link.travelMinutes > 0) parts.push(link.travelMinutes + " min " + (TRAVEL[link.travelMode] || ""));
+        if (link.minGapMinutes > 0) parts.push("at least " + link.minGapMinutes + " min gap");
+        list.appendChild(el("li", "link-row", "↓ " + parts.join(", ").trim()));
+      }
+    });
+    shownVersion = trip.version;
+    fillBlockChoices(trip);
+    document.getElementById("raw-link").href = "/api/trips/" + trip.id;
+    document.getElementById("raw-link").textContent = "/api/trips/" + trip.id;
+  }
+
+  /** The "Booking to disrupt" list. Keeps the user's choice; starts on the first flight of the trip. */
+  function fillBlockChoices(trip) {
+    const chosen = blockSelect.value;
+    const signature = trip.id + ":" + trip.blocks.map(b => b.id + b.title + b.status + b.startTime).join(",");
+    if (blockSelect.dataset.signature === signature) return; // nothing changed: leave the open list alone
+    blockSelect.dataset.signature = signature;
+    blockSelect.replaceChildren();
+    trip.blocks.forEach(block => {
+      const option = el("option", null, hhmm(block.startTime) + "  " + block.title
+          + (block.status === "CANCELLED" ? " (cancelled)" : ""));
+      option.value = block.id;
+      blockSelect.appendChild(option);
+    });
+    const stillThere = trip.blocks.some(b => String(b.id) === chosen);
+    const firstFlight = trip.blocks.find(b => b.type === "FLIGHT");
+    const fallback = firstFlight || trip.blocks[0]; // a trip without flights starts on its first block
+    blockSelect.value = stillThere ? chosen : (fallback ? String(fallback.id) : "");
+  }
+
+  // ---- the buttons ----
+
+  async function call(path, body) {
+    setBusy(true);
+    try {
+      const response = await fetch(path, {
+        method: "POST",
+        headers: body ? { "Content-Type": "application/json" } : {},
+        body: body ? JSON.stringify(body) : undefined
+      });
+      let data = null;
+      try { data = await response.json(); } catch (ignored) { /* not JSON */ }
+      if (!response.ok) {
+        showError(response.status, data);
+        return null;
+      }
+      return data;
+    } catch (e) {
+      showError(0, { detail: "Backend not reachable: " + e.message });
+      return null;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** Greys the buttons out while a request runs, so a double click cannot send it twice. */
+  function setBusy(value) {
+    buttons.forEach(b => { b.disabled = value; });
+  }
+
+  async function delay(minutes) {
+    const blockId = Number(blockSelect.value);
+    const name = titleOf(blockId);
+    const result = await call("/api/demo/trigger-delay",
+        { tripId: Number(tripSelect.value), blockId: blockId, minutes: minutes });
+    if (result) showResult(name + ": " + minutes + " minutes late.", result);
+    await refresh();
+  }
+
+  async function cancelBlock() {
+    const blockId = Number(blockSelect.value);
+    const name = titleOf(blockId);
+    const result = await call("/api/demo/trigger-cancel", { tripId: Number(tripSelect.value), blockId: blockId });
+    if (result) showResult(name + ": cancelled.", result);
+    await refresh();
+  }
+
+  async function resetDemo() {
+    const result = await call("/api/demo/reset", null);
+    if (result) {
+      const box = document.getElementById("result");
+      box.replaceChildren(el("p", "headline", result.message + ": " + result.trips
+          + " trips back to their original plan (version 1, everything on track)."));
+    }
+    blockSelect.dataset.signature = ""; // rebuild the list (and go back to the first flight)
+    blockSelect.value = "";
+    await refresh();
+  }
+
+  /** The answer of trigger-delay / trigger-cancel, in plain words. */
+  function showResult(headline, result) {
+    const box = document.getElementById("result");
+    box.replaceChildren();
+    box.appendChild(el("p", "headline", headline + " Trip is now version " + result.version + "."));
+    const list = el("ul");
+    result.outcomes.forEach(outcome => {
+      const item = el("li");
+      const text = el("div");
+      text.appendChild(el("div", "title", outcome.title));
+      text.appendChild(el("div", "sub", outcome.reason));
+      item.append(chip(outcome.status), text);
+      list.appendChild(item);
+    });
+    box.appendChild(list);
+    result.brokenLinks.forEach(link => {
+      box.appendChild(el("p", "broken", "Broken link: " + titleOf(link.fromBlockId) + " → "
+          + titleOf(link.toBlockId) + " is " + link.minutesShort + " minutes short."));
+    });
+    const needs = result.outcomes.filter(o => o.status === "NEEDS_USER").length;
+    box.appendChild(el("p", "muted", needs === 0
+        ? "Nothing needs the traveller: Safar Saathi handled it."
+        : needs + (needs === 1 ? " booking needs" : " bookings need") + " the traveller's decision (red)."));
+  }
+
+  function showError(status, problem) {
+    const box = document.getElementById("result");
+    const detail = (problem && (problem.detail || problem.title)) || "Something went wrong.";
+    box.replaceChildren(el("p", "error", (status ? "Error " + status + ": " : "") + detail));
+    if (status === 409) box.appendChild(el("p", "muted", "Tip: press “Reset demo” to start again."));
+  }
+
+  // ---- wiring ----
+
+  document.querySelectorAll("button[data-delay]").forEach(button => {
+    button.addEventListener("click", () => delay(Number(button.dataset.delay)));
+  });
+  document.getElementById("cancel").addEventListener("click", cancelBlock);
+  document.getElementById("reset").addEventListener("click", resetDemo);
+  tripSelect.addEventListener("change", () => {
+    latestTrip = null;
+    plannedFor = null;
+    blockSelect.dataset.signature = "";
+    blockSelect.value = "";
+    document.getElementById("timeline").replaceChildren();
+    document.getElementById("trip-title").textContent = "Loading trip…";
+    refresh();
+  });
+
+  refresh();
+  setInterval(refresh, 2000);
+</script>
+</body>
+</html>

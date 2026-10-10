@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Network security for DEBUG builds only. A file with the same name in src/debug replaces the
+     one in src/main when you build the debug app, so release builds stay HTTPS-only.
+
+     Our local backend runs on plain http://, which Android blocks by default. We allow it ONLY for
+     these local development addresses; everything else must still use HTTPS. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- The Android emulator's name for the laptop it runs on. -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <!-- The phone itself. A PHYSICAL phone on a USB cable also reaches the laptop this way, after
+             "adb reverse tcp:8080 tcp:8080" (steps in android/local.properties.example), so testing on
+             a phone needs no change to this file. -->
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <!-- Physical phone on Wi-Fi only (fallback)? Add the laptop's LAN IP here, e.g.
+             <domain includeSubdomains="false">192.168.1.23</domain>
+             and set BACKEND_BASE_URL=http://192.168.1.23:8080/ in android/local.properties.
+             Do NOT commit that line: the IP is different on every laptop and every Wi-Fi. -->
+    </domain-config>
+</network-security-config>

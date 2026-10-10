@@ -1,0 +1,31 @@
+# =============================================================================
+# Line endings and binary files - so Windows and macOS/Linux teammates never fight
+# over invisible differences. Git applies these rules when files are added and
+# checked out. See what applies to a file with:  git check-attr -a <path>
+# =============================================================================
+
+# Default: Git decides whether a file is text. Text files are stored in the repo with
+# LF endings, and each laptop gets its usual endings when it checks them out.
+* text=auto
+
+# Unix shell scripts MUST keep LF endings, even on Windows - with CRLF they fail on
+# macOS / Linux / Git Bash with errors like "/bin/sh^M: bad interpreter".
+gradlew  text eol=lf
+mvnw     text eol=lf
+*.sh     text eol=lf
+
+# Windows scripts MUST have CRLF endings, or cmd.exe can misread them.
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+
+# Binary files: never change their bytes, never try to show them as a text diff.
+*.jar    binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.ico    binary
+*.pdf    binary
+*.ttf    binary
+*.otf    binary

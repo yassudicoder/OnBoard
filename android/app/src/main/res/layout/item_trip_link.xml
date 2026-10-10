@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The small row between two linked cards on the timeline, e.g. "75 min by cab" or
+     "at least 75 min to change planes". The thin vertical line lines up with the card icons above
+     and below (16dp card margin + 16dp card padding + half the 24dp icon), like a chain of dominoes. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="43dp"
+    android:paddingEnd="16dp">
+
+    <View
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:minHeight="28dp"
+        android:background="?attr/colorOutline" />
+
+    <TextView
+        android:id="@+id/link_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="27dp"
+        android:layout_weight="1"
+        android:paddingVertical="4dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        tools:text="75 min by cab" />
+</LinearLayout>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The anchor star: marks the block the trip is for, the one the traveller must not miss.
+     Material Symbols "star" (outlined, 24dp, filled), Apache License 2.0, from github.com/google/material-design-icons.
+     Drawn in white; whoever shows it (app:tint on an ImageView) tints it the right colour. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="?attr/colorControlNormal"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M233,840L298,559L80,370L368,345L480,80L592,345L880,370L662,559L727,840L480,691L233,840Z" />
+</vector>

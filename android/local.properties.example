@@ -1,0 +1,40 @@
+# android/local.properties.example  (this file IS committed; it lists names only, never real keys)
+#
+# How to use it:
+#   1. Open the android/ folder in Android Studio once. Studio creates android/local.properties
+#      for you and writes the sdk.dir line into it.
+#   2. Copy the lines below into android/local.properties and fill in what you have.
+#   3. Rebuild the app (or File > Sync Project with Gradle Files).
+# android/local.properties is git-ignored: it stays on your laptop, so your keys never reach GitHub.
+# Leaving a key empty is fine: that feature then runs in MOCK (offline) mode.
+
+# Where the Android SDK lives on YOUR laptop. Android Studio writes this line itself, so you
+# normally never type it. If you do: in this file a ":" or "\" must be written with a "\" before it,
+# e.g. (Windows) sdk.dir=C\:/Users/<you>/AppData/Local/Android/sdk  (lint fails the build otherwise).
+# sdk.dir=
+
+# Google Maps SDK for Android key (used from Phase 7). Empty -> mock/offline maps.
+# This key ends up inside the app (the APK), where anyone can read it. So in Google Cloud console,
+# restrict it to Android apps (package com.safarsaathi.app + each teammate's debug SHA-1, shown by
+# ./gradlew signingReport, on Windows .\gradlew.bat signingReport) and to the "Maps SDK for Android" API.
+MAPS_API_KEY=
+
+# Where the app finds the Safar Saathi backend. Keep the "/" at the end.
+#   - Android emulator: http://10.0.2.2:8080/  (10.0.2.2 is the emulator's name for your laptop)
+#   - Physical phone on a USB cable (easiest: works on any Wi-Fi, or with none):
+#       1. Turn on USB debugging on the phone (Settings > Developer options) and plug it in.
+#       2. On the laptop run:  adb reverse tcp:8080 tcp:8080
+#          adb is in your Android SDK's platform-tools folder (Windows:
+#          C:\Users\<you>\AppData\Local\Android\Sdk\platform-tools; in PowerShell type .\adb there).
+#          Run it again every time you reconnect the phone.
+#       3. Use http://localhost:8080/  (localhost:8080 on the phone now leads to the laptop).
+#          Debug builds already allow plain http to localhost, so no other file needs changing.
+#   - Physical phone on Wi-Fi only (fallback): http://<your laptop's LAN IP>:8080/, for example
+#       http://192.168.1.23:8080/. The phone and the laptop must be on the same Wi-Fi. Find the IP with
+#       "ipconfig" (Windows) or "ifconfig" / "ip addr" (macOS / Linux). Also add that IP to
+#       app/src/debug/res/xml/network_security_config.xml (plain http is blocked otherwise), but do NOT
+#       commit that change: the IP is different on every laptop and every Wi-Fi.
+#       Still no connection? Windows Firewall blocks the phone unless you clicked "Allow" for Java when
+#       Windows asked, and usually blocks it anyway on a Wi-Fi marked "Public". Venue/college Wi-Fi also
+#       often keeps devices apart. In those cases use the USB way.
+BACKEND_BASE_URL=http://10.0.2.2:8080/

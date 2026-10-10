@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Sizes used from Java code (sizes used in only one layout stay in that layout). -->
+
+    <!-- Outline of a timeline card whose block needs the traveller's decision (red, thicker than normal). -->
+    <dimen name="trip_alert_stroke_width">2dp</dimen>
+</resources>

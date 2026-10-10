@@ -1,0 +1,14 @@
+# Extra settings that apply ONLY when the backend is started from this backend/ folder
+# (./mvnw spring-boot:run, ./mvnw test, and most IDE Run buttons).
+#
+# Why a second application.yml? Spring Boot automatically reads config/application.yml from the folder the app
+# is started in, on top of src/main/resources/application.yml. This file sits in backend/config/, so it is read
+# only when the app starts in backend/. From there, the repo-root .env (your copy of .env.example) is one folder up.
+#
+# Started from the repo root (java -jar backend/target/...), this file is not read, and the main application.yml
+# reads the repo-root .env directly. So a .env in the folder ABOVE the repo is never read by accident.
+# Put all other settings in src/main/resources/application.yml, not here.
+spring:
+  config:
+    # "optional:" = no error when the file is missing. "[.properties]" = read it as KEY=value lines.
+    import: "optional:file:../.env[.properties]"

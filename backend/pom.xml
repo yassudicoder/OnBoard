@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Maven build file for the Safar Saathi backend.
+  Run it through the wrapper (no Maven install needed):  ./mvnw spring-boot:run   |   ./mvnw test
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+      The Spring Boot "parent" POM picks tested, compatible versions for every Spring, Jackson and JUnit
+      library (and for the Maven plugins). That is why the dependencies below have no <version> tags.
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.16</version>
+        <relativePath/> <!-- look the parent up in Maven Central, not in a parent folder -->
+    </parent>
+
+    <groupId>com.safarsaathi</groupId>
+    <artifactId>backend</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>Safar Saathi backend</name>
+    <description>Backend for Safar Saathi: trips, disruption ripple, Plan B and booking changes</description>
+
+    <properties>
+        <!-- Our code targets Java 17. We build with JDK 21; the parent POM turns this into "javac -release 17". -->
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+        <!-- Web: embedded Tomcat server + Spring MVC + Jackson (Java objects to/from JSON) for our REST API. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Actuator: ready-made operations endpoints such as /actuator/health (used by hosting platforms). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!--
+          Database access through JPA: we write Java classes (entities such as Trip) and repository interfaces,
+          and Hibernate turns them into SQL. Also brings HikariCP, a pool of ready-to-use database connections.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!--
+          Flyway: at startup it runs the numbered SQL files in src/main/resources/db/migration (V1__..., V2__...)
+          that have not run yet, so every database gets exactly the same tables.
+          Since Flyway 10, support for PostgreSQL is a separate module: the second dependency.
+        -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
+        <!-- PostgreSQL's JDBC driver: lets Java talk to the database. runtime = our code never uses it directly. -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--
+          Configuration processor: at compile time it writes a description of our own "safarsaathi.*" settings,
+          so the IDE can autocomplete and explain them in application.yml.
+          optional = only needed while compiling; it is not shipped inside the runnable jar.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Test: JUnit 5, AssertJ, Mockito and Spring's MockMvc. scope test = only used by ./mvnw test. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+          H2: a small database that lives in memory while the tests run, so ./mvnw test needs no Docker and no
+          PostgreSQL. It pretends to be PostgreSQL (see src/test/resources/test-database.properties). Tests only.
+        -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!--
+          Files that go into the jar next to the compiled classes. Listing them here REPLACES Maven's default list,
+          so the normal src/main/resources folder must be listed too. (Spring Boot's default list would also fill in
+          @...@ placeholders inside application.yml; we don't use any.)
+        -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!--
+              The JSON seed files from the repo-root mock-data folder, copied into the jar under mock-data/.
+              The backend reads them as "classpath:mock-data/demo-trips.json", which works the same with
+              ./mvnw spring-boot:run, in the tests and in a deployed jar (where ../mock-data does not exist).
+            -->
+            <resource>
+                <directory>../mock-data</directory>
+                <targetPath>mock-data</targetPath>
+                <includes>
+                    <include>**/*.json</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <!--
+              Tell the Java compiler explicitly to run the configuration processor (see above).
+              Newer JDKs no longer pick up such processors automatically, and JDK 21 prints a warning
+              when it has to. The version comes from the parent POM.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-configuration-processor</artifactId>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <!--
+              Spring Boot's plugin: "./mvnw spring-boot:run" starts the app, and "./mvnw package" builds one
+              runnable jar with everything inside (java -jar target/backend-0.0.1-SNAPSHOT.jar).
+            -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

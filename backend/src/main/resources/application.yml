@@ -1,0 +1,110 @@
+# Settings for the Safar Saathi backend.
+# ${NAME:default} means: use the value of NAME (an environment variable, or a line in the .env file);
+# if NAME is not set at all, use the default after the colon. An empty default (${NAME:}) means "blank".
+
+spring:
+  application:
+    # Shown in the logs and as "app" in GET /api/health.
+    name: safar-saathi-backend
+
+  config:
+    # Local secrets: also read a git-ignored ".env" file (copy .env.example in the repo root to .env).
+    # ".env" is looked up in the folder the app is started from:
+    #   started from the repo root (java -jar backend/target/...)  -> this line reads the repo-root .env
+    #   started from backend/  (./mvnw spring-boot:run, the IDE)   -> backend/config/application.yml adds ../.env,
+    #                                                                 which is the repo-root file from there
+    # (Before Phase 1 this line also read ../.env, which from the repo root is a stray .env in the folder ABOVE
+    # the repo. Spring Boot reads backend/config/application.yml only when started from backend/, so that's fixed.)
+    # "optional:" = no error when the file is missing. "[.properties]" = read it as KEY=value lines
+    # (no quotes around values, no "export"). Real environment variables always win over values in .env.
+    import: "optional:file:.env[.properties]"
+
+  jackson:
+    # Write dates and times in JSON in Indian Standard Time (UTC+05:30).
+    time-zone: Asia/Kolkata
+
+  datasource:
+    # The PostgreSQL database. Same variable names and defaults as docker-compose.yml, so both always agree.
+    #   Local Docker database (the default): nothing to set.
+    #   Supabase: DB_URL = the full JDBC URL ending in ?sslmode=require, plus DB_USERNAME and DB_PASSWORD
+    #   (.env.example shows how). DB_NAME only names the local database, inside the default URL.
+    # There is no driver setting: Spring Boot picks the PostgreSQL driver from the "jdbc:postgresql:" URL.
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/${DB_NAME:safarsaathi}}
+    username: ${DB_USERNAME:safarsaathi}
+    password: ${DB_PASSWORD:safarsaathi}
+
+  jpa:
+    # Close each database session when the service method ends, not at the end of the web request.
+    # Our services load everything a response needs, so nothing is read later by accident, and Spring
+    # stops printing its "open-in-view is enabled by default" warning at startup.
+    open-in-view: false
+    hibernate:
+      # Flyway (src/main/resources/db/migration) creates and changes the tables. Hibernate never touches
+      # them: at startup it only checks that the Java entities match the tables, and stops the app if not.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          # Send times to the database in UTC. The columns are "timestamp with time zone", so the exact moment
+          # is kept either way; the API shows it in Indian time (+05:30).
+          time_zone: UTC
+
+  mvc:
+    problemdetails:
+      # Errors such as "trip not found" (404) or "id is not a number" (400) are answered with the standard
+      # "Problem Details" JSON (RFC 9457): {"type", "title", "status", "detail", "instance"}. Never a stack trace.
+      enabled: true
+
+server:
+  # Hosts such as Render or Railway tell the app which port to use through PORT; locally it is 8080.
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Spring Actuator: only expose /actuator/health and /actuator/info (nothing sensitive).
+        include: health,info
+
+# Our own settings, read by com.safarsaathi.backend.config.AppProperties.
+# Named "safarsaathi" (not "app") on purpose: Spring Boot would also copy a real environment variable such as
+# APP_MODE or APP_ZONE straight into an "app.*" setting, skipping the ${...} lines below (see AppProperties).
+safarsaathi:
+  # APP_MODE: "demo" (default) or "prod". Demo mode checks flights every 30 s instead of every 5 min.
+  mode: ${APP_MODE:demo}
+  # Every time in this app is in this zone. Fixed on purpose (not an environment variable).
+  zone: Asia/Kolkata
+
+  # The two demo trips from mock-data/demo-trips.json (read by com.safarsaathi.backend.demo.DemoTripSeeder).
+  # They are saved at startup, but ONLY when the database has no trips at all, so a restart keeps your data.
+  # To change a value for one run: ./mvnw spring-boot:run "-Dspring-boot.run.arguments=--safarsaathi.seed.day-offset=0"
+  seed:
+    # false = never save the demo trips (for a server that should only hold real trips).
+    enabled: true
+    # The demo trips happen on "trip day" = today in India + this many days. 1 = tomorrow, 0 = today.
+    # The dates are worked out once, when the trips are saved into an empty database.
+    day-offset: 1
+
+  # Keys for outside services. ALL are optional: a blank key (or a missing credentials file) means that
+  # service runs as a MOCK with built-in fake data, so the full demo works with no keys at all.
+  # The startup log and GET /api/health show which services are MOCK and which are REAL.
+  providers:
+    gemini:
+      # Google Gemini: option explanations, translation, assistant chat.
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_MODEL:gemini-3.8-flash}
+    aerodatabox:
+      # AeroDataBox flight status, through RapidAPI.
+      api-key: ${AERODATABOX_API_KEY:}
+    google-routes:
+      # Google Routes API: door-to-door directions (the key stays on the server).
+      api-key: ${GOOGLE_ROUTES_API_KEY:}
+    firebase:
+      # Path to a Firebase service-account JSON file: push notifications (FCM).
+      credentials-path: ${FIREBASE_CREDENTIALS_PATH:}
+    google-calendar:
+      # Path to a Google OAuth client JSON file: moving meetings in Google Calendar.
+      credentials-path: ${GOOGLE_CALENDAR_CREDENTIALS_PATH:}
+    sarvam:
+      # Sarvam AI: speech in Indian languages.
+      api-key: ${SARVAM_API_KEY:}

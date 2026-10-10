@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Navigation graph: every screen ("destination") that the NavHostFragment in activity_main.xml can show.
+       android:id     -> the destination id. The bottom bar items (menu/bottom_nav_menu.xml) use the SAME ids.
+       android:name   -> the Fragment class that draws the screen.
+       android:label  -> the title shown in the top bar.
+     startDestination = the screen the app opens on (Home, "Do this now").
+     Later phases add more screens here (e.g. block details, the Fix-it screen) and the routes between them. -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.safarsaathi.app.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/navigation_trip"
+        android:name="com.safarsaathi.app.ui.trip.TripFragment"
+        android:label="@string/title_trip"
+        tools:layout="@layout/fragment_trip" />
+
+    <fragment
+        android:id="@+id/navigation_assistant"
+        android:name="com.safarsaathi.app.ui.assistant.AssistantFragment"
+        android:label="@string/title_assistant"
+        tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/navigation_wallet"
+        android:name="com.safarsaathi.app.ui.wallet.WalletFragment"
+        android:label="@string/title_wallet"
+        tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.safarsaathi.app.ui.profile.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_placeholder" />
+
+</navigation>

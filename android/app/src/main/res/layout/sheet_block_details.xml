@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Block details, shown as a bottom sheet when a card on the trip timeline is tapped (BlockDetailsSheet).
+     Plain words only: when, where, who holds the booking, whether it can move, and what changes cost.
+     NestedScrollView: long notes or very large text scroll inside the sheet. -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="32dp">
+
+        <!-- Icon, title and (for the anchor) the star. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/sheet_icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                app:tint="?attr/colorPrimary"
+                tools:ignore="ContentDescription"
+                tools:src="@drawable/ic_block_meeting_24" />
+
+            <TextView
+                android:id="@+id/sheet_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceTitleLarge"
+                android:textColor="?attr/colorOnSurface"
+                tools:text="Client meeting in Whitefield" />
+
+            <ImageView
+                android:id="@+id/sheet_anchor"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@string/trip_anchor_description"
+                android:src="@drawable/ic_anchor_star_24"
+                android:visibility="gone"
+                app:tint="?attr/colorTertiary"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/sheet_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_status_chip"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:textAppearance="?attr/textAppearanceLabelLarge"
+            tools:text="@string/status_needs_user" />
+
+        <TextView
+            android:id="@+id/sheet_status_explanation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="@string/sheet_status_needs_user" />
+
+        <!-- When -->
+        <TextView
+            style="@style/Widget.SafarSaathi.SheetLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sheet_when" />
+
+        <TextView
+            android:id="@+id/sheet_when"
+            style="@style/Widget.SafarSaathi.SheetValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Sun, 11 Oct · 12:00–13:00" />
+
+        <!-- Where (hidden when the block has no place) -->
+        <LinearLayout
+            android:id="@+id/sheet_where_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/Widget.SafarSaathi.SheetLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sheet_where" />
+
+            <TextView
+                android:id="@+id/sheet_where"
+                style="@style/Widget.SafarSaathi.SheetValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Client office, ITPL Main Road, Whitefield" />
+        </LinearLayout>
+
+        <!-- Booked with -->
+        <TextView
+            style="@style/Widget.SafarSaathi.SheetLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sheet_booking" />
+
+        <TextView
+            android:id="@+id/sheet_booking"
+            style="@style/Widget.SafarSaathi.SheetValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Google Calendar · booking ref evt-demo-client-meeting" />
+
+        <!-- Can it move? (+ the anchor note) -->
+        <TextView
+            style="@style/Widget.SafarSaathi.SheetLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sheet_flexibility" />
+
+        <TextView
+            android:id="@+id/sheet_flex"
+            style="@style/Widget.SafarSaathi.SheetValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="@string/flex_ask_user" />
+
+        <TextView
+            android:id="@+id/sheet_anchor_note"
+            style="@style/Widget.SafarSaathi.SheetValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sheet_anchor_note"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <!-- Changes and fees -->
+        <TextView
+            style="@style/Widget.SafarSaathi.SheetLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sheet_changes" />
+
+        <TextView
+            android:id="@+id/sheet_changes"
+            style="@style/Widget.SafarSaathi.SheetValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Free to change until 30 min before it starts. After that, a change costs ₹200." />
+
+        <!-- Notes (hidden when there are none) -->
+        <LinearLayout
+            android:id="@+id/sheet_notes_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/Widget.SafarSaathi.SheetLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sheet_notes" />
+
+            <TextView
+                android:id="@+id/sheet_notes"
+                style="@style/Widget.SafarSaathi.SheetValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="The reason for the trip (anchor)." />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/sheet_directions_coming"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

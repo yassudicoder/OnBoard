@@ -1,0 +1,183 @@
+{
+  "_comment": [
+    "Demo trips for Safar Saathi. Loaded by the backend's seed loader when the database has no trips yet.",
+    "Everything here is invented demo data: airlines (IndiJet IJ, SkyMitra SM), hotels, bookings and references.",
+    "Trips get database ids in file order on an empty database: trip 1 = business demo, trip 2 = Marathi holiday demo.",
+    "Blocks and links get ids in file order too (trip 1 blocks first, then trip 2).",
+    "Times are relative so the demo never goes stale: 'day' = days after the trip day, 'start'/'end' = HH:mm in",
+    "Asia/Kolkata. 'endDay' defaults to 'day'. The trip day = today + safarsaathi.seed.day-offset (default 1 = tomorrow).",
+    "Links point at blocks by their 'key'. A link means: 'to' may start at least minGapMinutes + travelMinutes",
+    "after 'from' ends. freeChangeUntilMinutes is an offset from the block's start (-30 = free changes until",
+    "30 minutes before it starts); null = no free-change window (a fee always applies, see changeFeeInr).",
+    "Enum values must match CLAUDE.md section 3 exactly."
+  ],
+  "trips": [
+    {
+      "key": "demo-business",
+      "title": "Client visit: Mumbai to Bengaluru",
+      "purpose": "BUSINESS",
+      "persona": "BUSINESS",
+      "language": "en",
+      "travellers": 1,
+      "status": "PLANNED",
+      "blocks": [
+        {
+          "key": "flight",
+          "type": "FLIGHT",
+          "title": "Flight IJ 512 Mumbai to Bengaluru",
+          "day": 0, "start": "08:00", "end": "09:45",
+          "locationName": "Mumbai Airport T2 (BOM)",
+          "lat": 19.0896, "lng": 72.8656,
+          "provider": "MOCK_AIR", "providerRef": "K7Q2ZM",
+          "flex": "FIXED", "anchor": false,
+          "freeChangeUntilMinutes": null, "changeFeeInr": 2500,
+          "notes": "Arrives at Bengaluru T1 (BLR). Change fee 2,500 rupees, waived when the airline causes the disruption."
+        },
+        {
+          "key": "bags",
+          "type": "BAG_CLAIM",
+          "title": "Collect bags at Bengaluru T1",
+          "day": 0, "start": "09:45", "end": "10:05",
+          "locationName": "Bengaluru Airport T1 (BLR), baggage belt",
+          "lat": 13.1989, "lng": 77.7068,
+          "provider": "NONE", "providerRef": null,
+          "flex": "AUTO_SHIFT", "anchor": false,
+          "freeChangeUntilMinutes": 0, "changeFeeInr": 0,
+          "notes": "About 20 minutes from landing to bags in hand."
+        },
+        {
+          "key": "cab",
+          "type": "CAB",
+          "title": "Cab pickup to the Whitefield office",
+          "day": 0, "start": "10:05", "end": "10:05",
+          "locationName": "Bengaluru Airport T1 pickup zone",
+          "lat": 13.1993, "lng": 77.7074,
+          "provider": "MOCK_CAB", "providerRef": "CAB-BLR-4471",
+          "flex": "AUTO_SHIFT", "anchor": false,
+          "freeChangeUntilMinutes": -30, "changeFeeInr": 200,
+          "notes": "Free pickup change until 30 minutes before pickup, 200 rupees after. Ride to Whitefield takes about 75 minutes."
+        },
+        {
+          "key": "meeting",
+          "type": "MEETING",
+          "title": "Client meeting in Whitefield",
+          "day": 0, "start": "12:00", "end": "13:00",
+          "locationName": "Client office, ITPL Main Road, Whitefield",
+          "lat": 12.9857, "lng": 77.7365,
+          "provider": "GOOGLE_CALENDAR", "providerRef": "evt-demo-client-meeting",
+          "flex": "ASK_USER", "anchor": true,
+          "freeChangeUntilMinutes": null, "changeFeeInr": 0,
+          "notes": "The reason for the trip (anchor). Moving it needs the traveller's OK; a video call is a possible fallback."
+        },
+        {
+          "key": "hotel",
+          "type": "HOTEL",
+          "title": "Hotel check-in: Whitefield Residency",
+          "day": 0, "start": "14:00", "end": "14:15",
+          "locationName": "Whitefield Residency, Whitefield",
+          "lat": 12.9698, "lng": 77.7499,
+          "provider": "MOCK_STAY", "providerRef": "STAY-WFR-2231",
+          "flex": "AUTO_SHIFT", "anchor": false,
+          "freeChangeUntilMinutes": -1440, "changeFeeInr": 0,
+          "notes": "Check-in is a window, a late-arrival note is always allowed. Free cancellation until 24 hours before check-in. From the airport it is about 60 minutes by cab. Check-out tomorrow 11:00."
+        },
+        {
+          "key": "dinner",
+          "type": "RESTAURANT",
+          "title": "Team dinner at Tandoor House",
+          "day": 0, "start": "20:00", "end": "21:30",
+          "locationName": "Tandoor House, Whitefield",
+          "lat": 12.9784, "lng": 77.7408,
+          "provider": "MOCK_TABLE", "providerRef": "TBL-TH-0912",
+          "flex": "AUTO_SHIFT", "anchor": false,
+          "freeChangeUntilMinutes": -120, "changeFeeInr": 500,
+          "notes": "Free change or cancel until 18:00 on the day."
+        }
+      ],
+      "links": [
+        { "from": "flight",  "to": "bags",    "minGapMinutes": 0, "travelMinutes": 0,  "travelMode": "NONE" },
+        { "from": "bags",    "to": "cab",     "minGapMinutes": 0, "travelMinutes": 0,  "travelMode": "WALK" },
+        { "from": "cab",     "to": "meeting", "minGapMinutes": 0, "travelMinutes": 75, "travelMode": "CAB" },
+        { "from": "meeting", "to": "hotel",   "minGapMinutes": 0, "travelMinutes": 40, "travelMode": "CAB" },
+        { "from": "hotel",   "to": "dinner",  "minGapMinutes": 0, "travelMinutes": 20, "travelMode": "CAB" }
+      ]
+    },
+    {
+      "key": "demo-holiday-marathi",
+      "title": "Leh holiday via Delhi",
+      "purpose": "HOLIDAY",
+      "persona": "ELDERLY",
+      "language": "mr",
+      "travellers": 1,
+      "status": "PLANNED",
+      "blocks": [
+        {
+          "key": "flight-pnq-del",
+          "type": "FLIGHT",
+          "title": "Flight SM 231 Pune to Delhi",
+          "day": 0, "start": "06:10", "end": "08:20",
+          "locationName": "Pune Airport (PNQ)",
+          "lat": 18.5821, "lng": 73.9197,
+          "provider": "MOCK_AIR", "providerRef": "R4T8WD",
+          "flex": "FIXED", "anchor": false,
+          "freeChangeUntilMinutes": null, "changeFeeInr": 2500,
+          "notes": "First flight for this traveller (58). Arrives at Delhi T3 (DEL). Same booking as the Leh flight."
+        },
+        {
+          "key": "flight-del-ixl",
+          "type": "FLIGHT",
+          "title": "Flight SM 445 Delhi to Leh",
+          "day": 0, "start": "10:15", "end": "11:40",
+          "locationName": "Delhi Airport T3 (DEL)",
+          "lat": 28.5562, "lng": 77.1000,
+          "provider": "MOCK_AIR", "providerRef": "R4T8WD",
+          "flex": "FIXED", "anchor": false,
+          "freeChangeUntilMinutes": null, "changeFeeInr": 2500,
+          "notes": "Connection at Delhi: at least 75 minutes between flights. Arrives at Leh (IXL), 3,500 m above sea level."
+        },
+        {
+          "key": "bags-ixl",
+          "type": "BAG_CLAIM",
+          "title": "Collect bags at Leh airport",
+          "day": 0, "start": "11:40", "end": "12:00",
+          "locationName": "Leh Airport (IXL), baggage belt",
+          "lat": 34.1359, "lng": 77.5465,
+          "provider": "NONE", "providerRef": null,
+          "flex": "AUTO_SHIFT", "anchor": false,
+          "freeChangeUntilMinutes": 0, "changeFeeInr": 0,
+          "notes": "Walk slowly and drink water: the air is thin at Leh."
+        },
+        {
+          "key": "cab-ixl",
+          "type": "CAB",
+          "title": "Cab pickup to the hotel",
+          "day": 0, "start": "12:00", "end": "12:00",
+          "locationName": "Leh Airport pickup point",
+          "lat": 34.1356, "lng": 77.5470,
+          "provider": "MOCK_CAB", "providerRef": "CAB-IXL-1180",
+          "flex": "AUTO_SHIFT", "anchor": false,
+          "freeChangeUntilMinutes": -30, "changeFeeInr": 200,
+          "notes": "Free pickup change until 30 minutes before pickup, 200 rupees after. About 20 minutes to the hotel."
+        },
+        {
+          "key": "hotel-leh",
+          "type": "HOTEL",
+          "title": "Hotel check-in: Indus View Guest House",
+          "day": 0, "start": "13:00", "end": "13:15",
+          "locationName": "Indus View Guest House, Changspa, Leh",
+          "lat": 34.1690, "lng": 77.5730,
+          "provider": "MOCK_STAY", "providerRef": "STAY-LEH-5530",
+          "flex": "AUTO_SHIFT", "anchor": false,
+          "freeChangeUntilMinutes": -1440, "changeFeeInr": 0,
+          "notes": "Rest for the whole first day (altitude). Free cancellation until 24 hours before check-in. 3 nights."
+        }
+      ],
+      "links": [
+        { "from": "flight-pnq-del", "to": "flight-del-ixl", "minGapMinutes": 75, "travelMinutes": 0,  "travelMode": "WALK" },
+        { "from": "flight-del-ixl", "to": "bags-ixl",       "minGapMinutes": 0,  "travelMinutes": 0,  "travelMode": "NONE" },
+        { "from": "bags-ixl",       "to": "cab-ixl",        "minGapMinutes": 0,  "travelMinutes": 0,  "travelMode": "WALK" },
+        { "from": "cab-ixl",        "to": "hotel-leh",      "minGapMinutes": 0,  "travelMinutes": 20, "travelMode": "CAB" }
+      ]
+    }
+  ]
+}

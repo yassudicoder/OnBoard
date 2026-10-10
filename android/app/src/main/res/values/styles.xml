@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Small reusable styles (the app theme itself is in themes.xml).
+         A style here bundles a few view attributes so several views look the same. -->
+
+    <!-- Block details sheet: the small heading above each piece of information, e.g. "When". -->
+    <style name="Widget.SafarSaathi.SheetLabel" parent="">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <!-- Block details sheet: the information itself, e.g. "Sun, 11 Oct · 12:00–13:00". -->
+    <style name="Widget.SafarSaathi.SheetValue" parent="">
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+</resources>

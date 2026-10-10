@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The five tabs of the bottom bar, in order.
+     IMPORTANT: each item id MUST be the same as a destination id in navigation/nav_graph.xml.
+     That shared id is how NavigationUI knows which screen to open when a tab is tapped. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_home_24"
+        android:title="@string/tab_home" />
+
+    <item
+        android:id="@+id/navigation_trip"
+        android:icon="@drawable/ic_trip_24"
+        android:title="@string/tab_trip" />
+
+    <item
+        android:id="@+id/navigation_assistant"
+        android:icon="@drawable/ic_assistant_24"
+        android:title="@string/tab_assistant" />
+
+    <item
+        android:id="@+id/navigation_wallet"
+        android:icon="@drawable/ic_wallet_24"
+        android:title="@string/tab_wallet" />
+
+    <item
+        android:id="@+id/navigation_profile"
+        android:icon="@drawable/ic_profile_24"
+        android:title="@string/tab_profile" />
+
+</menu>

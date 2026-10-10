@@ -1,0 +1,88 @@
+# =============================================================================
+# Safar Saathi - ONE .gitignore for the whole repo (android/, backend/, docs/, ...).
+#   - A pattern without a "/" in the middle matches in EVERY folder.
+#   - A line starting with "!" means "do NOT ignore this", even if a rule above matched.
+#   - Not sure why a file is (not) ignored? Run:  git check-ignore -v <path>
+# =============================================================================
+
+
+# --- Secrets: never commit these -----------------------------------------------
+
+# Backend keys live in a root .env (your copy of .env.example); also .env.local etc.
+.env
+.env.*
+# ...but the names-only template IS committed:
+!.env.example
+
+# Android keys (MAPS_API_KEY, BACKEND_BASE_URL) and the SDK path live in
+# local.properties, in any folder. The names-only template IS committed:
+local.properties
+!local.properties.example
+
+# App signing keys for release builds - share privately, never through git.
+*.jks
+*.keystore
+
+# Firebase's config file for the Android app (needed for push notifications, Phase 3).
+# Its key is not a true secret (it ships inside the app anyway), but each teammate may
+# use their own Firebase project and this repo may be public, so we keep it out of git
+# for now and share it privately. Revisit when push notifications are built in Phase 3.
+google-services.json
+
+# Server-side Google / Firebase credential files = real secrets. Keep them OUTSIDE the
+# repo; these patterns are a safety net in case one lands here by mistake.
+service-account*.json
+*firebase-adminsdk*.json
+client_secret*.json
+**/credentials*.json
+
+# Google Calendar sign-in tokens that the backend saves after you log in once (Phase 4).
+# Normally backend/.tokens/ - this pattern also covers a .tokens/ folder in the repo
+# root, in case the backend was started from there.
+.tokens/
+# Google's Java sign-in library saves that token in a file named "StoredCredential"
+# (Google's own Calendar quickstart puts it in a "tokens" folder, without the dot).
+# This line ignores a file with that name in any folder.
+StoredCredential
+
+
+# --- Android / Gradle ------------------------------------------------------------
+
+# Gradle's cache and all build output - recreated by every build.
+.gradle/
+build/
+# Native (C/C++) build folders - we have no native code, but Android Studio may create them.
+.cxx/
+.externalNativeBuild/
+# Screenshots, screen recordings and profiler captures from Android Studio.
+captures/
+# Kotlin compiler data (created because our Gradle build files are written in Kotlin DSL).
+.kotlin/
+# Built app packages (Android Studio puts release builds in app/release/) - share
+# demo builds through Drive, not git.
+*.apk
+*.aab
+
+
+# --- Maven (backend) ---------------------------------------------------------------
+
+# Compiled classes, test reports and the runnable jar.
+target/
+
+
+# --- IDEs and tools: settings are per person ---------------------------------------
+
+.idea/
+*.iml
+.vscode/
+# Screenshots and logs from the Playwright browser-automation tool, if someone uses it here.
+.playwright-mcp/
+
+
+# --- OS junk, logs, crash dumps ----------------------------------------------------
+
+.DS_Store
+Thumbs.db
+*.log
+# Java heap dumps (written if a Java process runs out of memory) - often hundreds of MB.
+*.hprof

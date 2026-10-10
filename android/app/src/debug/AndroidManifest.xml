@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Extra manifest lines for DEBUG builds only. Android merges this file into src/main/AndroidManifest.xml
+     when it builds the debug app, so release builds never get these lines. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Android 17 (API 37) "local network protection": an app that targets API 37 may only talk to
+         addresses on the local network after the user allows it. The laptop that runs our backend is such
+         an address (10.0.2.2 from the emulator, or 192.168.x.x on Wi-Fi). Without this permission the app's
+         requests silently time out, even though the backend is running.
+         MainActivity asks for it once, on the first start of a debug build. Release builds will talk to the
+         hosted backend on the internet, so they do not need it. -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+
+</manifest>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ALL text the user can see lives here: never type text directly into layouts or Java code.
+         In Phase 6 the app gets translated by adding copies of this file in values-hi/, values-mr/,
+         values-ta/ and values-bn/ (Hindi, Marathi, Tamil, Bengali). -->
+    <string name="app_name">Safar Saathi</string>
+
+    <!-- Bottom bar: the five tab names. Keep them short, they sit under the icons. -->
+    <string name="tab_home">Home</string>
+    <string name="tab_trip">Trip</string>
+    <string name="tab_assistant">Assistant</string>
+    <string name="tab_wallet">Wallet</string>
+    <string name="tab_profile">Profile</string>
+
+    <!-- Top bar: the title of each screen (used as the labels in navigation/nav_graph.xml). -->
+    <string name="title_home">Do this now</string>
+    <string name="title_trip">My trip</string>
+    <string name="title_assistant">Assistant</string>
+    <string name="title_wallet">Wallet</string>
+    <string name="title_profile">Profile</string>
+
+    <!-- Phase 0 placeholder screens: a headline, one plain line about what the tab will do,
+         and the build phase that brings it. -->
+    <string name="home_headline">Your next step</string>
+    <string name="home_description">One big card will show the very next thing to do on your trip, with one button to do it.</string>
+
+    <string name="assistant_headline">Ask Safar Saathi</string>
+    <string name="assistant_description">Type or speak in your own language, Hinglish too, and get help with any part of your trip.</string>
+
+    <string name="wallet_headline">Your travel documents</string>
+    <string name="wallet_description">Boarding pass, tickets and ID kept on your phone, so they open even without internet.</string>
+
+    <string name="profile_headline">Make the app yours</string>
+    <string name="profile_description">Choose your language, tell us who is travelling, and switch on large text if you like.</string>
+
+    <!-- %1$d is replaced by the phase number, e.g. "Coming in Phase 3". -->
+    <string name="placeholder_coming_in_phase">Coming in Phase %1$d</string>
+
+    <!-- ============================================================================================
+         Trip tab ("My trip", Phase 1): the timeline of the whole trip.
+         ============================================================================================ -->
+
+    <!-- Sync line under the trip title. %1$s = a time such as "17:42" (Indian time). -->
+    <string name="trip_sync_refreshing">Refreshing…</string>
+    <string name="trip_sync_updated">Updated %1$s</string>
+    <string name="trip_sync_saved">Saved plan from %1$s</string>
+    <string name="trip_sync_offline">Offline · showing your saved plan from %1$s</string>
+    <string name="trip_sync_offline_no_time">Offline · showing your saved plan</string>
+    <string name="trip_sync_error">Could not update · showing your saved plan from %1$s</string>
+    <string name="trip_sync_error_no_time">Could not update · showing your saved plan</string>
+
+    <!-- One-line summary under the title, e.g. "Business trip · Sun, 11 Oct · 6 bookings". -->
+    <string name="trip_summary">%1$s · %2$s · %3$s</string>
+    <plurals name="trip_bookings">
+        <item quantity="one">%1$d booking</item>
+        <item quantity="other">%1$d bookings</item>
+    </plurals>
+
+    <!-- Red banner when something needs the traveller's decision. %2$s = the titles, e.g. "Client meeting in Whitefield". -->
+    <plurals name="trip_attention_title">
+        <item quantity="one">%1$d thing needs your decision: %2$s</item>
+        <item quantity="other">%1$d things need your decision: %2$s</item>
+    </plurals>
+    <string name="trip_attention_hint">Tap to see what changed. Ways to fix it arrive in Phase 5.</string>
+
+    <!-- Empty state: no saved trip on the phone yet. -->
+    <string name="trip_empty_loading_title">Loading your trip…</string>
+    <string name="trip_empty_loading_message">Getting your plan from Safar Saathi.</string>
+    <string name="trip_empty_error_title">Could not load your trip</string>
+    <string name="trip_empty_error_network">Safar Saathi could not be reached, and no plan is saved on this phone yet. Check your internet connection (for the demo: is the backend running?), then try again.</string>
+    <string name="trip_empty_error_not_found">The server does not have this trip. For the demo, reload the demo data on the backend, then try again.</string>
+    <string name="trip_empty_error_server">The server had a problem. Please try again in a moment.</string>
+    <string name="trip_empty_error_bad_data">The server sent a plan this app could not read. Please try again later.</string>
+    <string name="trip_retry">Retry</string>
+
+    <!-- Status chips. Colours: OK green, auto-adjusted amber, needs-you red, done/cancelled grey. -->
+    <string name="status_ok">On track</string>
+    <string name="status_auto_adjusted">Auto-adjusted</string>
+    <string name="status_needs_user">Needs you</string>
+    <string name="status_done">Done</string>
+    <string name="status_cancelled">Cancelled</string>
+    <string name="status_unknown">Unknown</string>
+    <string name="block_moved_label">Moved to fit the new plan</string>
+    <!-- Read aloud by screen readers for the star on the anchor block. -->
+    <string name="trip_anchor_description">Anchor: must not miss</string>
+
+    <!-- Block types (also read aloud for the icon on each card). -->
+    <string name="type_flight">Flight</string>
+    <string name="type_bag_claim">Bag claim</string>
+    <string name="type_cab">Cab</string>
+    <string name="type_hotel">Hotel</string>
+    <string name="type_meeting">Meeting</string>
+    <string name="type_event">Event</string>
+    <string name="type_restaurant">Restaurant</string>
+    <string name="type_train">Train</string>
+    <string name="type_other">Other</string>
+
+    <!-- Purpose of the trip (CLAUDE.md section 3). -->
+    <string name="purpose_business">Business trip</string>
+    <string name="purpose_wedding">Wedding or family event</string>
+    <string name="purpose_holiday">Holiday</string>
+    <string name="purpose_pilgrimage">Pilgrimage</string>
+    <string name="purpose_medical">Medical visit</string>
+    <string name="purpose_exam">Exam or interview</string>
+    <string name="purpose_other">Trip</string>
+
+    <!-- Durations. %1$d = a number. -->
+    <string name="duration_minutes">%1$d min</string>
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d hour</item>
+        <item quantity="other">%1$d hours</item>
+    </plurals>
+
+    <!-- Link rows between two cards. %1$s = a duration such as "75 min". -->
+    <string name="link_travel_cab">%1$s by cab</string>
+    <string name="link_travel_metro">%1$s by metro</string>
+    <string name="link_travel_walk">%1$s walk</string>
+    <string name="link_travel_other">%1$s to get there</string>
+    <string name="link_gap_change_planes">at least %1$s to change planes</string>
+    <string name="link_gap">at least %1$s in between</string>
+    <string name="link_two_parts">%1$s · %2$s</string>
+
+    <!-- Block details (bottom sheet). -->
+    <string name="sheet_when">When</string>
+    <string name="sheet_where">Where</string>
+    <string name="sheet_booking">Booked with</string>
+    <string name="sheet_flexibility">Can it move?</string>
+    <string name="sheet_changes">Changes and fees</string>
+    <string name="sheet_notes">Notes</string>
+    <!-- %1$s = day, %2$s = times, e.g. "Sun, 11 Oct · 08:00–09:45". -->
+    <string name="sheet_when_value">%1$s · %2$s</string>
+    <!-- %1$s = who holds the booking, %2$s = booking reference, e.g. "MockAir (demo airline) · booking ref K7Q2ZM". -->
+    <string name="sheet_booking_with_ref">%1$s · booking ref %2$s</string>
+    <string name="sheet_anchor_note">This is the reason for your trip: it must not be missed.</string>
+    <string name="sheet_directions_coming">Directions for this leg arrive in Phase 7.</string>
+
+    <string name="sheet_status_ok">On track. Nothing to do.</string>
+    <string name="sheet_status_auto_adjusted">Safar Saathi moved this to fit the new plan. Nothing to do.</string>
+    <string name="sheet_status_needs_user">This no longer fits the plan and needs your decision. Ways to fix it arrive in Phase 5.</string>
+    <string name="sheet_status_done">Done.</string>
+    <string name="sheet_status_cancelled">This booking is cancelled.</string>
+    <string name="sheet_status_unknown">Status not known yet.</string>
+
+    <string name="provider_mock_air">MockAir (demo airline)</string>
+    <string name="provider_mock_stay">MockStay (demo hotel booking)</string>
+    <string name="provider_mock_cab">MockCab (demo cab company)</string>
+    <string name="provider_mock_table">MockTable (demo restaurant booking)</string>
+    <string name="provider_google_calendar">Google Calendar</string>
+    <string name="provider_none">Nothing to book</string>
+
+    <string name="flex_fixed">No. The time is fixed; Safar Saathi will not move it on its own.</string>
+    <string name="flex_auto_shift">Yes. Safar Saathi may move it for you when plans change.</string>
+    <string name="flex_ask_user">Only with your OK. Safar Saathi asks you before moving it.</string>
+    <string name="flex_unknown">Not known.</string>
+
+    <!-- Free-change rule, from the block's freeChangeUntilMinutes. %1$s = a duration, e.g. "30 min" or "24 hours". -->
+    <string name="free_change_none">No free changes.</string>
+    <string name="free_change_until_start">Free to change until it starts.</string>
+    <string name="free_change_before_start">Free to change until %1$s before it starts.</string>
+    <string name="free_change_after_start">Free to change until %1$s after it starts.</string>
+    <!-- Fees. %1$s = an amount in rupees, e.g. "2,500". -->
+    <string name="fee_none">No change fee.</string>
+    <string name="fee_always">Any change costs ₹%1$s.</string>
+    <string name="fee_after_window">After that, a change costs ₹%1$s.</string>
+    <!-- Joins the free-change rule and the fee into one paragraph. -->
+    <string name="sheet_changes_value">%1$s %2$s</string>
+</resources>
