@@ -54,6 +54,66 @@
         android:label="@string/title_wallet"
         tools:layout="@layout/fragment_wallet" />
 
+    <!-- ===== Document Vault (feature C), opened from Profile > More =====
+         A nested graph: every screen inside it shows documents, so MainActivity treats "the current screen is inside
+         vault_graph" as "block screenshots" (FLAG_SECURE), and only taps there keep the vault's auto-lock from
+         running out. Navigate to @id/vault_graph to open the vault home. -->
+    <navigation
+        android:id="@+id/vault_graph"
+        app:startDestination="@id/vault_home">
+
+        <fragment
+            android:id="@+id/vault_home"
+            android:name="com.safarsaathi.app.ui.vault.VaultHomeFragment"
+            android:label="@string/title_vault"
+            tools:layout="@layout/fragment_vault_home" />
+
+        <fragment
+            android:id="@+id/vault_trip"
+            android:name="com.safarsaathi.app.ui.vault.VaultTripFragment"
+            android:label="@string/title_vault_trip"
+            tools:layout="@layout/fragment_vault_trip">
+            <argument
+                android:name="tripId"
+                app:argType="string" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/vault_document"
+            android:name="com.safarsaathi.app.ui.vault.VaultDocumentFragment"
+            android:label="@string/title_vault_document"
+            tools:layout="@layout/fragment_vault_document">
+            <argument
+                android:name="documentId"
+                app:argType="string" />
+        </fragment>
+
+        <!-- Adding a document (V2): the vault's own camera, the manual crop, and the confirm screen. -->
+        <fragment
+            android:id="@+id/vault_camera"
+            android:name="com.safarsaathi.app.ui.vault.VaultCameraFragment"
+            android:label="@string/title_vault_camera"
+            tools:layout="@layout/fragment_vault_camera" />
+
+        <fragment
+            android:id="@+id/vault_crop"
+            android:name="com.safarsaathi.app.ui.vault.VaultCropFragment"
+            android:label="@string/title_vault_crop"
+            tools:layout="@layout/fragment_vault_crop" />
+
+        <fragment
+            android:id="@+id/vault_edit_document"
+            android:name="com.safarsaathi.app.ui.vault.VaultEditDocumentFragment"
+            android:label="@string/title_vault_edit"
+            tools:layout="@layout/fragment_vault_edit_document" />
+
+        <fragment
+            android:id="@+id/vault_settings"
+            android:name="com.safarsaathi.app.ui.vault.VaultSettingsFragment"
+            android:label="@string/title_vault_settings"
+            tools:layout="@layout/fragment_vault_settings" />
+    </navigation>
+
     <!-- ===== PARKED (old trip-timeline plan), only linked when feature.tripTimeline=true ===== -->
 
     <fragment

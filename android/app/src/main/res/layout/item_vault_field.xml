@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One key detail of a document: a small label above its value, e.g. "Expires on" / "14 Mar 2029". -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/field_label"
+        style="@style/Widget.SafarSaathi.SheetLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="Expires on" />
+
+    <TextView
+        android:id="@+id/field_value"
+        style="@style/Widget.SafarSaathi.SheetValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="false"
+        tools:text="14 Mar 2029" />
+</LinearLayout>

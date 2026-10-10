@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Add document" choices (bottom sheet in VaultTripFragment): scan, import, type in, or reuse a saved document. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="24dp">
+
+    <TextView
+        android:id="@+id/add_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="@string/vault_add_document"
+        android:textAppearance="?attr/textAppearanceTitleLarge"
+        android:textColor="?attr/colorOnSurface" />
+
+    <include
+        android:id="@+id/add_scan"
+        layout="@layout/item_vault_add_option" />
+
+    <include
+        android:id="@+id/add_import"
+        layout="@layout/item_vault_add_option" />
+
+    <include
+        android:id="@+id/add_manual"
+        layout="@layout/item_vault_add_option" />
+
+    <include
+        android:id="@+id/add_existing"
+        layout="@layout/item_vault_add_option" />
+</LinearLayout>

@@ -4,12 +4,14 @@ import android.app.Application;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.content.ContextCompat;
 import androidx.room.Room;
 
 import com.safarsaathi.app.data.TripRepository;
 import com.safarsaathi.app.data.WalletRepository;
 import com.safarsaathi.app.data.local.AppDatabase;
 import com.safarsaathi.app.data.remote.SafarSaathiApi;
+import com.safarsaathi.app.data.vault.Vault;
 
 import java.time.Clock;
 import java.util.concurrent.ExecutorService;
@@ -46,12 +48,15 @@ public final class ServiceLocator {
     private final ExecutorService ioExecutor;
     private final TripRepository tripRepository;
     private final WalletRepository walletRepository;
+    private final Vault vault;
 
     /** Set only by instrumented tests, see {@link #setTripRepositoryForTests}. */
     @Nullable
     private volatile TripRepository tripRepositoryForTests;
     @Nullable
     private volatile WalletRepository walletRepositoryForTests;
+    @Nullable
+    private volatile Vault vaultForTests;
 
     private ServiceLocator(Application app) {
         // Settings from local.properties, baked into BuildConfig at build time (see app/build.gradle.kts).
@@ -85,6 +90,11 @@ public final class ServiceLocator {
         tripRepository = new TripRepository(database.tripDao(), api, ioExecutor, Clock.systemUTC());
         // Boarding passes and saved cards: phone-only data, written on the same background thread.
         walletRepository = new WalletRepository(database.walletDao(), ioExecutor, Clock.systemUTC());
+        // Document Vault: its own encrypted database and files, opened the first time a vault screen needs them.
+        // It gets its OWN background thread, so encrypting a large scan never delays a trip save (and the other
+        // way round).
+        ExecutorService vaultExecutor = Executors.newSingleThreadExecutor(task -> new Thread(task, "onboard-vault"));
+        vault = Vault.create(app, vaultExecutor, ContextCompat.getMainExecutor(app), Clock.systemUTC());
     }
 
     /**
@@ -154,6 +164,12 @@ public final class ServiceLocator {
         return replacement != null ? replacement : walletRepository;
     }
 
+    /** The Document Vault (the test replacement, if a test set one). */
+    public Vault getVault() {
+        Vault replacement = vaultForTests;
+        return replacement != null ? replacement : vault;
+    }
+
     // ============================================================================================
     // TEST HOOK - for instrumented tests (src/androidTest) only. Never call this from app code.
     // A UI test builds a TripRepository with an in-memory database and a fake SafarSaathiApi, puts a
@@ -169,5 +185,11 @@ public final class ServiceLocator {
     @VisibleForTesting
     public void setWalletRepositoryForTests(@Nullable WalletRepository replacement) {
         walletRepositoryForTests = replacement;
+    }
+
+    /** Same idea for the Document Vault: tests use a vault in a temporary folder. Pass null to go back. */
+    @VisibleForTesting
+    public void setVaultForTests(@Nullable Vault replacement) {
+        vaultForTests = replacement;
     }
 }
