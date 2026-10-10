@@ -87,8 +87,38 @@ live safety scoring (a country pack's official advisory link at most).
   `GateChangeEvent` → FCM high-priority data message → app updates Room → if navigating, re-route at once, banner, vibrate, speak
   (TTS in the chosen language). Missed push → the app's own refresh (60 s while navigating, WorkManager otherwise) catches it.
 - **Offline:** map, graph, routing engine and last known gate cached; "Offline · gate as of 07:02".
-- **Rendering:** MapLibre Native Android (Java API, no key, local GeoJSON); fallback = custom Canvas `View`. Routing and
-  instructions never depend on the renderer.
+- **Rendering (decided in G1):** our own Canvas `View` (`TerminalMapView`), not MapLibre: MapLibre needs downloaded
+  glyph (font) files for any text label, which fights offline use, adds ~20-30 MB of native code, and our map is in
+  local metres, not longitude/latitude. Routing and instructions never depend on the renderer.
+- **Map storage (decided in G1):** the map is fixed reference data shipped with the code: `mock-data/airports/BOM-T2/`
+  (`map.json` + `areas.geojson`), served by `GET /api/airports/{code}/{terminal}/map` from memory (no database table),
+  bundled in the app as assets and saved in Room (`airport_maps`); a higher `version` replaces the saved copy.
+- **Built in G2-G3 (2026-10-11; the user asked for "Google Maps navigation using user location"):**
+  - Routing in `routing-core/.../route/` (`Router` A*, `WalkProfile`, `StepBuilder`, `Route` progress maths). Instruction
+    sentences in `routing-core/src/main/resources/com/safarsaathi/routing/route/instructions_{en,hi,mr}.properties`,
+    loaded by both builds (hi/mr to be reviewed by native speakers in P).
+  - Navigate tab looks and works like Google Maps:
+    - Search bar, floor picker, and a place card ("Directions" / "I'm here").
+    - Route preview: time, distance, "Step-free", "Slower pace", "Start".
+    - Green turn banner with "Then …", and a heading-up map following a blue arrow.
+    - Bottom bar: minutes, metres, arrival "(estimate)".
+    - Steps sheet; "Help nearby": nearest help desk / washrooms / lift / buggy, with a detour and "Continue to …".
+    - Arrival card, voice guidance (TTS), dark mode.
+    - No toolbar on this tab, and the bottom tabs are hidden while navigating.
+  - Positioning as built:
+    - QR anchors via Google's code scanner: Google Play services shows the camera, so no camera permission is needed.
+    - "I'm here" on a tapped place, or "Where are you now?" (choose a place).
+    - Steps along the route: `TYPE_STEP_DETECTOR`, which needs `ACTIVITY_RECOGNITION`.
+    - Turn confirmation from `TYPE_GAME_ROTATION_VECTOR`: only CHANGES of heading near the next turn are used, so no
+      true north is needed.
+    - Demo walk in debug builds, labelled as a simulation.
+    - Off-route = a QR / chosen place that is not on the route: re-route from there and say so.
+    - Not built: free 2D dead reckoning and the "> 25 m for > 10 s" rule. Both need the map's real orientation and
+      scale checked on site.
+  - **Phone GPS is not used inside the terminal:** it can't tell floors and is tens of metres off indoors. Getting TO the
+    airport hands off to the Google Maps app. It uses a Maps URL (driving, `dir_action=navigate`, no key), opened from
+    Home and from "Where are you now?".
+  - Printable QR cards for the demo: `docs/qr-anchors.html`, generated from the map's anchors and labelled demo-only.
 
 ## 3. Feature B — Baggage Shield
 - **Before drop — evidence:** (1) passenger self-capture: guided CameraX flow, 4 required shots (front, back, side with handle and
@@ -193,7 +223,8 @@ live safety scoring (a country pack's official advisory link at most).
 - **MVVM:** Fragment → ViewModel + LiveData → Repository → (Room | Retrofit). Manual DI with `ServiceLocator` (**no Hilt**).
 - Jetpack Navigation + bottom nav: **Home · Navigate · Bags · Help · Profile**.
 - Room (map cache, gate info, bag records, evidence queue; already: trip copy, documents, ID documents, cards) · Retrofit + OkHttp +
-  Gson · WorkManager · FCM · MapLibre Native · CameraX + ML Kit barcode scanning (bag tag ITF, QR anchors, boarding passes) ·
+  Gson · WorkManager · FCM · own Canvas map view (G1) · CameraX + ML Kit barcode scanning (bag tag ITF, boarding passes) ·
+  Google code scanner (QR anchors, no camera permission) ·
   sensors (step detector, rotation vector) · TextToSpeech · `java.security.MessageDigest` (SHA-256).
 - Localization: `values/` + `values-hi/`, `values-mr/` now; `values-ta/`, `values-bn/` later. Instruction templates localised too.
 
@@ -374,6 +405,7 @@ GET  /api/health                                    app status + MOCK/REAL provi
 | PostgreSQL (docker) | 17.11 (`postgres:17.11-alpine`) | Matches Supabase's major version. |
 | ML Kit barcode scanning | 17.3.0 (bundled model) | Latest on Google Maven (checked 2026-10-10); works without Play services. |
 | ZXing core | 3.5.4 | Latest on Maven Central (checked 2026-10-10); draws QR codes into PDFs. |
+| Google code scanner (play-services-code-scanner) | 16.1.0 | Latest on Google Maven (checked 2026-10-11); QR "You are here" scanner, needs Google Play services. |
 Exact Android library versions live in `android/gradle/libs.versions.toml`; backend versions come from the Spring Boot parent POM.
 
 ## Conventions & gotchas
@@ -398,10 +430,10 @@ Exact Android library versions live in `android/gradle/libs.versions.toml`; back
 - [x] Phase 0 — Setup (done 2026-10-10) · old phases 1–2 built (now parked) · backend hardening done (branch
   `feature/backend-hardening`, PR not opened yet)
 - [x] R0 — Refocus (done 2026-10-11)
-- [ ] G1 — Airport map
-- [ ] G2 — Routing
-- [ ] G3 — Navigation UX + positioning
-- [ ] G4 — Gate changes
+- [x] G1 — Airport map (done 2026-10-11)
+- [x] G2 — Routing (done 2026-10-11)
+- [x] G3 — Navigation UX + positioning (done 2026-10-11; the ongoing notification moved to G4)
+- [ ] G4 — Gate changes (waits for Disruption Recovery C1 in main: GateWatcher builds on its flight model)
 - [ ] B1 — Bag Shield capture
 - [ ] B2 — Counter & Station
 - [ ] B3 — Problems & claims

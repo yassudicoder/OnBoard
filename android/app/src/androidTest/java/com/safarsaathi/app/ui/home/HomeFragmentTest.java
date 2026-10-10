@@ -103,8 +103,7 @@ public class HomeFragmentTest {
         try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {
             eventually(() -> onView(withId(R.id.home_navigate)).check(matches(isDisplayed())));
             onView(withId(R.id.home_navigate)).perform(click());
-            eventually(() -> onView(allOf(withId(R.id.placeholder_headline), withText(R.string.navigate_headline)))
-                    .check(matches(isDisplayed())));
+            eventually(() -> onView(withId(R.id.navigate_map)).check(matches(isDisplayed())));
         }
     }
 

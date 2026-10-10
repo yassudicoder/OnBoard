@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -90,6 +91,16 @@ public class MainActivity extends AppCompatActivity {
         // compile-time constants. NavigationUI matches the ids for us; elsewhere use if/else.)
         NavigationUI.setupWithNavController(binding.bottomNav, navController);
 
+        // Navigate tab: a full-screen map like Google Maps, with its own search bar, so no toolbar there. Leaving the
+        // tab always brings the bottom tabs back (they are hidden while navigating, see setTabsVisible).
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            boolean navigate = destination.getId() == R.id.navigation_navigate;
+            binding.appBar.setVisibility(navigate ? View.GONE : View.VISIBLE);
+            if (!navigate) {
+                setTabsVisible(true);
+            }
+        });
+
         // Only on a fresh start: after a screen rotation the question (or its answer) is already there.
         if (savedInstanceState == null) {
             askForLocalNetworkAccess();
@@ -110,6 +121,17 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_LOCAL_NETWORK)
                 != PackageManager.PERMISSION_GRANTED) {
             localNetworkQuestion.launch(Manifest.permission.ACCESS_LOCAL_NETWORK);
+        }
+    }
+
+    /**
+     * Navigate tab, turn-by-turn: hides the bottom tabs so the map and the instructions get the whole screen (like
+     * Google Maps), and shows them again afterwards.
+     */
+    public void setTabsVisible(boolean visible) {
+        View tabs = findViewById(R.id.bottom_nav);
+        if (tabs != null) {
+            tabs.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
     }
 

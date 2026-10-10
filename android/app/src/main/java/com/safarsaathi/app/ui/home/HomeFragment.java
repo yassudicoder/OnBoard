@@ -14,12 +14,14 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.safarsaathi.app.AppConfig;
 import com.safarsaathi.app.R;
 import com.safarsaathi.app.data.SyncState;
 import com.safarsaathi.app.data.local.BlockEntity;
 import com.safarsaathi.app.data.local.TripEntity;
 import com.safarsaathi.app.databinding.FragmentHomeBinding;
+import com.safarsaathi.app.ui.navigate.GoogleMapsLink;
 import com.safarsaathi.app.ui.trip.TripOverview;
 import com.safarsaathi.app.ui.trip.TripTime;
 import com.safarsaathi.app.ui.trip.TripUi;
@@ -82,6 +84,11 @@ public class HomeFragment extends Fragment {
         binding.homeRoot.setOnRefreshListener(() -> viewModel.refresh());
         binding.homeRetry.setOnClickListener(button -> viewModel.refresh());
         binding.homeNavigate.setOnClickListener(button -> openTab(R.id.navigation_navigate));
+        binding.homeDirectionsToAirport.setOnClickListener(button -> {
+            if (!GoogleMapsLink.openDirectionsToTerminal(requireContext())) {
+                Snackbar.make(binding.getRoot(), R.string.nav_notice_maps_missing, Snackbar.LENGTH_LONG).show();
+            }
+        });
         binding.homeRegisterBag.setOnClickListener(button -> openTab(R.id.navigation_bags));
 
         LifecycleOwner owner = getViewLifecycleOwner();

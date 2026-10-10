@@ -1,0 +1,1319 @@
+{
+  "airport": "BOM",
+  "terminal": "T2",
+  "version": 2,
+  "source": "Simplified schematic drawn from scratch by the OnBoard team for the demo; not traced or copied from any map. Positions, distances, gate numbers and landmarks are illustrative only. The one real-world fact used, the Lost & Found place (T2 Ground Transportation Lobby, Level 1), comes from the team brief and must still be checked against the official CSMIA page.",
+  "preparedBy": "OnBoard team, 2026-10-11 (v2: drawn tall, piers to the north, to fit a phone screen)",
+  "verified": false,
+  "note": "Demo schematic, not an official airport map",
+  "units": "metres in a local frame: x grows to the east, y grows to the north",
+  "floors": [
+    {
+      "id": "DEP",
+      "order": 2,
+      "names": {
+        "en": "Departures",
+        "hi": "प्रस्थान",
+        "mr": "प्रस्थान"
+      }
+    },
+    {
+      "id": "ARR",
+      "order": 1,
+      "names": {
+        "en": "Arrivals",
+        "hi": "आगमन",
+        "mr": "आगमन"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "entry_1",
+      "type": "ENTRY",
+      "floor": "DEP",
+      "x": 25,
+      "y": 0,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Entry Gate 1",
+        "hi": "प्रवेश द्वार 1",
+        "mr": "प्रवेशद्वार 1"
+      },
+      "ref": "1"
+    },
+    {
+      "id": "entry_4",
+      "type": "ENTRY",
+      "floor": "DEP",
+      "x": 135,
+      "y": 0,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Entry Gate 4",
+        "hi": "प्रवेश द्वार 4",
+        "mr": "प्रवेशद्वार 4"
+      },
+      "ref": "4"
+    },
+    {
+      "id": "departure_board",
+      "type": "LANDMARK",
+      "floor": "DEP",
+      "x": 80,
+      "y": 20,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Departure board",
+        "hi": "प्रस्थान सूचना बोर्ड",
+        "mr": "प्रस्थान फलक"
+      }
+    },
+    {
+      "id": "info_landside",
+      "type": "HELP_DESK",
+      "floor": "DEP",
+      "x": 60,
+      "y": 10,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Information desk",
+        "hi": "सूचना डेस्क",
+        "mr": "माहिती कक्ष"
+      }
+    },
+    {
+      "id": "checkin_a",
+      "type": "CHECKIN_ROW",
+      "floor": "DEP",
+      "x": 20,
+      "y": 30,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Check-in row A",
+        "hi": "चेक-इन पंक्ति A",
+        "mr": "चेक-इन रांग A"
+      },
+      "ref": "A"
+    },
+    {
+      "id": "checkin_b",
+      "type": "CHECKIN_ROW",
+      "floor": "DEP",
+      "x": 55,
+      "y": 30,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Check-in row B",
+        "hi": "चेक-इन पंक्ति B",
+        "mr": "चेक-इन रांग B"
+      },
+      "ref": "B"
+    },
+    {
+      "id": "checkin_c",
+      "type": "CHECKIN_ROW",
+      "floor": "DEP",
+      "x": 105,
+      "y": 30,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Check-in row C",
+        "hi": "चेक-इन पंक्ति C",
+        "mr": "चेक-इन रांग C"
+      },
+      "ref": "C"
+    },
+    {
+      "id": "checkin_d",
+      "type": "CHECKIN_ROW",
+      "floor": "DEP",
+      "x": 140,
+      "y": 30,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Check-in row D",
+        "hi": "चेक-इन पंक्ति D",
+        "mr": "चेक-इन रांग D"
+      },
+      "ref": "D"
+    },
+    {
+      "id": "bag_drop",
+      "type": "BAG_DROP",
+      "floor": "DEP",
+      "x": 80,
+      "y": 40,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Self bag drop",
+        "hi": "सेल्फ बैग ड्रॉप",
+        "mr": "सेल्फ बॅग ड्रॉप"
+      }
+    },
+    {
+      "id": "washroom_landside",
+      "type": "WASHROOM",
+      "floor": "DEP",
+      "x": 155,
+      "y": 15,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Washrooms",
+        "hi": "शौचालय",
+        "mr": "स्वच्छतागृह"
+      }
+    },
+    {
+      "id": "lift_b_dep",
+      "type": "LIFT",
+      "floor": "DEP",
+      "x": 150,
+      "y": 42,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Lift B",
+        "hi": "लिफ्ट B",
+        "mr": "लिफ्ट B"
+      },
+      "ref": "B"
+    },
+    {
+      "id": "security",
+      "type": "SECURITY",
+      "floor": "DEP",
+      "x": 80,
+      "y": 55,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Security check",
+        "hi": "सुरक्षा जांच",
+        "mr": "सुरक्षा तपासणी"
+      }
+    },
+    {
+      "id": "duty_free",
+      "type": "LANDMARK",
+      "floor": "DEP",
+      "x": 80,
+      "y": 80,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Duty Free",
+        "hi": "ड्यूटी फ्री",
+        "mr": "ड्यूटी फ्री"
+      }
+    },
+    {
+      "id": "hub",
+      "type": "LANDMARK",
+      "floor": "DEP",
+      "x": 80,
+      "y": 110,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Central hall",
+        "hi": "मुख्य हॉल",
+        "mr": "मुख्य दालन"
+      }
+    },
+    {
+      "id": "food_court",
+      "type": "LANDMARK",
+      "floor": "DEP",
+      "x": 100,
+      "y": 128,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Food court",
+        "hi": "फूड कोर्ट",
+        "mr": "फूड कोर्ट"
+      }
+    },
+    {
+      "id": "help_airside",
+      "type": "HELP_DESK",
+      "floor": "DEP",
+      "x": 58,
+      "y": 122,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Help desk",
+        "hi": "सहायता डेस्क",
+        "mr": "मदत कक्ष"
+      }
+    },
+    {
+      "id": "washroom_hub",
+      "type": "WASHROOM",
+      "floor": "DEP",
+      "x": 80,
+      "y": 138,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Washrooms",
+        "hi": "शौचालय",
+        "mr": "स्वच्छतागृह"
+      }
+    },
+    {
+      "id": "buggy_hub",
+      "type": "BUGGY_STOP",
+      "floor": "DEP",
+      "x": 62,
+      "y": 98,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Buggy stop",
+        "hi": "बग्गी स्टॉप",
+        "mr": "बग्गी थांबा"
+      }
+    },
+    {
+      "id": "lift_a_dep",
+      "type": "LIFT",
+      "floor": "DEP",
+      "x": 100,
+      "y": 92,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Lift A",
+        "hi": "लिफ्ट A",
+        "mr": "लिफ्ट A"
+      },
+      "ref": "A"
+    },
+    {
+      "id": "escalator_dep",
+      "type": "ESCALATOR",
+      "floor": "DEP",
+      "x": 104,
+      "y": 104,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Escalator",
+        "hi": "एस्केलेटर",
+        "mr": "सरकता जिना"
+      }
+    },
+    {
+      "id": "stairs_dep",
+      "type": "STAIRS",
+      "floor": "DEP",
+      "x": 96,
+      "y": 80,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Stairs",
+        "hi": "सीढ़ियाँ",
+        "mr": "जिना"
+      }
+    },
+    {
+      "id": "pier_c_sign",
+      "type": "PIER_JUNCTION",
+      "floor": "DEP",
+      "x": 30,
+      "y": 140,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Pier C sign",
+        "hi": "पियर C का संकेत",
+        "mr": "पियर C फलक"
+      },
+      "ref": "C",
+      "hint": {
+        "en": "Gates 31–35",
+        "hi": "गेट 31–35",
+        "mr": "गेट 31–35"
+      }
+    },
+    {
+      "id": "gate_31",
+      "type": "GATE",
+      "floor": "DEP",
+      "x": 30,
+      "y": 160,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Gate 31",
+        "hi": "गेट 31",
+        "mr": "गेट 31"
+      },
+      "ref": "31"
+    },
+    {
+      "id": "gate_32",
+      "type": "GATE",
+      "floor": "DEP",
+      "x": 30,
+      "y": 180,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Gate 32",
+        "hi": "गेट 32",
+        "mr": "गेट 32"
+      },
+      "ref": "32"
+    },
+    {
+      "id": "gate_33",
+      "type": "GATE",
+      "floor": "DEP",
+      "x": 30,
+      "y": 205,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Gate 33",
+        "hi": "गेट 33",
+        "mr": "गेट 33"
+      },
+      "ref": "33"
+    },
+    {
+      "id": "gate_34",
+      "type": "GATE",
+      "floor": "DEP",
+      "x": 30,
+      "y": 225,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Gate 34",
+        "hi": "गेट 34",
+        "mr": "गेट 34"
+      },
+      "ref": "34"
+    },
+    {
+      "id": "gate_35",
+      "type": "GATE",
+      "floor": "DEP",
+      "x": 30,
+      "y": 250,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Gate 35",
+        "hi": "गेट 35",
+        "mr": "गेट 35"
+      },
+      "ref": "35"
+    },
+    {
+      "id": "washroom_c",
+      "type": "WASHROOM",
+      "floor": "DEP",
+      "x": 45,
+      "y": 190,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Washrooms",
+        "hi": "शौचालय",
+        "mr": "स्वच्छतागृह"
+      }
+    },
+    {
+      "id": "pier_d_sign",
+      "type": "PIER_JUNCTION",
+      "floor": "DEP",
+      "x": 130,
+      "y": 140,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Pier D sign",
+        "hi": "पियर D का संकेत",
+        "mr": "पियर D फलक"
+      },
+      "ref": "D",
+      "hint": {
+        "en": "Gates 41–45",
+        "hi": "गेट 41–45",
+        "mr": "गेट 41–45"
+      }
+    },
+    {
+      "id": "gate_41",
+      "type": "GATE",
+      "floor": "DEP",
+      "x": 130,
+      "y": 160,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Gate 41",
+        "hi": "गेट 41",
+        "mr": "गेट 41"
+      },
+      "ref": "41"
+    },
+    {
+      "id": "gate_42",
+      "type": "GATE",
+      "floor": "DEP",
+      "x": 130,
+      "y": 180,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Gate 42",
+        "hi": "गेट 42",
+        "mr": "गेट 42"
+      },
+      "ref": "42"
+    },
+    {
+      "id": "gate_43",
+      "type": "GATE",
+      "floor": "DEP",
+      "x": 130,
+      "y": 205,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Gate 43",
+        "hi": "गेट 43",
+        "mr": "गेट 43"
+      },
+      "ref": "43"
+    },
+    {
+      "id": "gate_44",
+      "type": "GATE",
+      "floor": "DEP",
+      "x": 130,
+      "y": 225,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Gate 44",
+        "hi": "गेट 44",
+        "mr": "गेट 44"
+      },
+      "ref": "44"
+    },
+    {
+      "id": "gate_45",
+      "type": "GATE",
+      "floor": "DEP",
+      "x": 130,
+      "y": 250,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Gate 45",
+        "hi": "गेट 45",
+        "mr": "गेट 45"
+      },
+      "ref": "45"
+    },
+    {
+      "id": "washroom_d",
+      "type": "WASHROOM",
+      "floor": "DEP",
+      "x": 115,
+      "y": 190,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Washrooms",
+        "hi": "शौचालय",
+        "mr": "स्वच्छतागृह"
+      }
+    },
+    {
+      "id": "lift_a_arr",
+      "type": "LIFT",
+      "floor": "ARR",
+      "x": 100,
+      "y": 92,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Lift A",
+        "hi": "लिफ्ट A",
+        "mr": "लिफ्ट A"
+      },
+      "ref": "A"
+    },
+    {
+      "id": "escalator_arr",
+      "type": "ESCALATOR",
+      "floor": "ARR",
+      "x": 104,
+      "y": 104,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Escalator",
+        "hi": "एस्केलेटर",
+        "mr": "सरकता जिना"
+      }
+    },
+    {
+      "id": "stairs_arr",
+      "type": "STAIRS",
+      "floor": "ARR",
+      "x": 96,
+      "y": 80,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Stairs",
+        "hi": "सीढ़ियाँ",
+        "mr": "जिना"
+      }
+    },
+    {
+      "id": "baggage_hall",
+      "type": "LANDMARK",
+      "floor": "ARR",
+      "x": 80,
+      "y": 78,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Baggage hall",
+        "hi": "बैगेज हॉल",
+        "mr": "बॅगेज हॉल"
+      }
+    },
+    {
+      "id": "belt_1",
+      "type": "BAGGAGE_BELT",
+      "floor": "ARR",
+      "x": 30,
+      "y": 62,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Belt 1",
+        "hi": "बेल्ट 1",
+        "mr": "बेल्ट 1"
+      },
+      "ref": "1"
+    },
+    {
+      "id": "belt_2",
+      "type": "BAGGAGE_BELT",
+      "floor": "ARR",
+      "x": 60,
+      "y": 62,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Belt 2",
+        "hi": "बेल्ट 2",
+        "mr": "बेल्ट 2"
+      },
+      "ref": "2"
+    },
+    {
+      "id": "belt_3",
+      "type": "BAGGAGE_BELT",
+      "floor": "ARR",
+      "x": 100,
+      "y": 62,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Belt 3",
+        "hi": "बेल्ट 3",
+        "mr": "बेल्ट 3"
+      },
+      "ref": "3"
+    },
+    {
+      "id": "belt_4",
+      "type": "BAGGAGE_BELT",
+      "floor": "ARR",
+      "x": 130,
+      "y": 62,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Belt 4",
+        "hi": "बेल्ट 4",
+        "mr": "बेल्ट 4"
+      },
+      "ref": "4"
+    },
+    {
+      "id": "baggage_services",
+      "type": "BAGGAGE_SERVICES",
+      "floor": "ARR",
+      "x": 145,
+      "y": 80,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Airline baggage services",
+        "hi": "एयरलाइन बैगेज सेवा",
+        "mr": "विमान कंपनी बॅगेज सेवा"
+      }
+    },
+    {
+      "id": "washroom_arr",
+      "type": "WASHROOM",
+      "floor": "ARR",
+      "x": 25,
+      "y": 90,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Washrooms",
+        "hi": "शौचालय",
+        "mr": "स्वच्छतागृह"
+      }
+    },
+    {
+      "id": "arr_exit",
+      "type": "ENTRY",
+      "floor": "ARR",
+      "x": 80,
+      "y": 48,
+      "zone": "AIRSIDE",
+      "names": {
+        "en": "Arrivals exit",
+        "hi": "आगमन निकास",
+        "mr": "आगमन निर्गम"
+      }
+    },
+    {
+      "id": "gt_lobby",
+      "type": "LANDMARK",
+      "floor": "ARR",
+      "x": 80,
+      "y": 15,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Ground transportation lobby",
+        "hi": "ग्राउंड ट्रांसपोर्टेशन लॉबी",
+        "mr": "ग्राउंड ट्रान्सपोर्टेशन लॉबी"
+      }
+    },
+    {
+      "id": "lost_found",
+      "type": "LOST_FOUND",
+      "floor": "ARR",
+      "x": 120,
+      "y": 15,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Lost & Found",
+        "hi": "खोया-पाया",
+        "mr": "हरवले-सापडले"
+      },
+      "hint": {
+        "en": "Ground Transportation Lobby, Level 1 (to be verified)",
+        "hi": "ग्राउंड ट्रांसपोर्टेशन लॉबी, लेवल 1 (पुष्टि बाकी)",
+        "mr": "ग्राउंड ट्रान्सपोर्टेशन लॉबी, लेव्हल 1 (पडताळणी बाकी)"
+      }
+    },
+    {
+      "id": "help_arr",
+      "type": "HELP_DESK",
+      "floor": "ARR",
+      "x": 40,
+      "y": 15,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Arrivals information desk",
+        "hi": "आगमन सूचना डेस्क",
+        "mr": "आगमन माहिती कक्ष"
+      }
+    },
+    {
+      "id": "lift_b_arr",
+      "type": "LIFT",
+      "floor": "ARR",
+      "x": 150,
+      "y": 42,
+      "zone": "LANDSIDE",
+      "names": {
+        "en": "Lift B",
+        "hi": "लिफ्ट B",
+        "mr": "लिफ्ट B"
+      },
+      "ref": "B"
+    }
+  ],
+  "edges": [
+    {
+      "from": "entry_1",
+      "to": "checkin_a",
+      "distanceM": 30.4,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "checkin_a",
+      "to": "checkin_b",
+      "distanceM": 35.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "checkin_b",
+      "to": "departure_board",
+      "distanceM": 26.9,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "departure_board",
+      "to": "checkin_c",
+      "distanceM": 26.9,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "checkin_c",
+      "to": "checkin_d",
+      "distanceM": 35.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "checkin_d",
+      "to": "entry_4",
+      "distanceM": 30.4,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "info_landside",
+      "to": "departure_board",
+      "distanceM": 22.4,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "departure_board",
+      "to": "bag_drop",
+      "distanceM": 20.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "washroom_landside",
+      "to": "checkin_d",
+      "distanceM": 21.2,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "lift_b_dep",
+      "to": "checkin_d",
+      "distanceM": 15.6,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "bag_drop",
+      "to": "security",
+      "distanceM": 15.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "security",
+      "to": "duty_free",
+      "distanceM": 25.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": true,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": true
+    },
+    {
+      "from": "duty_free",
+      "to": "hub",
+      "distanceM": 30.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "hub",
+      "to": "food_court",
+      "distanceM": 26.9,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "help_airside",
+      "to": "hub",
+      "distanceM": 25.1,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "washroom_hub",
+      "to": "hub",
+      "distanceM": 28.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "buggy_hub",
+      "to": "hub",
+      "distanceM": 21.6,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "hub",
+      "to": "lift_a_dep",
+      "distanceM": 26.9,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "hub",
+      "to": "escalator_dep",
+      "distanceM": 24.7,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "hub",
+      "to": "stairs_dep",
+      "distanceM": 34.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "hub",
+      "to": "pier_c_sign",
+      "distanceM": 58.3,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "hub",
+      "to": "pier_d_sign",
+      "distanceM": 58.3,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "pier_c_sign",
+      "to": "gate_31",
+      "distanceM": 20.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "gate_31",
+      "to": "gate_32",
+      "distanceM": 20.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "gate_32",
+      "to": "gate_33",
+      "distanceM": 25.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "gate_33",
+      "to": "gate_34",
+      "distanceM": 20.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "gate_34",
+      "to": "gate_35",
+      "distanceM": 25.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "washroom_c",
+      "to": "gate_32",
+      "distanceM": 18.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "pier_c_sign",
+      "to": "gate_33",
+      "distanceM": 65.0,
+      "kind": "TRAVELATOR",
+      "stepFree": true,
+      "oneWay": true,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "pier_d_sign",
+      "to": "gate_41",
+      "distanceM": 20.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "gate_41",
+      "to": "gate_42",
+      "distanceM": 20.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "gate_42",
+      "to": "gate_43",
+      "distanceM": 25.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "gate_43",
+      "to": "gate_44",
+      "distanceM": 20.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "gate_44",
+      "to": "gate_45",
+      "distanceM": 25.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "washroom_d",
+      "to": "gate_42",
+      "distanceM": 18.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "pier_d_sign",
+      "to": "gate_43",
+      "distanceM": 65.0,
+      "kind": "TRAVELATOR",
+      "stepFree": true,
+      "oneWay": true,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "lift_a_dep",
+      "to": "lift_a_arr",
+      "distanceM": 5.0,
+      "kind": "LIFT",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "escalator_dep",
+      "to": "escalator_arr",
+      "distanceM": 15.0,
+      "kind": "ESCALATOR",
+      "stepFree": false,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "stairs_dep",
+      "to": "stairs_arr",
+      "distanceM": 15.0,
+      "kind": "STAIRS",
+      "stepFree": false,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "lift_b_dep",
+      "to": "lift_b_arr",
+      "distanceM": 5.0,
+      "kind": "LIFT",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "lift_a_arr",
+      "to": "baggage_hall",
+      "distanceM": 24.4,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "escalator_arr",
+      "to": "baggage_hall",
+      "distanceM": 35.4,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "stairs_arr",
+      "to": "baggage_hall",
+      "distanceM": 16.1,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "baggage_hall",
+      "to": "belt_2",
+      "distanceM": 25.6,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "baggage_hall",
+      "to": "belt_3",
+      "distanceM": 25.6,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "belt_1",
+      "to": "belt_2",
+      "distanceM": 30.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "belt_2",
+      "to": "belt_3",
+      "distanceM": 40.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "belt_3",
+      "to": "belt_4",
+      "distanceM": 30.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "belt_4",
+      "to": "baggage_services",
+      "distanceM": 23.4,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "baggage_hall",
+      "to": "washroom_arr",
+      "distanceM": 56.3,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "belt_2",
+      "to": "arr_exit",
+      "distanceM": 24.4,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "belt_3",
+      "to": "arr_exit",
+      "distanceM": 24.4,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "AIRSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "arr_exit",
+      "to": "gt_lobby",
+      "distanceM": 33.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": true,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "gt_lobby",
+      "to": "lost_found",
+      "distanceM": 40.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "gt_lobby",
+      "to": "help_arr",
+      "distanceM": 40.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    },
+    {
+      "from": "gt_lobby",
+      "to": "lift_b_arr",
+      "distanceM": 75.0,
+      "kind": "WALK",
+      "stepFree": true,
+      "oneWay": false,
+      "zone": "LANDSIDE",
+      "passesCheckpoint": false
+    }
+  ],
+  "anchors": [
+    {
+      "id": "BOM-T2-ENTRY-1",
+      "node": "entry_1"
+    },
+    {
+      "id": "BOM-T2-ENTRY-4",
+      "node": "entry_4"
+    },
+    {
+      "id": "BOM-T2-CHECKIN-C",
+      "node": "checkin_c"
+    },
+    {
+      "id": "BOM-T2-SECURITY",
+      "node": "security"
+    },
+    {
+      "id": "BOM-T2-CENTRAL-HALL",
+      "node": "hub"
+    },
+    {
+      "id": "BOM-T2-PIER-C",
+      "node": "pier_c_sign"
+    },
+    {
+      "id": "BOM-T2-PIER-D",
+      "node": "pier_d_sign"
+    },
+    {
+      "id": "BOM-T2-BAGGAGE-HALL",
+      "node": "baggage_hall"
+    }
+  ]
+}

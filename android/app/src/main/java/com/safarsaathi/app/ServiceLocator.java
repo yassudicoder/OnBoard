@@ -8,9 +8,14 @@ import androidx.room.Room;
 
 import com.safarsaathi.app.data.TripRepository;
 import com.safarsaathi.app.data.WalletRepository;
+import com.safarsaathi.app.data.airport.AirportMapRepository;
 import com.safarsaathi.app.data.local.AppDatabase;
 import com.safarsaathi.app.data.remote.SafarSaathiApi;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,12 +51,15 @@ public final class ServiceLocator {
     private final ExecutorService ioExecutor;
     private final TripRepository tripRepository;
     private final WalletRepository walletRepository;
+    private final AirportMapRepository airportMapRepository;
 
     /** Set only by instrumented tests, see {@link #setTripRepositoryForTests}. */
     @Nullable
     private volatile TripRepository tripRepositoryForTests;
     @Nullable
     private volatile WalletRepository walletRepositoryForTests;
+    @Nullable
+    private volatile AirportMapRepository airportMapRepositoryForTests;
 
     private ServiceLocator(Application app) {
         // Settings from local.properties, baked into BuildConfig at build time (see app/build.gradle.kts).
@@ -85,6 +93,9 @@ public final class ServiceLocator {
         tripRepository = new TripRepository(database.tripDao(), api, ioExecutor, Clock.systemUTC());
         // Boarding passes and saved cards: phone-only data, written on the same background thread.
         walletRepository = new WalletRepository(database.walletDao(), ioExecutor, Clock.systemUTC());
+        // Terminal maps (Gate Navigation): the copy inside the app comes from assets (mock-data/airports at build time).
+        airportMapRepository = new AirportMapRepository(database.airportMapDao(), api,
+                path -> readAsset(app, path), ioExecutor, Clock.systemUTC());
     }
 
     /**
@@ -148,6 +159,25 @@ public final class ServiceLocator {
         return replacement != null ? replacement : tripRepository;
     }
 
+    /** Terminal maps for the Navigate tab (the test replacement, if a test set one). */
+    public AirportMapRepository getAirportMapRepository() {
+        AirportMapRepository replacement = airportMapRepositoryForTests;
+        return replacement != null ? replacement : airportMapRepository;
+    }
+
+    /** A text file that ships inside the app (src/main/assets, plus mock-data/airports, see app/build.gradle.kts). */
+    private static String readAsset(Application app, String path) throws IOException {
+        try (InputStream in = app.getAssets().open(path)) {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                bytes.write(buffer, 0, read);
+            }
+            return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
+        }
+    }
+
     /** Boarding passes and saved cards (the test replacement, if a test set one). */
     public WalletRepository getWalletRepository() {
         WalletRepository replacement = walletRepositoryForTests;
@@ -163,6 +193,12 @@ public final class ServiceLocator {
     @VisibleForTesting
     public void setTripRepositoryForTests(@Nullable TripRepository replacement) {
         tripRepositoryForTests = replacement;
+    }
+
+    /** Same idea for the terminal maps. Pass null to go back to the real one. */
+    @VisibleForTesting
+    public void setAirportMapRepositoryForTests(@Nullable AirportMapRepository replacement) {
+        airportMapRepositoryForTests = replacement;
     }
 
     /** Same idea for the Wallet and Profile data. Pass null to go back to the real one. */

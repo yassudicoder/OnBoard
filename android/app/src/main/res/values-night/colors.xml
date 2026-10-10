@@ -59,4 +59,23 @@
     <color name="status_needs_user_on_container">#5C0004</color>
     <color name="status_done_container">#46464A</color>
     <color name="status_done_on_container">#E3E2E6</color>
+
+    <!-- Navigate tab map, DARK mode (see values/colors.xml). -->
+    <color name="map_background">#1B1E22</color>
+    <color name="map_hall_landside">#2A2D31</color>
+    <color name="map_hall_airside">#252B33</color>
+    <color name="map_checkpoint">#3C2B2B</color>
+    <color name="map_area_edge">#3E444B</color>
+    <color name="map_corridor">#3A3F46</color>
+    <color name="map_corridor_edge">#24282D</color>
+    <color name="map_travelator">#22406B</color>
+    <color name="map_travelator_arrow">#8AB4F8</color>
+    <color name="map_label">#E8EAED</color>
+    <color name="map_label_halo">#1B1E22</color>
+    <color name="map_area_label">#9AA0A6</color>
+    <color name="route_fill">#5E97F6</color>
+    <color name="route_edge">#AECBFA</color>
+    <color name="nav_banner">#137333</color>
+    <color name="nav_banner_dark">#0D652D</color>
+    <color name="nav_eta">#81C995</color>
 </resources>

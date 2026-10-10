@@ -121,6 +121,8 @@
                 <targetPath>mock-data</targetPath>
                 <includes>
                     <include>**/*.json</include>
+                    <!-- Airport maps: the hall and pier outlines (mock-data/airports/*/areas.geojson). -->
+                    <include>**/*.geojson</include>
                 </includes>
             </resource>
         </resources>
@@ -145,17 +147,18 @@
             </plugin>
 
             <!--
-              recovery-core (the repo-root folder shared with the Android app: the connection checker, later the
-              ranking of alternatives) is compiled together with our own code, and its tests run with ours. No separate
-              build or publishing step: both the backend and the app compile the same .java files
-              (recovery-core/README.md). The plugin version comes from the Spring Boot parent POM.
+              recovery-core and routing-core (repo-root folders shared with the Android app: recovery-core = the
+              connection checker, later the ranking of alternatives; routing-core = the airport map model and the route
+              finder) are compiled together with our own code, and their tests run with ours. No separate build or
+              publishing step: both the backend and the app compile the same .java files (see each folder's README.md).
+              The plugin version comes from the Spring Boot parent POM.
             -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>add-recovery-core-sources</id>
+                        <id>add-shared-core-sources</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>add-source</goal>
@@ -163,12 +166,14 @@
                         <configuration>
                             <sources>
                                 <source>../recovery-core/src/main/java</source>
+                                <source>../routing-core/src/main/java</source>
                             </sources>
                         </configuration>
                     </execution>
                     <execution>
-                        <!-- recovery-core's resource files: the sentences that explain a connection's status. -->
-                        <id>add-recovery-core-resources</id>
+                        <!-- The shared folders' resource files: the sentences that explain a connection's status
+                             (recovery-core) and the route instruction sentences en/hi/mr (routing-core). -->
+                        <id>add-shared-core-resources</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>add-resource</goal>
@@ -178,11 +183,14 @@
                                 <resource>
                                     <directory>../recovery-core/src/main/resources</directory>
                                 </resource>
+                                <resource>
+                                    <directory>../routing-core/src/main/resources</directory>
+                                </resource>
                             </resources>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>add-recovery-core-tests</id>
+                        <id>add-shared-core-tests</id>
                         <phase>generate-test-sources</phase>
                         <goals>
                             <goal>add-test-source</goal>
@@ -190,6 +198,7 @@
                         <configuration>
                             <sources>
                                 <source>../recovery-core/src/test/java</source>
+                                <source>../routing-core/src/test/java</source>
                             </sources>
                         </configuration>
                     </execution>

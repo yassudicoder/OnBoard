@@ -82,6 +82,8 @@
     <string name="home_not_announced">Not announced yet</string>
     <string name="home_gate_note">Gate and boarding times show up here as soon as the airline announces them.</string>
     <string name="home_navigate_to_gate">Navigate to gate</string>
+    <!-- Opens the real Google Maps app with driving directions to the terminal. -->
+    <string name="home_directions_to_airport">Directions to T2 (Google Maps)</string>
     <string name="home_bags_title">Your bags</string>
     <string name="home_bags_none">No bag registered yet. Scan its tag and photograph it before you hand it over.</string>
     <string name="home_bags_register">Register a bag</string>
@@ -244,6 +246,134 @@
     <string name="profile_card_name">%1$s · %2$s card</string>
     <!-- %1$s = the last 4 digits. -->
     <string name="profile_card_digits">•••• %1$s</string>
+    <!-- ============================================================================================
+         Navigate tab (G1): the terminal map. The map's own note ("Demo schematic, not an official airport map")
+         is always shown; names of places come from the map in English, Hindi or Marathi.
+         ============================================================================================ -->
+    <!-- %1$s = airport, %2$s = terminal, %3$s = the map's note, e.g. "BOM T2 · Demo schematic, not an official airport map". -->
+    <string name="map_title">%1$s %2$s · %3$s</string>
+    <string name="map_loading">Loading the terminal map…</string>
+    <!-- %1$d = the map's version; %2$s = a time such as "01:40". -->
+    <string name="map_status_bundled">Map v%1$d · inside the app</string>
+    <string name="map_status_server">Map v%1$d · from the server, checked %2$s</string>
+    <string name="map_status_offline">Offline · map v%1$d saved on this phone</string>
+    <string name="map_status_checking">Map v%1$d · checking for a newer one…</string>
+    <!-- %1$s = what it is, %2$s = the floor, %3$s = before/after security, e.g. "Gate · Departures · after security". -->
+    <string name="map_place_detail">%1$s · %2$s · %3$s</string>
+    <string name="map_before_security">before security</string>
+    <string name="map_after_security">after security</string>
+    <!-- Read aloud for the map picture. %1$s = floor, %2$d = number of places. -->
+    <string name="map_description">Map of %1$s with %2$d places. Use the search bar for a list of places.</string>
+    <string name="map_type_entry">Entry or exit</string>
+    <string name="map_type_checkin">Check-in</string>
+    <string name="map_type_bag_drop">Bag drop</string>
+    <string name="map_type_security">Security</string>
+    <string name="map_type_immigration">Immigration</string>
+    <string name="map_type_pier">Pier</string>
+    <string name="map_type_gate">Gate</string>
+    <string name="map_type_lift">Lift</string>
+    <string name="map_type_escalator">Escalator</string>
+    <string name="map_type_stairs">Stairs</string>
+    <string name="map_type_travelator">Travelator</string>
+    <string name="map_type_washroom">Washrooms</string>
+    <string name="map_type_help_desk">Help desk</string>
+    <string name="map_type_buggy">Buggy stop</string>
+    <string name="map_type_belt">Baggage belt</string>
+    <string name="map_type_baggage_services">Baggage services</string>
+    <string name="map_type_lost_found">Lost &amp; Found</string>
+    <string name="map_type_landmark">Landmark</string>
+
+    <!-- ============================================================================================
+         Navigate tab (G2-G3): Google-Maps-style walking directions inside the terminal. The instruction sentences
+         themselves ("Turn left at Central hall") come from routing-core (instructions_en/hi/mr.properties).
+         Times and positions are estimates and say so.
+         ============================================================================================ -->
+    <string name="nav_search_hint">Search gates, washrooms, help desks</string>
+    <string name="nav_search_title">Search the terminal</string>
+    <string name="nav_where_to">Where to?</string>
+    <string name="nav_no_results">No place with that name</string>
+    <!-- %1$s = what it is, %2$s = the floor, e.g. "Gate · Departures". -->
+    <string name="nav_place_kind_floor">%1$s · %2$s</string>
+    <string name="nav_scan_qr">Scan a \"You are here\" QR code</string>
+    <string name="nav_directions">Directions</string>
+    <string name="nav_im_here">I\'m here</string>
+    <string name="nav_show_me">Show where I am</string>
+    <string name="nav_close">Close</string>
+    <string name="nav_back">Back</string>
+    <!-- %1$s = the place the traveller is at, e.g. "Your place: Entry Gate 4". -->
+    <string name="nav_from">Your place: %1$s</string>
+    <string name="nav_from_unknown">Choose where you are</string>
+    <!-- %1$s = the destination, e.g. "To: Gate 32". -->
+    <string name="nav_to">To: %1$s</string>
+    <!-- %1$d = minutes. -->
+    <string name="nav_minutes">%1$d min</string>
+    <!-- %1$d = metres. -->
+    <string name="nav_metres">%1$d m</string>
+    <!-- %1$s = a distance such as "520 m", in brackets after the time. -->
+    <string name="nav_in_brackets">(%1$s)</string>
+    <!-- %1$s = a checkpoint on the way, e.g. "Quickest route · via Security check". -->
+    <string name="nav_route_via">Quickest route · via %1$s</string>
+    <string name="nav_route_plain">Quickest route</string>
+    <string name="nav_route_note_security">Walking time only, an estimate · security queues not included</string>
+    <string name="nav_route_note">Walking time only, an estimate</string>
+    <string name="nav_step_free">Step-free</string>
+    <string name="nav_slow_pace">Slower pace</string>
+    <string name="nav_start">Start</string>
+    <string name="nav_steps">Steps</string>
+    <string name="nav_where_are_you">Where are you now?</string>
+    <string name="nav_where_are_you_detail">A phone can\'t find its own position inside a terminal. Scan a \"You are here\" QR code, or choose the place you are at.</string>
+    <string name="nav_choose_place">Choose place</string>
+    <string name="nav_scan_short">Scan QR code</string>
+    <string name="nav_another_place">Another place…</string>
+    <string name="nav_not_at_airport">Not at the airport yet? Directions to T2 in Google Maps</string>
+    <string name="nav_then">Then</string>
+    <!-- %1$s = distance left, %2$s = arrival time, e.g. "410 m · arrive 07:12 (estimate)". -->
+    <string name="nav_eta_detail">%1$s · arrive %2$s (estimate)</string>
+    <string name="nav_end">End navigation</string>
+    <string name="nav_help_nearby">Help nearby</string>
+    <string name="nav_recentre">Re-centre</string>
+    <string name="nav_voice_on">Voice guidance is on. Tap to turn it off.</string>
+    <string name="nav_voice_off">Voice guidance is off. Tap to turn it on.</string>
+    <!-- %1$s = where step counting started, e.g. "Position: your steps since Entry Gate 4 · estimate". -->
+    <string name="nav_position_counted">Position: your steps since %1$s · estimate</string>
+    <!-- %1$s = a place, e.g. "Position: Security check (QR code)". -->
+    <string name="nav_position_scanned">Position: %1$s (QR code)</string>
+    <string name="nav_position_chosen">Position: %1$s (you chose it)</string>
+    <string name="nav_position_no_steps">Step counting is off: scan the QR codes on the way, or tap a place and \"I\'m here\".</string>
+    <string name="nav_position_demo">Demo walk: a simulation, not your real position</string>
+    <string name="nav_demo_walk">Demo walk</string>
+    <!-- %1$d = how much faster than walking the demo walk goes, e.g. "×4". -->
+    <string name="nav_demo_speed">×%1$d</string>
+    <string name="nav_demo_pause">Pause</string>
+    <string name="nav_done">Done</string>
+    <!-- %1$s = the original destination after a stop on the way, e.g. "Continue to Gate 32". -->
+    <string name="nav_continue_to">Continue to %1$s</string>
+    <!-- Spoken: %1$s = a distance, %2$s = the instruction, e.g. "In 40 m, Turn left at Central hall". -->
+    <string name="nav_voice_in">In %1$s, %2$s</string>
+    <string name="nav_notice_no_route">No route with these settings. Try without step-free, or choose another place.</string>
+    <!-- %1$s = a place. -->
+    <string name="nav_notice_position">Position updated: %1$s</string>
+    <string name="nav_notice_rerouted">You left the route. New route from %1$s.</string>
+    <string name="nav_notice_updated">Route updated</string>
+    <string name="nav_notice_turn">Turn noticed: you are at %1$s</string>
+    <string name="nav_notice_qr_unknown">This QR code is not a \"You are here\" code of this terminal.</string>
+    <string name="nav_notice_voice_missing">This phone has no voice for this language, so voice guidance stays silent.</string>
+    <string name="nav_notice_scanner_failed">The QR scanner could not start. Choose your place instead.</string>
+    <string name="nav_notice_maps_missing">No app on this phone can open Google Maps.</string>
+    <string name="nav_notice_here_unknown">Scan a QR code, or tap a place and \"I\'m here\", so the app knows where you are.</string>
+    <!-- Dialog when a place is tapped during navigation. %1$s = the place. -->
+    <string name="nav_here_question">Are you at %1$s now?</string>
+    <string name="nav_here_question_detail">The route continues from there.</string>
+    <!-- %1$s = time, %2$s = distance in brackets, e.g. "Steps · 8 min (520 m)". -->
+    <string name="nav_steps_title">Steps · %1$s %2$s</string>
+    <!-- %1$s = time, %2$s = distance, e.g. "2 min · 120 m". -->
+    <string name="nav_time_distance">%1$s · %2$s</string>
+    <string name="nav_go">Go</string>
+    <string name="nav_help_none">None can be reached from here</string>
+    <string name="nav_help_footer">Need a wheelchair or a buggy ride? Ask at any help desk or your airline. This app does not book assistance.</string>
+    <!-- Read aloud while navigating. %1$s = the next instruction. -->
+    <string name="nav_map_description">Map, following you. Next: %1$s</string>
+
     <string name="profile_section_more">More</string>
     <string name="profile_open_wallet">Wallet: boarding passes, IDs and PDF</string>
     <string name="profile_open_trip_status">Trip status (parked feature)</string>
@@ -257,8 +387,6 @@
     <string name="profile_version_value">OnBoard %1$s</string>
 
     <!-- New tabs, until their phase builds them (CLAUDE.md, build phases). -->
-    <string name="navigate_headline">Walk to your gate</string>
-    <string name="navigate_description">Step-by-step walking directions inside Mumbai Terminal 2 to your gate, with landmarks, a step-free option and voice. If the gate changes, the route changes with it. Works offline.</string>
     <string name="bags_headline">Baggage Shield</string>
     <string name="bags_description">Scan your bag tag and photograph your bag before you hand it over. You get a time-stamped record that cannot be changed later, and you can follow the bag to the belt.</string>
     <string name="help_headline">Something went wrong?</string>

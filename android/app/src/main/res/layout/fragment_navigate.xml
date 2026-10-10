@@ -1,0 +1,861 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Navigate tab (NavigateFragment): a full-screen map with cards on top, like Google Maps. What shows depends on the
+     mode (NavSession):
+       EXPLORE     search bar + floors, "Show where I am", "Directions", and a card for a tapped place;
+       PREVIEW     "Your place / To" card at the top, the route's time and distance + "Start" at the bottom;
+       NAVIGATING  green turn-by-turn banner at the top, time / distance / arrival at the bottom (tabs hidden);
+       ARRIVED     "You have arrived at ..." card.
+     The honesty label from the map ("Demo schematic, not an official airport map") is always on screen.
+     The top padding (status bar) and bottom padding (navigation bar, when the tabs are hidden) are set in code. -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigate_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.safarsaathi.app.ui.navigate.TerminalMapView
+        android:id="@+id/navigate_map"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/navigate_empty"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:padding="24dp"
+        android:text="@string/map_loading"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- ================= TOP ================= -->
+    <LinearLayout
+        android:id="@+id/navigate_top"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- EXPLORE: search bar -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/navigate_search_bar"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="56dp"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="4dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:importantForAccessibility="no"
+                    app:srcCompat="@drawable/ic_search_24"
+                    app:tint="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/navigate_search"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="12dp"
+                    android:text="@string/nav_search_hint"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <ImageButton
+                    android:id="@+id/navigate_scan"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/nav_scan_qr"
+                    app:srcCompat="@drawable/ic_qr_code_24"
+                    app:tint="?attr/colorPrimary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- PREVIEW: your place -> destination -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/navigate_preview_top"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:visibility="gone"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="6dp"
+                android:paddingEnd="12dp">
+
+                <ImageButton
+                    android:id="@+id/navigate_preview_back"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/nav_back"
+                    app:srcCompat="@drawable/ic_arrow_back_24"
+                    app:tint="?attr/colorOnSurface" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/navigate_from"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:drawablePadding="12dp"
+                        android:gravity="center_vertical"
+                        android:minHeight="48dp"
+                        android:paddingHorizontal="8dp"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOnSurface"
+                        app:drawableStartCompat="@drawable/bg_blue_dot"
+                        tools:text="Your place: Entry Gate 4" />
+
+                    <TextView
+                        android:id="@+id/navigate_to"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:drawablePadding="9dp"
+                        android:gravity="center_vertical"
+                        android:minHeight="48dp"
+                        android:paddingHorizontal="6dp"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOnSurface"
+                        app:drawableStartCompat="@drawable/ic_place_24"
+                        app:drawableTint="@color/pin_red"
+                        tools:text="To: Gate 32" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- NAVIGATING: the green turn-by-turn banner -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/navigate_banner"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/nav_banner"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:minHeight="88dp"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp">
+
+                    <ImageView
+                        android:id="@+id/navigate_banner_icon"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:importantForAccessibility="no" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/navigate_banner_distance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                            android:textColor="@android:color/white"
+                            android:textStyle="bold"
+                            tools:text="40 m" />
+
+                        <TextView
+                            android:id="@+id/navigate_banner_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxLines="3"
+                            android:textAppearance="?attr/textAppearanceTitleLarge"
+                            android:textColor="@android:color/white"
+                            tools:text="Turn left at Central hall" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/navigate_then"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/nav_banner_dark"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/nav_then"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:textColor="@android:color/white" />
+
+                    <ImageView
+                        android:id="@+id/navigate_then_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Always: the honesty label and the map's status -->
+        <TextView
+            android:id="@+id/navigate_demo_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_status_chip"
+            android:backgroundTint="@color/status_adjusted_container"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:textAppearance="?attr/textAppearanceLabelMedium"
+            android:textColor="@color/status_adjusted_on_container"
+            app:drawableStartCompat="@drawable/ic_warning_24"
+            app:drawableTint="@color/status_adjusted_on_container"
+            tools:text="BOM T2 · Demo schematic, not an official airport map" />
+
+        <TextView
+            android:id="@+id/navigate_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_status_chip"
+            android:backgroundTint="?attr/colorSurfaceContainerHigh"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="3dp"
+            android:textAppearance="?attr/textAppearanceLabelSmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="Map v2 · inside the app" />
+    </LinearLayout>
+
+    <!-- ================= RIGHT SIDE: floors (exploring) or voice (navigating) ================= -->
+    <LinearLayout
+        android:id="@+id/navigate_side"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="12dp"
+        android:gravity="end"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/navigate_top">
+
+        <!-- Floors, top floor first (like the level picker in Google Maps' indoor maps). -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/navigate_floor_card"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerLowest"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="3dp">
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/navigate_floors"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:selectionRequired="true"
+                app:singleSelection="true" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/navigate_voice"
+            style="?attr/floatingActionButtonSmallSurfaceStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/nav_voice_on"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_volume_up_24" />
+    </LinearLayout>
+
+    <!-- ================= BOTTOM RIGHT: buttons over the map ================= -->
+    <LinearLayout
+        android:id="@+id/navigate_fabs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:gravity="end"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/navigate_bottom"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Demo builds only: move along the route without walking (labelled on screen as a simulation). -->
+        <LinearLayout
+            android:id="@+id/navigate_demo_controls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/navigate_demo_walk"
+                style="@style/Widget.Material3.Chip.Assist.Elevated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/nav_demo_walk"
+                app:chipIcon="@drawable/ic_play_24"
+                app:chipIconTint="?attr/colorPrimary" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/navigate_demo_speed"
+                style="@style/Widget.Material3.Chip.Assist.Elevated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                tools:text="×4" />
+        </LinearLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/navigate_recenter"
+            style="?attr/floatingActionButtonSurfaceStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/nav_show_me"
+            app:srcCompat="@drawable/ic_my_location_24"
+            app:tint="?attr/colorPrimary" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/navigate_directions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/nav_directions"
+            app:icon="@drawable/ic_directions_24" />
+    </LinearLayout>
+
+    <!-- Navigating, after moving the map by hand: follow the traveller again. -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/navigate_follow"
+        style="@style/Widget.Material3.Button.ElevatedButton.Icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:minHeight="48dp"
+        android:text="@string/nav_recentre"
+        android:visibility="gone"
+        app:icon="@drawable/ic_navigation_24"
+        app:layout_constraintBottom_toTopOf="@id/navigate_bottom"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
+
+    <!-- ================= BOTTOM CARDS (one at a time) ================= -->
+    <FrameLayout
+        android:id="@+id/navigate_bottom"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <!-- EXPLORE: a tapped place -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/navigate_place_card"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardElevation="8dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.SafarSaathi.BottomCard"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/navigate_place_icon"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="2dp"
+                        android:background="@drawable/bg_circle"
+                        android:importantForAccessibility="no"
+                        android:padding="9dp"
+                        app:tint="@android:color/white" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/navigate_place_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceTitleLarge"
+                            android:textColor="?attr/colorOnSurface"
+                            tools:text="Gate 32" />
+
+                        <TextView
+                            android:id="@+id/navigate_place_detail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            tools:text="Gate · Departures · after security" />
+
+                        <TextView
+                            android:id="@+id/navigate_place_hint"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:visibility="gone"
+                            tools:text="Gates 31–35"
+                            tools:visibility="visible" />
+                    </LinearLayout>
+
+                    <ImageButton
+                        android:id="@+id/navigate_place_close"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/nav_close"
+                        app:srcCompat="@drawable/ic_close_24"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/navigate_place_directions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:text="@string/nav_directions"
+                        app:icon="@drawable/ic_directions_24" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/navigate_place_here"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:minHeight="48dp"
+                        android:text="@string/nav_im_here"
+                        app:icon="@drawable/ic_my_location_24" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- PREVIEW: the route's time and distance, options, Start -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/navigate_preview_sheet"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardElevation="8dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.SafarSaathi.BottomCard">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:id="@+id/navigate_preview_route"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="true"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/navigate_preview_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                            android:textColor="@color/nav_eta"
+                            android:textStyle="bold"
+                            tools:text="4 min" />
+
+                        <TextView
+                            android:id="@+id/navigate_preview_distance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            tools:text="(280 m)" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/navigate_preview_detail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurface"
+                        tools:text="Quickest route · via Security check" />
+
+                    <TextView
+                        android:id="@+id/navigate_preview_note"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        tools:text="Walking time only, an estimate · security queues not included" />
+                </LinearLayout>
+
+                <!-- Shown instead while the app does not know where the traveller is -->
+                <LinearLayout
+                    android:id="@+id/navigate_need_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/nav_where_are_you"
+                        android:textAppearance="?attr/textAppearanceTitleLarge"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/nav_where_are_you_detail"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/navigate_need_scan"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:text="@string/nav_scan_short"
+                            app:icon="@drawable/ic_qr_code_24" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/navigate_need_choose"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:minHeight="48dp"
+                            android:text="@string/nav_choose_place" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <com.google.android.material.chip.ChipGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/navigate_step_free"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/nav_step_free" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/navigate_slow_pace"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/nav_slow_pace" />
+                </com.google.android.material.chip.ChipGroup>
+
+                <LinearLayout
+                    android:id="@+id/navigate_preview_buttons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/navigate_start"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="52dp"
+                        android:paddingHorizontal="28dp"
+                        android:text="@string/nav_start"
+                        app:icon="@drawable/ic_navigation_24" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/navigate_preview_steps"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:minHeight="52dp"
+                        android:text="@string/nav_steps"
+                        app:icon="@drawable/ic_list_24" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- NAVIGATING: time, distance, arrival; end, help, steps -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/navigate_nav_sheet"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardElevation="8dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.SafarSaathi.BottomCard">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="8dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/navigate_exit"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/nav_end"
+                        app:srcCompat="@drawable/ic_close_24"
+                        app:tint="?attr/colorOnSurface" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/navigate_eta_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                            android:textColor="@color/nav_eta"
+                            android:textStyle="bold"
+                            tools:text="3 min" />
+
+                        <TextView
+                            android:id="@+id/navigate_eta_detail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            tools:text="210 m · arrive 07:12" />
+                    </LinearLayout>
+
+                    <ImageButton
+                        android:id="@+id/navigate_help"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/nav_help_nearby"
+                        app:srcCompat="@drawable/ic_help_24"
+                        app:tint="?attr/colorOnSurface" />
+
+                    <ImageButton
+                        android:id="@+id/navigate_steps"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/nav_steps"
+                        app:srcCompat="@drawable/ic_list_24"
+                        app:tint="?attr/colorOnSurface" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/navigate_position_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:paddingHorizontal="8dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="Position: your steps since Entry Gate 4 · estimate" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ARRIVED -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/navigate_arrived_card"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardElevation="8dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.SafarSaathi.BottomCard">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:importantForAccessibility="no"
+                        app:srcCompat="@drawable/ic_check_circle_24"
+                        app:tint="@color/nav_eta" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/navigate_arrived_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceTitleLarge"
+                            android:textColor="?attr/colorOnSurface"
+                            tools:text="You have arrived at Gate 32" />
+
+                        <TextView
+                            android:id="@+id/navigate_arrived_detail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            tools:text="Gate · Departures · after security" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/navigate_arrived_continue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:minHeight="48dp"
+                        android:visibility="gone"
+                        app:icon="@drawable/ic_navigation_24"
+                        tools:text="Continue to Gate 32"
+                        tools:visibility="visible" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/navigate_arrived_done"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:text="@string/nav_done" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
