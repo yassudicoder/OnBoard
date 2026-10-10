@@ -1,6 +1,7 @@
 package com.safarsaathi.app;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,7 +23,7 @@ import com.safarsaathi.app.databinding.ActivityMainBinding;
 
 /**
  * The app's only activity: a top bar, the current tab's screen, and a bottom bar with five tabs
- * (Home, Trip, Assistant, Wallet, Profile). Jetpack Navigation swaps the tab screens (fragments) for us.
+ * (Home, Navigate, Bags, Help, Profile). Jetpack Navigation swaps the tab screens (fragments) for us.
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -40,6 +41,15 @@ public class MainActivity extends AppCompatActivity {
                     ServiceLocator.get().getTripRepository().refresh(AppConfig.DEMO_TRIP_ID, false);
                 }
             });
+
+    /**
+     * Large text (Profile tab, {@link AppSettings}): runs before any view exists, so every screen, dialog and sheet
+     * of this activity draws its text 30% bigger when the traveller switched it on.
+     */
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(AppSettings.applyTo(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +73,13 @@ public class MainActivity extends AppCompatActivity {
                 .findFragmentById(R.id.nav_host_fragment);
         navController = navHostFragment.getNavController();
 
-        // All five tabs are "top-level" screens, so the toolbar shows no back arrow on them.
+        // The five tabs are "top-level" screens, so the toolbar shows no back arrow on them. Screens opened from a tab
+        // (the Wallet, parked screens) get a back arrow.
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home,
-                R.id.navigation_trip,
-                R.id.navigation_assistant,
-                R.id.navigation_wallet,
+                R.id.navigation_navigate,
+                R.id.navigation_bags,
+                R.id.navigation_help,
                 R.id.navigation_profile)
                 .build();
 

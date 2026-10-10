@@ -16,19 +16,20 @@ import com.safarsaathi.app.databinding.FragmentPlaceholderBinding;
  * Phase 0 "coming soon" screen, shared by all five tabs: an icon, a headline, one line about what the
  * tab will do, and the phase that builds it (layout: res/layout/fragment_placeholder.xml).
  *
- * <p>Each tab is a tiny subclass that only chooses its icon and texts (see HomeFragment). When a tab
- * gets its real screen (Trip in Phase 1, Home in Phase 3, ...), that fragment stops extending this class
- * and gets its own layout and ViewModel.
+ * <p>Each tab is a tiny subclass that only chooses its icon, its texts and the phase that builds it (see
+ * NavigateFragment). When a tab gets its real screen, that fragment stops extending this class and gets its own
+ * layout and ViewModel.
  */
 public abstract class PlaceholderFragment extends Fragment {
 
     private final int iconRes;
     private final int headlineRes;
     private final int descriptionRes;
-    private final int phase;
+    /** The build phase that brings the real screen, e.g. "B1" (CLAUDE.md, build phases). */
+    private final String phase;
 
     protected PlaceholderFragment(@DrawableRes int iconRes, @StringRes int headlineRes,
-                                  @StringRes int descriptionRes, int phase) {
+                                  @StringRes int descriptionRes, String phase) {
         // Passing the layout to Fragment's constructor makes the fragment inflate it for us,
         // so we do not need to override onCreateView().
         super(R.layout.fragment_placeholder);

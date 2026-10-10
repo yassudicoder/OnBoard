@@ -53,7 +53,7 @@ public class BlockDetailsSheet extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         long blockId = requireArguments().getLong(ARG_BLOCK_ID);
-        // requireParentFragment() = the TripFragment that opened this sheet, so we get ITS ViewModel.
+        // requireParentFragment() = the screen that opened this sheet (Trip or Home tab), so we get ITS ViewModel.
         TripViewModel viewModel = new ViewModelProvider(requireParentFragment(),
                 TripViewModel.factory(AppConfig.DEMO_TRIP_ID)).get(TripViewModel.class);
         viewModel.getBlocks().observe(getViewLifecycleOwner(), blocks -> {
@@ -81,13 +81,14 @@ public class BlockDetailsSheet extends BottomSheetDialogFragment {
         binding.sheetTitle.setText(block.title);
         binding.sheetAnchor.setVisibility(block.anchor ? View.VISIBLE : View.GONE);
 
-        TripUi.styleStatusChip(binding.sheetStatus, block.status);
-        binding.sheetStatusExplanation.setText(TripUi.statusExplanation(block.status));
+        TripUi.styleStatusChip(binding.sheetStatus, block);
+        binding.sheetStatusExplanation.setText(TripUi.statusExplanation(TripOverview.displayStatus(block)));
 
         Locale locale = getResources().getConfiguration().getLocales().get(0);
         String day = TripTime.dayHeader(TripTime.localDate(block.startTime), locale);
-        binding.sheetWhen.setText(getString(R.string.sheet_when_value,
-                day, TripTime.timeRange(block.startTime, block.endTime)));
+        String when = getString(R.string.sheet_when_value, day, TripTime.timeRange(block.startTime, block.endTime));
+        String planned = TripUi.plannedText(requireContext(), block);
+        binding.sheetWhen.setText(planned == null ? when : when + "\n" + planned);
 
         boolean hasLocation = block.locationName != null && !block.locationName.trim().isEmpty();
         binding.sheetWhereGroup.setVisibility(hasLocation ? View.VISIBLE : View.GONE);

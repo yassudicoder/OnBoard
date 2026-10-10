@@ -34,7 +34,7 @@
             android:gravity="center"
             android:textAppearance="?attr/textAppearanceHeadlineSmall"
             android:textColor="?attr/colorOnSurface"
-            tools:text="@string/home_headline" />
+            tools:text="@string/navigate_headline" />
 
         <TextView
             android:id="@+id/placeholder_description"
@@ -45,7 +45,7 @@
             android:maxWidth="480dp"
             android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textColor="?attr/colorOnSurfaceVariant"
-            tools:text="@string/home_description" />
+            tools:text="@string/navigate_description" />
 
         <!-- "Coming in Phase N" in a rounded pill (background: drawable/bg_phase_badge.xml). -->
         <TextView

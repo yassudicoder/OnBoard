@@ -3,38 +3,268 @@
     <!-- ALL text the user can see lives here: never type text directly into layouts or Java code.
          In Phase 6 the app gets translated by adding copies of this file in values-hi/, values-mr/,
          values-ta/ and values-bn/ (Hindi, Marathi, Tamil, Bengali). -->
-    <string name="app_name">Safar Saathi</string>
+    <string name="app_name">OnBoard</string>
 
     <!-- Bottom bar: the five tab names. Keep them short, they sit under the icons. -->
     <string name="tab_home">Home</string>
-    <string name="tab_trip">Trip</string>
-    <string name="tab_assistant">Assistant</string>
-    <string name="tab_wallet">Wallet</string>
+    <string name="tab_navigate">Navigate</string>
+    <string name="tab_bags">Bags</string>
+    <string name="tab_help">Help</string>
     <string name="tab_profile">Profile</string>
 
     <!-- Top bar: the title of each screen (used as the labels in navigation/nav_graph.xml). -->
-    <string name="title_home">Do this now</string>
+    <string name="title_home">Home</string>
+    <string name="title_navigate">Navigate to gate</string>
+    <string name="title_bags">Baggage Shield</string>
+    <string name="title_help">Help</string>
+    <!-- Parked screens (old trip-timeline plan), opened from Profile > More when feature.tripTimeline=true. -->
+    <string name="title_trip_status">Trip status</string>
     <string name="title_trip">My trip</string>
     <string name="title_assistant">Assistant</string>
     <string name="title_wallet">Wallet</string>
     <string name="title_profile">Profile</string>
 
-    <!-- Phase 0 placeholder screens: a headline, one plain line about what the tab will do,
-         and the build phase that brings it. -->
-    <string name="home_headline">Your next step</string>
-    <string name="home_description">One big card will show the very next thing to do on your trip, with one button to do it.</string>
+    <!-- ============================================================================================
+         Home tab ("Do this now"): the trip at a glance. Everything trip-related comes from the saved plan
+         (the same Room data as the Trip tab); nothing here is typed-in trip data.
+         ============================================================================================ -->
+    <!-- The demo's sample traveller. -->
+    <string name="sample_traveller_name">Aditi</string>
+    <!-- Greeting by time of day (Indian time). %1$s = the traveller's name. -->
+    <string name="home_greeting_morning">Good morning, %1$s</string>
+    <string name="home_greeting_afternoon">Good afternoon, %1$s</string>
+    <string name="home_greeting_evening">Good evening, %1$s</string>
+    <!-- Big status card: the trip's state in one line. -->
+    <string name="home_state_on_track">Your trip is on track</string>
+    <string name="home_state_changed">Your plan changed</string>
+    <plurals name="home_state_needs_decision">
+        <item quantity="one">%1$d thing needs your decision</item>
+        <item quantity="other">%1$d things need your decision</item>
+    </plurals>
+    <string name="home_state_no_bookings">No bookings in this trip yet</string>
+    <string name="home_state_no_bookings_detail">Bookings show up here as soon as they are added to the trip.</string>
+    <!-- %1$s = a booking, %2$s = day and time (home_day_time), e.g. "Next: Flight IJ 512 Mumbai to Bengaluru · Sun, 11 Oct, 08:00". -->
+    <string name="home_next_step">Next: %1$s · %2$s</string>
+    <!-- %1$s = day ("Sun, 11 Oct"), %2$s = time ("08:00"). -->
+    <string name="home_day_time">%1$s, %2$s</string>
+    <string name="home_nothing_next">Nothing left to do on this trip.</string>
+    <!-- %1$s = the flight, %2$s = a duration such as "30 min". -->
+    <string name="home_flight_later">%1$s now leaves %2$s later than planned.</string>
+    <string name="home_flight_earlier">%1$s now leaves %2$s earlier than planned.</string>
+    <plurals name="home_moved_for_you">
+        <item quantity="one">%1$d booking was moved for you.</item>
+        <item quantity="other">%1$d bookings were moved for you.</item>
+    </plurals>
+    <plurals name="home_cancelled">
+        <item quantity="one">%1$d booking is cancelled.</item>
+        <item quantity="other">%1$d bookings are cancelled.</item>
+    </plurals>
+    <!-- %1$s = the titles of the bookings that need a decision. -->
+    <string name="home_decide_on">%1$s no longer fits the plan.</string>
+    <string name="home_action_see_details">See details</string>
+    <string name="home_action_view_trip">View my trip</string>
+    <!-- Trip card. -->
+    <string name="home_trip_label">Your trip</string>
+    <string name="home_departs">Departs</string>
+    <string name="home_arrives">Arrives</string>
+    <!-- %1$s = a place, e.g. "From Mumbai Airport T2 (BOM)". -->
+    <string name="home_flight_from">From %1$s</string>
+    <!-- Lists under the cards. -->
+    <string name="home_section_needs_you">Needs your decision</string>
+    <string name="home_section_changed">Changed for you</string>
+    <string name="home_saved_offline">Your plan is saved on this phone, so it opens even without internet.</string>
+    <string name="home_open_timeline">Open full timeline</string>
+    <!-- New Home (flight card). The gate and boarding times have no source until phase G4, so they say so. -->
+    <string name="home_flight_label">Your flight</string>
+    <string name="home_no_flight">No flight in your saved trip.</string>
+    <string name="home_gate">Gate</string>
+    <string name="home_boarding">Boarding</string>
+    <string name="home_not_announced">Not announced yet</string>
+    <string name="home_gate_note">Gate and boarding times show up here as soon as the airline announces them.</string>
+    <string name="home_navigate_to_gate">Navigate to gate</string>
+    <string name="home_bags_title">Your bags</string>
+    <string name="home_bags_none">No bag registered yet. Scan its tag and photograph it before you hand it over.</string>
+    <string name="home_bags_register">Register a bag</string>
 
-    <string name="assistant_headline">Ask Safar Saathi</string>
+    <!-- Phase 0 placeholder screen (Assistant): a headline, one plain line about what the tab will do, and the
+         build phase that brings it. -->
+
+    <string name="assistant_headline">Ask OnBoard</string>
     <string name="assistant_description">Type or speak in your own language, Hinglish too, and get help with any part of your trip.</string>
 
     <string name="wallet_headline">Your travel documents</string>
-    <string name="wallet_description">Boarding pass, tickets and ID kept on your phone, so they open even without internet.</string>
 
-    <string name="profile_headline">Make the app yours</string>
-    <string name="profile_description">Choose your language, tell us who is travelling, and switch on large text if you like.</string>
 
-    <!-- %1$d is replaced by the phase number, e.g. "Coming in Phase 3". -->
-    <string name="placeholder_coming_in_phase">Coming in Phase %1$d</string>
+    <!-- ============================================================================================
+         Wallet tab: the offline locker. Boarding passes come from the barcode (scanned or pasted); booking
+         references come from the saved trip. Nothing here is typed-in sample data.
+         ============================================================================================ -->
+    <string name="wallet_saved_offline">Saved on this phone, so everything here opens without internet.</string>
+    <string name="wallet_passes_title">Boarding passes</string>
+    <string name="wallet_passes_empty">No boarding pass saved yet. Scan a photo of the barcode on your boarding pass, or paste its code.</string>
+    <string name="wallet_scan_photo">Scan photo</string>
+    <string name="wallet_paste_code">Paste code</string>
+    <string name="wallet_bookings_title">Booking references</string>
+    <string name="wallet_bookings_hint">From your saved trip. Show them at a counter or front desk.</string>
+    <string name="wallet_bookings_empty">Your trip\'s bookings show up here once the trip is saved on this phone.</string>
+    <!-- Read aloud for the plane between the two airport codes: "BOM to BLR". -->
+    <string name="wallet_to">to</string>
+    <string name="wallet_passenger">Passenger</string>
+    <string name="wallet_seat">Seat</string>
+    <string name="wallet_seat_none">Not yet</string>
+    <string name="wallet_booking_ref">Booking ref</string>
+    <!-- %1$s = a booking reference (PNR), e.g. "K7Q2ZM". -->
+    <string name="wallet_match">Matches your trip\'s booking %1$s</string>
+    <string name="wallet_no_match">Not one of this trip\'s bookings</string>
+    <string name="wallet_remove_pass">Remove boarding pass</string>
+    <string name="wallet_paste_title">Paste boarding pass code</string>
+    <string name="wallet_paste_hint">Text from the boarding pass barcode</string>
+    <string name="wallet_save">Save</string>
+    <string name="wallet_saved">Boarding pass saved</string>
+    <string name="wallet_already_saved">This boarding pass is already saved</string>
+    <string name="wallet_removed">Boarding pass removed</string>
+    <string name="wallet_no_barcode">No boarding pass barcode found in this photo. Try a sharper photo of the barcode.</string>
+    <string name="wallet_photo_failed">Could not read this photo. Please try another one.</string>
+
+    <!-- Wallet: ID documents. Aadhaar keeps ONLY the last 4 digits; PAN is always shown masked. -->
+    <string name="ids_title">ID documents</string>
+    <string name="ids_hint">Aadhaar keeps only the last 4 digits and PAN is shown masked. Stored only on this phone, never sent anywhere.</string>
+    <string name="ids_add">Add Aadhaar, PAN or visa</string>
+    <string name="ids_remove">Remove ID document</string>
+    <string name="ids_choose_kind">Which ID?</string>
+    <string name="ids_kind_aadhaar">Aadhaar</string>
+    <string name="ids_kind_pan">PAN card</string>
+    <string name="ids_kind_visa">Visa</string>
+    <string name="ids_title_aadhaar">Aadhaar (masked)</string>
+    <string name="ids_title_pan">PAN (masked)</string>
+    <!-- %1$s = country, e.g. "Visa · United Arab Emirates". -->
+    <string name="ids_title_visa">Visa · %1$s</string>
+    <string name="ids_add_aadhaar">Add Aadhaar</string>
+    <string name="ids_add_pan">Add PAN card</string>
+    <string name="ids_add_visa">Add visa</string>
+    <string name="ids_save">Save</string>
+    <string name="ids_field_name">Name as on the document</string>
+    <string name="ids_field_aadhaar_last4">Last 4 digits of Aadhaar</string>
+    <string name="ids_field_aadhaar_helper">Only the last 4 digits are kept, like a masked Aadhaar. Never enter the full number.</string>
+    <string name="ids_field_pan">PAN, e.g. ABCDE1234F</string>
+    <string name="ids_field_pan_helper">Shown masked (XXXXX1234F) on screen and in the PDF.</string>
+    <string name="ids_field_country">Country</string>
+    <string name="ids_field_visa_type">Visa type, e.g. Tourist</string>
+    <string name="ids_field_visa_number">Visa number</string>
+    <string name="ids_field_valid_from">Valid from (DD/MM/YYYY)</string>
+    <string name="ids_field_valid_until">Valid until (DD/MM/YYYY)</string>
+    <string name="ids_field_multiple_entry">Multiple entry</string>
+    <string name="ids_error_name">Enter the name as it is on the document.</string>
+    <string name="ids_error_aadhaar">Enter exactly the last 4 digits.</string>
+    <string name="ids_error_pan">Enter a PAN like ABCDE1234F: 5 letters, 4 digits, 1 letter.</string>
+    <string name="ids_error_country">Enter the country.</string>
+    <string name="ids_error_visa_number">Enter the visa number.</string>
+    <string name="ids_error_date">Enter a date like 31/12/2027.</string>
+    <string name="ids_error_until_before_from">The visa must end after it starts.</string>
+    <string name="ids_entries_single">Single entry</string>
+    <string name="ids_entries_multiple">Multiple entry</string>
+    <!-- %1$s = first valid day, %2$s = last valid day, e.g. "01 Oct 2026 to 31 Dec 2027". -->
+    <string name="ids_validity">%1$s to %2$s</string>
+    <!-- Visa status chip. %1$s = a date, e.g. "31 Dec 2027". -->
+    <string name="ids_status_valid">Valid until %1$s</string>
+    <plurals name="ids_status_expires_soon">
+        <item quantity="one">Expires in %1$d day</item>
+        <item quantity="other">Expires in %1$d days</item>
+    </plurals>
+    <string name="ids_status_expires_today">Expires today</string>
+    <string name="ids_status_expired">Expired on %1$s</string>
+    <string name="ids_status_not_yet">Valid from %1$s</string>
+    <string name="ids_saved">ID saved on this phone</string>
+    <string name="ids_removed">ID removed</string>
+
+    <!-- Wallet: download everything as one PDF (TravelPackPdf). -->
+    <string name="wallet_download_pdf">Download ticket and IDs (PDF)</string>
+    <string name="wallet_pdf_working">Making the PDF…</string>
+    <string name="wallet_pdf_saved">PDF saved</string>
+    <string name="wallet_pdf_open">Open</string>
+    <string name="wallet_pdf_failed">Could not save the PDF. Please try again.</string>
+    <string name="wallet_pdf_no_viewer">PDF saved. There is no app on this phone to open PDFs.</string>
+    <!-- The PDF's text. -->
+    <string name="pdf_title">OnBoard · Travel pack</string>
+    <!-- %1$s = traveller, %2$s = date and time, e.g. "For Aditi · made on Sat, 10 Oct 2026 at 23:45 (India time)". -->
+    <string name="pdf_subtitle">For %1$s · made on %2$s (India time)</string>
+    <string name="pdf_section_ticket">Ticket</string>
+    <string name="pdf_section_trip">Trip and bookings</string>
+    <string name="pdf_section_ids">ID documents</string>
+    <string name="pdf_no_ticket">No boarding pass saved. Add one in the Wallet tab: Scan photo or Paste code.</string>
+    <string name="pdf_no_trip">No trip saved on this phone yet.</string>
+    <string name="pdf_no_ids">No ID documents saved.</string>
+    <string name="pdf_passenger">Passenger</string>
+    <string name="pdf_seat">Seat</string>
+    <string name="pdf_class">Class</string>
+    <string name="pdf_booking_ref">Booking ref</string>
+    <string name="pdf_sequence">Check-in no.</string>
+    <string name="pdf_barcode_caption">Boarding pass code</string>
+    <string name="pdf_footer">Made on this phone by OnBoard. Not an official document: carry your original ID and boarding pass. Aadhaar and PAN are masked.</string>
+    <!-- %1$d = page number. -->
+    <string name="pdf_page">Page %1$d</string>
+    <string name="pdf_file_name_prefix">OnBoard-travel-pack</string>
+
+    <!-- ============================================================================================
+         Profile tab.
+         ============================================================================================ -->
+    <string name="profile_sample_traveller">Sample traveller for this demo</string>
+    <string name="profile_section_trip">This trip</string>
+    <string name="profile_purpose">Purpose</string>
+    <string name="profile_persona">Traveller type</string>
+    <string name="profile_language">Language</string>
+    <string name="profile_travellers">Travellers</string>
+    <string name="profile_trip_missing">Trip details show up here once the trip is saved on this phone.</string>
+    <string name="persona_first_time">First-time flyer</string>
+    <string name="persona_family">Family</string>
+    <string name="persona_business">Business traveller</string>
+    <string name="persona_elderly">Senior traveller, help welcome</string>
+    <string name="persona_other">Traveller</string>
+    <string name="language_en">English</string>
+    <string name="language_hi">Hindi (हिन्दी)</string>
+    <string name="language_mr">Marathi (मराठी)</string>
+    <string name="language_ta">Tamil (தமிழ்)</string>
+    <string name="language_bn">Bengali (বাংলা)</string>
+    <string name="profile_section_display">Display</string>
+    <string name="profile_large_text">Large text</string>
+    <string name="profile_large_text_detail">Makes all text in the app 30% bigger.</string>
+    <string name="profile_section_cards">Saved cards</string>
+    <string name="profile_cards_hint">Only the bank and the last 4 digits are kept, on this phone, to apply card offers to prices.</string>
+    <string name="profile_add_card">Add a card</string>
+    <string name="profile_remove_card">Remove card</string>
+    <string name="profile_card_bank">Bank, e.g. HDFC Bank</string>
+    <string name="profile_card_credit">Credit</string>
+    <string name="profile_card_debit">Debit</string>
+    <string name="profile_card_last4">Last 4 digits</string>
+    <string name="profile_card_last4_helper">Never enter the full card number.</string>
+    <string name="profile_card_bank_error">Enter the bank\'s name.</string>
+    <string name="profile_card_last4_error">Enter exactly 4 digits.</string>
+    <string name="profile_card_save">Save</string>
+    <!-- %1$s = bank, %2$s = Credit or Debit, e.g. "HDFC Bank · Credit card". -->
+    <string name="profile_card_name">%1$s · %2$s card</string>
+    <!-- %1$s = the last 4 digits. -->
+    <string name="profile_card_digits">•••• %1$s</string>
+    <string name="profile_section_more">More</string>
+    <string name="profile_open_wallet">Wallet: boarding passes, IDs and PDF</string>
+    <string name="profile_open_trip_status">Trip status (parked feature)</string>
+    <string name="profile_open_trip">Trip timeline (parked feature)</string>
+    <string name="profile_section_connection">Connection</string>
+    <string name="profile_server">Server</string>
+    <string name="profile_last_update">Last update</string>
+    <string name="profile_sync_never">Not yet</string>
+    <string name="profile_app_version">App version</string>
+    <!-- %1$s = version, e.g. "0.1.0". -->
+    <string name="profile_version_value">OnBoard %1$s</string>
+
+    <!-- New tabs, until their phase builds them (CLAUDE.md, build phases). -->
+    <string name="navigate_headline">Walk to your gate</string>
+    <string name="navigate_description">Step-by-step walking directions inside Mumbai Terminal 2 to your gate, with landmarks, a step-free option and voice. If the gate changes, the route changes with it. Works offline.</string>
+    <string name="bags_headline">Baggage Shield</string>
+    <string name="bags_description">Scan your bag tag and photograph your bag before you hand it over. You get a time-stamped record that cannot be changed later, and you can follow the bag to the belt.</string>
+    <string name="help_headline">Something went wrong?</string>
+    <string name="help_description">Step-by-step help for a damaged, delayed or missing bag, and for things lost at the airport, with the official contacts and deadlines.</string>
+    <!-- %1$s is replaced by the phase, e.g. "Coming in phase B1". -->
+    <string name="placeholder_coming_in_phase">Coming in phase %1$s</string>
 
     <!-- ============================================================================================
          Trip tab ("My trip", Phase 1): the timeline of the whole trip.
@@ -61,13 +291,13 @@
         <item quantity="one">%1$d thing needs your decision: %2$s</item>
         <item quantity="other">%1$d things need your decision: %2$s</item>
     </plurals>
-    <string name="trip_attention_hint">Tap to see what changed. Ways to fix it arrive in Phase 5.</string>
+    <string name="trip_attention_hint">Tap to see what changed.</string>
 
     <!-- Empty state: no saved trip on the phone yet. -->
     <string name="trip_empty_loading_title">Loading your trip…</string>
-    <string name="trip_empty_loading_message">Getting your plan from Safar Saathi.</string>
+    <string name="trip_empty_loading_message">Getting your plan from OnBoard.</string>
     <string name="trip_empty_error_title">Could not load your trip</string>
-    <string name="trip_empty_error_network">Safar Saathi could not be reached, and no plan is saved on this phone yet. Check your internet connection (for the demo: is the backend running?), then try again.</string>
+    <string name="trip_empty_error_network">OnBoard could not be reached, and no plan is saved on this phone yet. Check your internet connection (for the demo: is the backend running?), then try again.</string>
     <string name="trip_empty_error_not_found">The server does not have this trip. For the demo, reload the demo data on the backend, then try again.</string>
     <string name="trip_empty_error_server">The server had a problem. Please try again in a moment.</string>
     <string name="trip_empty_error_bad_data">The server sent a plan this app could not read. Please try again later.</string>
@@ -76,11 +306,16 @@
     <!-- Status chips. Colours: OK green, auto-adjusted amber, needs-you red, done/cancelled grey. -->
     <string name="status_ok">On track</string>
     <string name="status_auto_adjusted">Auto-adjusted</string>
+    <!-- A booking still on track on the server, but starting later than first planned (e.g. a delayed flight). -->
+    <string name="status_delayed">Delayed</string>
     <string name="status_needs_user">Needs you</string>
     <string name="status_done">Done</string>
     <string name="status_cancelled">Cancelled</string>
     <string name="status_unknown">Unknown</string>
     <string name="block_moved_label">Moved to fit the new plan</string>
+    <!-- A booking that moved from the original plan. %1$s = the planned time ("08:00"), %2$s = how much ("2 hours"). -->
+    <string name="planned_later">Planned for %1$s · %2$s later</string>
+    <string name="planned_earlier">Planned for %1$s · %2$s earlier</string>
     <!-- Read aloud by screen readers for the star on the anchor block. -->
     <string name="trip_anchor_description">Anchor: must not miss</string>
 
@@ -132,11 +367,12 @@
     <!-- %1$s = who holds the booking, %2$s = booking reference, e.g. "MockAir (demo airline) · booking ref K7Q2ZM". -->
     <string name="sheet_booking_with_ref">%1$s · booking ref %2$s</string>
     <string name="sheet_anchor_note">This is the reason for your trip: it must not be missed.</string>
-    <string name="sheet_directions_coming">Directions for this leg arrive in Phase 7.</string>
+    <string name="sheet_directions_coming">Turn-by-turn directions for this leg are coming soon.</string>
 
     <string name="sheet_status_ok">On track. Nothing to do.</string>
-    <string name="sheet_status_auto_adjusted">Safar Saathi moved this to fit the new plan. Nothing to do.</string>
-    <string name="sheet_status_needs_user">This no longer fits the plan and needs your decision. Ways to fix it arrive in Phase 5.</string>
+    <string name="sheet_status_delayed">Runs later than first planned. Nothing for you to do.</string>
+    <string name="sheet_status_auto_adjusted">OnBoard moved this to fit the new plan. Nothing to do.</string>
+    <string name="sheet_status_needs_user">This no longer fits the new plan and needs your decision.</string>
     <string name="sheet_status_done">Done.</string>
     <string name="sheet_status_cancelled">This booking is cancelled.</string>
     <string name="sheet_status_unknown">Status not known yet.</string>
@@ -148,9 +384,9 @@
     <string name="provider_google_calendar">Google Calendar</string>
     <string name="provider_none">Nothing to book</string>
 
-    <string name="flex_fixed">No. The time is fixed; Safar Saathi will not move it on its own.</string>
-    <string name="flex_auto_shift">Yes. Safar Saathi may move it for you when plans change.</string>
-    <string name="flex_ask_user">Only with your OK. Safar Saathi asks you before moving it.</string>
+    <string name="flex_fixed">No. The time is fixed; OnBoard will not move it on its own.</string>
+    <string name="flex_auto_shift">Yes. OnBoard may move it for you when plans change.</string>
+    <string name="flex_ask_user">Only with your OK. OnBoard asks you before moving it.</string>
     <string name="flex_unknown">Not known.</string>
 
     <!-- Free-change rule, from the block's freeChangeUntilMinutes. %1$s = a duration, e.g. "30 min" or "24 hours". -->

@@ -1,18 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Backup and device-transfer rules for Android 12 (API 31) and newer; uncomment and customise as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes for details.
--->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Backup and device-transfer rules for Android 12 (API 31) and newer.
+     See https://developer.android.com/about/versions/12/backup-restore#xml-changes for details.
+
+     The app's database (safar_saathi.db) holds the traveller's ID details (Aadhaar last 4 digits, PAN, visas), so it
+     is NOT copied into Google's cloud backup. The trip itself downloads again from the server; wallet items are
+     re-added by the traveller. A direct phone-to-phone transfer (device-transfer) may still copy it. -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <exclude domain="database" path="." />
     </cloud-backup>
-    <!--
-    <device-transfer>
-        <include .../>
-        <exclude .../>
-    </device-transfer>
-    -->
 </data-extraction-rules>

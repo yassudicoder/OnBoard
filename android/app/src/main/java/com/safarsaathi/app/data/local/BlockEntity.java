@@ -90,6 +90,18 @@ public class BlockEntity {
     @Nullable
     public String notes;
 
+    /**
+     * Phone-only: when this block started in the trip's ORIGINAL plan (the server's version 1), so the screens can
+     * say "Planned for 08:00 · 2 hours later". Null = not known (the phone first saw this trip after it had
+     * already changed). The server does not send it; TripRepository fills it in (rules in PlannedTimes).
+     */
+    @Nullable
+    public Instant plannedStartTime;
+
+    /** Phone-only: when this block ended in the original plan. Null = not known. See {@link #plannedStartTime}. */
+    @Nullable
+    public Instant plannedEndTime;
+
     @Override
     public boolean equals(Object other) {
         if (this == other) {
@@ -115,13 +127,16 @@ public class BlockEntity {
                 && flex.equals(that.flex)
                 && status.equals(that.status)
                 && Objects.equals(freeChangeUntilMinutes, that.freeChangeUntilMinutes)
-                && Objects.equals(notes, that.notes);
+                && Objects.equals(notes, that.notes)
+                && Objects.equals(plannedStartTime, that.plannedStartTime)
+                && Objects.equals(plannedEndTime, that.plannedEndTime);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, tripId, type, title, startTime, endTime, locationName, lat, lng, provider,
-                providerRef, flex, anchor, status, freeChangeUntilMinutes, changeFeeInr, notes);
+                providerRef, flex, anchor, status, freeChangeUntilMinutes, changeFeeInr, notes,
+                plannedStartTime, plannedEndTime);
     }
 
     @NonNull

@@ -1,57 +1,48 @@
 # OnBoard
 
-**A travel companion from your door to your destination.** OnBoard is an Android app with a Spring Boot backend
-that guides a traveller through the whole journey (plan, book, get to the airport, find the gate, handle delays,
-arrive) in their own language, and keeps working when the internet doesn't.
+**Find your gate. Protect your bag.** OnBoard is an Android app with a Spring Boot backend that does two things for
+air travellers, in their own language, even offline:
 
-**The big idea:** a trip is a row of dominoes. When one block moves (a late flight), the app finds every booking that
-falls over (cab, meeting, hotel, dinner), suggests 2–3 fixes, and applies the one you pick in a single tap.
+- **Gate Navigation:** Google-Maps-style walking directions inside the airport (pilot: Mumbai Terminal 2) to your
+  boarding gate, with landmarks and voice. If the gate changes, you are told at once and the route changes with it.
+- **Baggage Shield:** photograph your bag and scan its tag before you hand it over, and get a time-stamped record that
+  cannot be changed later. If the bag arrives damaged, late or not at all, the app tells you exactly what to do, where
+  and by when. Lost something at the airport? It points you to the right Lost & Found, with the form pre-filled.
 
 Built for **Elevate 1.0 (DJSCE), Problem Statement 01 — "Seamless Aviation Journey Experience"**.
 The full project brief (rules, stack, phases) is in [CLAUDE.md](CLAUDE.md). Details are in [docs/](docs/).
 
 ---
 
-## Where we are now (10 Oct 2026, evening)
+## Where we are now (11 Oct 2026)
 
 **Team:** Yash: backend · Divyesh: Android app · Anushree: integration testing.
 
-**Name:** the project is now called **OnBoard** (it was Safar Saathi). Code names stay as they were on purpose, so
-nothing breaks: the `com.safarsaathi.*` Java packages, the app id `com.safarsaathi.app` and the `safarsaathi` database.
-The Android app still shows "Safar Saathi" on screen until the Android side renames it.
+**New direction (11 Oct):** the app now focuses on **Gate Navigation** and **Baggage Shield** ([CLAUDE.md](CLAUDE.md)
+has the full brief and the phases R0 → P). We build it phase by phase and stop after each one for the team's go-ahead.
 
-**Working end to end** (checked live on the emulator, 10 Oct, 22:15): the app's **Trip** tab loads demo trip 1 from
-the backend → a delay pressed on `/demo` reaches the phone within about 10 seconds (cards turn amber or red, plus a red
-banner for the meeting) → in airplane mode the app shows the saved plan marked "Offline" → **Reset demo** turns
-everything green again.
+**What you see in the app now (R0):** the bottom bar is **Home · Navigate · Bags · Help · Profile**.
+
+- **Home:** greets Aditi (the demo's sample traveller) and shows a flight card: the flight and its times from the
+  backend, and **Gate / Boarding: "Not announced yet"**, because there is no gate source until phase G4 and the app never
+  invents a gate or a time. "Navigate to gate" and "Register a bag" open the new tabs.
+- **Navigate, Bags, Help:** say what they will do and which phase builds them (G1–G3, B1, B3).
+- **Profile:** traveller, this trip, large text, saved cards, and **More → Wallet** (boarding passes by photo or code,
+  Aadhaar last 4 digits / masked PAN / visas, everything as one PDF).
+
+**Parked, not deleted:** the old trip-timeline plan (trip status, timeline, ripple engine, the delay demo). Its code and
+tests stay and keep passing. To see it again, put `feature.tripTimeline=true` in `android/local.properties` and rebuild:
+Profile → More then links to the parked screens. Details: "Parked" in [CLAUDE.md](CLAUDE.md).
 
 | Branch | What's on it | State |
 |---|---|---|
-| `main` | Phases 0–2 as of the first commit | stable |
-| `feature/backend-hardening` | backend hardening (below) + this README update | pushed; pull request to `main` not opened yet |
+| `main` | Phases 0–2 of the old plan, as of the first commit | stable |
+| `feature/backend-hardening` | backend hardening + README updates | pushed; pull request to `main` not opened yet |
+| (not committed yet) | Android Home / Wallet / Profile work and R0 | on Yash's laptop, waiting for the team's OK |
 
-**Backend hardening, in short** (details: [backend/README.md](backend/README.md)):
-
-- The backend now listens on **this computer only** (`127.0.0.1`) by default, so nobody else on the Wi-Fi can press
-  our demo buttons. The emulator still reaches it at `http://10.0.2.2:8080`.
-- The demo buttons (`POST /api/demo/...`) exist only with `APP_MODE=demo` (the default). With `APP_MODE=prod` they
-  answer 404. A hosted server uses `SERVER_ADDRESS=0.0.0.0` **and** `APP_MODE=prod`.
-- Two delays at the same moment can no longer overwrite each other (the trip is locked while a change is saved),
-  and a change that fails to save is retried instead of lost.
-- A delay that breaks a flight connection is recorded as a `MISSED` event (demo trip 2: Pune → Delhi → Leh).
-- No database change: an existing database keeps its data. Tests: 119 backend tests, 34 Android unit tests and
-  10 emulator tests pass.
-
-**Known gaps** (not built yet):
-
-- The app shows trip 1 only. Trip 2's missed connection shows on `/demo` and in `GET /api/trips/2`, not in the app,
-  and `MISSED` events have no API yet.
-- A delayed flight's own card still says "On track"; only the bookings after it change colour.
-- Every delay press adds to the last one (two presses of +90 = +180 minutes). A shorter delay doesn't move bookings
-  back earlier. A cancelled first flight doesn't record a `MISSED` event for the connecting flight.
-- **Home** ("Do this now") is a placeholder until Phase 3. A Home mock-up with fixed sample text exists on Yash's
-  laptop but is not committed: it needs real trip data first, otherwise it contradicts the Trip tab during the demo
-  (it also makes `MainActivityTest` fail).
+**Backend hardening, in short** (details: [backend/README.md](backend/README.md)): listens on `127.0.0.1` by default
+(the emulator still reaches it at `http://10.0.2.2:8080`); demo buttons exist only with `APP_MODE=demo`; two changes at
+the same moment can't overwrite each other; a hosted server uses `SERVER_ADDRESS=0.0.0.0` and `APP_MODE=prod`.
 
 ---
 
@@ -84,11 +75,15 @@ everything green again.
 
 ---
 
-## Demo tonight (Phases 1–2)
+## Parked demo: trip delay (old plan)
+
+**Parked since 11 Oct.** The new demo story (gate change mid-walk, bag evidence, claim pack) arrives with the new
+phases. This one still works: put `feature.tripTimeline=true` in `android/local.properties`, rebuild, and open the
+screens from **Profile → More**.
 
 The story: demo trip 1 on the phone, a 90-minute flight delay fired from the laptop, and the phone showing which
 bookings moved by themselves and which one needs the traveller's decision. It keeps working offline too.
-[docs/demo-script.md](docs/demo-script.md) has the 3-minute script: who clicks what, and what to say.
+[docs/demo-script.md](docs/demo-script.md) has the old 3-minute script.
 
 1. **Database:** Docker Desktop running, then `docker compose up -d` in the repo root. Wait until `docker compose ps`
    shows `(healthy)`. The backend can't start without it.
@@ -96,20 +91,22 @@ bookings moved by themselves and which one needs the traveller's decision. It ke
    `OnBoard backend is ready`. On an empty database it first loads the two demo trips from
    [mock-data/demo-trips.json](mock-data/demo-trips.json). Check <http://localhost:8080/api/trips/1>: trip 1, "Client
    visit: Mumbai to Bengaluru", with 6 blocks, dated tomorrow.
-3. **App:** run it on the emulator. On Android 17 (API 37) it first asks "Allow Safar Saathi to find, connect to, and
+3. **App:** run it on the emulator. On Android 17 (API 37) it first asks "Allow OnBoard to find, connect to, and
    determine the relative position of nearby devices?": tap **Allow**, or it can't reach the backend on your laptop
-   (see [Troubleshooting](#troubleshooting)). Open the **Trip** tab: flight 08:00 → bags → cab 10:05 → client meeting
+   (see [Troubleshooting](#troubleshooting)). Profile → More → **Trip status** shows "Your trip is on track" with the
+   flight, 08:00 → 09:45. **Trip timeline**: flight 08:00 → bags → cab 10:05 → client meeting
    12:00 (the star marks the anchor, the one block the traveller must not miss) → hotel 14:00 → dinner 20:00. All green.
 4. **Demo page:** on the laptop, open <http://localhost:8080/demo>. It shows trip 1 as a live timeline, and its
    "Booking to disrupt" list starts on the flight.
-5. **Delay:** press **Delay +90 min**. Within about 10 seconds (the Trip tab asks the backend every 10 seconds; pull
-   the timeline down to ask at once) the phone shows the flight at 09:30, bag claim and the cab moved by themselves
+5. **Delay:** press **Delay +90 min**. Within about 10 seconds (the screens ask the backend every 10 seconds while
+   on screen; pull down to ask at once) Trip status turns red ("1 thing needs your decision", the flight "Delayed ·
+   Planned for 08:00 · 90 min later"), and the timeline shows the flight at 09:30, bag claim and the cab moved by themselves
    (amber "Auto-adjusted": the cab change is still free), the client meeting in red ("Needs you", 50 minutes short)
    and a red banner: "1 thing needs your decision: Client meeting in Whitefield". Hotel and dinner stay green ("On
    track") because they have time to spare. Every press adds another 90 minutes.
 6. **Reset:** press **Reset demo**. The demo trips are loaded again (all green, dated tomorrow), and the phone shows
    the original plan within about 10 seconds.
-7. **Offline:** stop the backend (Ctrl+C) or turn on airplane mode in the emulator. The Trip tab keeps showing the
+7. **Offline:** stop the backend (Ctrl+C) or turn on airplane mode in the emulator. The screens keep showing the
    saved plan, with "Offline · showing your saved plan from HH:MM". The app keeps its own copy of the trip in Room (a
    database on the phone), and the screen only ever reads that copy.
 
@@ -171,7 +168,7 @@ PowerShell needs the `.\` in front; in cmd it's optional. The debug APK lands in
 ├── android/             Android app (Java, XML layouts, Material 3). Open THIS folder in Android Studio.
 ├── backend/             Spring Boot 3 backend (Java 17, Maven): REST API, ripple engine, /demo page, later more
 ├── docs/                architecture.md, api.md, demo-script.md
-├── mock-data/           demo seed data (JSON): demo-trips.json since Phase 1, more files in later phases
+├── mock-data/           demo seed data (JSON): demo-trips.json; airports/BOM-T2/ (demo schematic) from G1
 ├── docker-compose.yml   local PostgreSQL 17 (the backend needs it from Phase 1)
 ├── .env.example         backend setting NAMES. Copy it to .env (git-ignored) for your own keys.
 ├── CLAUDE.md            the full project brief and source of truth
@@ -182,17 +179,22 @@ PowerShell needs the `.\` in front; in cmd it's optional. The debug APK lands in
 
 ## Progress
 
+New plan (11 Oct 2026): Gate Navigation + Baggage Shield. Details of every phase: [CLAUDE.md](CLAUDE.md), section 8.
+
 | Phase | What it delivers | Status |
 |---|---|---|
-| 0 | Setup: repo, backend skeleton + `/api/health`, Android skeleton with 5 tabs, Docker Postgres, docs | **Done** (10 Oct 2026) |
-| 1 | Trip data end to end: database tables, demo trip seed, `GET /api/trips/{id}`, timeline screen, offline copy | **In progress** |
-| 2 | Ripple engine: a delay or cancellation finds what breaks; demo triggers and the `/demo` page; coloured timeline | **In progress** |
-| 3 | "Do this now" card, push notifications, background refresh | Planned |
-| 4 | Mock partners (air, hotel, cab, restaurant), booking orchestrator with rollback, front-desk dashboard | Planned |
-| 5 | Plan B: 2–3 scored fixes, Fix-it screen, one-tap apply, WhatsApp/email drafts | Planned |
-| 6 | Five languages, Gemini assistant with voice, persona-based screens | Planned |
-| 7 | Wallet (boarding pass scan), terminal map, true-cost compare, directions per leg | Planned |
-| 8 | Polish, airplane-mode test, 3-minute demo script, deploy notes | Planned |
+| R0 | Refocus: new brief, new tabs (Home · Navigate · Bags · Help · Profile), old screens parked behind a flag | **Done** (11 Oct 2026) |
+| G1 | Airport map: Mumbai T2 demo schematic, map endpoint, offline cache, map with floors and points of interest | Planned |
+| G2 | Routing: shortest walk, step-free option, walking speeds, landmark instructions (English, Hindi, Marathi) | Planned |
+| G3 | Navigation screen: next instruction, route line, blue dot, QR "You are here", simulated walk, re-route, voice | Planned |
+| G4 | Gate changes: gate watcher, push alert, automatic re-route mid-walk, `/demo` trigger | Planned |
+| B1 | Bag Shield capture: register bag, scan tag, guided photos, fingerprints (SHA-256), signed receipt | Planned |
+| B2 | Counter & Station pages, tamper-evident hash chain, verification | Planned |
+| B3 | Problems & claims: before/after, PIR guidance, claim pack PDF, deadlines, Lost & Found guide | Planned |
+| P | Polish & demo: airplane-mode test, large text, Hindi/Marathi review, demo script, deploy notes | Planned |
+
+Before the change of direction: Phase 0 (setup) was done, phases 1–2 (trip data, ripple engine, delay demo) were built
+and are now **parked**, and the backend hardening is done on `feature/backend-hardening`.
 
 A phase becomes **Done** only after the team's go-ahead. Then tick it in CLAUDE.md's "Phase status" list in the same
 change, so the two files always agree.
@@ -265,7 +267,7 @@ so switch it back afterwards ([backend/README.md](backend/README.md) explains th
 **The Trip tab says "could not be reached", but <http://localhost:8080/api/health> works on the laptop.**
 Android 17 (API 37) blocks an app's connections to the local network (your laptop, `10.0.2.2`, `192.168.x.x`) until
 the user allows it, and the requests just time out. Debug builds ask once, on the first start: tap **Allow**. Tapped
-"Don't allow"? Open **Settings → Apps → Safar Saathi → Permissions → Nearby devices → Allow**, or run
+"Don't allow"? Open **Settings → Apps → OnBoard → Permissions → Nearby devices → Allow**, or run
 `adb shell pm grant com.safarsaathi.app android.permission.ACCESS_LOCAL_NETWORK`.
 
 **Backend stops at startup with "Connection to localhost:5432 refused".**
