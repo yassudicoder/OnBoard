@@ -1,28 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Foreground layer of the app icon: a white airplane, tilted 45 degrees as if taking off.
-     Airplane = Material Symbols "flight" (Apache License 2.0, github.com/google/material-design-icons).
+<!-- Foreground layer of the app icon: the OnBoard "A" mark (an A whose middle is an airplane seen from
+     above), in the logo orange, from the team's Figma design (screens "Loading 1" / "Loading 2").
+     Redrawn by hand as vector paths from the design so it stays sharp at every size.
 
      How it fits: an adaptive icon is 108 x 108 dp, but phones only promise to show a circle of 66 dp
-     in the middle (the "safe zone"). The airplane's path is drawn on a 960-unit grid, so the group
-     below shrinks it to 6.5% (about 52 dp long), turns it around the grid centre (480,480) and moves
-     it so the tilted airplane sits in the middle of the icon: every point stays within 31 dp of the
-     centre, inside the 33 dp safe-zone radius.
-     Also used as the "monochrome" layer for Android 13+ themed icons (the phone recolours it). -->
+     in the middle (the "safe zone"). The paths are drawn on a 162 x 140 grid (the mark's own size);
+     the group shrinks them to 36% (about 50 dp wide) and moves them so every point stays within 31 dp
+     of the icon centre, inside the 33 dp safe-zone radius.
+     Also used as the "monochrome" layer for Android 13+ themed icons (the phone recolours it) and as the
+     icon on the Android 12+ launch screen (values-v31/themes_splash.xml). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group
-        android:pivotX="480"
-        android:pivotY="480"
-        android:rotation="45"
-        android:scaleX="0.065"
-        android:scaleY="0.065"
-        android:translateX="-423"
-        android:translateY="-429">
+        android:scaleX="0.36"
+        android:scaleY="0.36"
+        android:translateX="24.84"
+        android:translateY="25.56">
+        <!-- Top of the A (rounded peak) -->
         <path
-            android:fillColor="#FFFFFF"
-            android:pathData="M340,880L340,820L420,760L420,540L80,640L80,560L420,360L420,140Q420,115 437.5,97.5Q455,80 480,80Q505,80 522.5,97.5Q540,115 540,140L540,360L880,560L880,640L540,540L540,760L620,820L620,880L480,840L340,880Z" />
+            android:fillColor="@color/brand_logo_orange"
+            android:pathData="M51,64 C60,44 72,9 81,9 C90,9 102,44 111,64 Z" />
+        <!-- Left leg, with the notch where the left wing meets it -->
+        <path
+            android:fillColor="@color/brand_logo_orange"
+            android:pathData="M51,63 L12,129.5 L32.5,129.5 L57.5,92 L54.5,88 L46.5,88 L71.5,63.5 Z" />
+        <!-- Right leg (mirror image) -->
+        <path
+            android:fillColor="@color/brand_logo_orange"
+            android:pathData="M111,63 L150,129.5 L129.5,129.5 L104.5,92 L107.5,88 L115.5,88 L90.5,63.5 Z" />
+        <!-- Airplane body and tail -->
+        <path
+            android:fillColor="@color/brand_logo_orange"
+            android:pathData="M74,63 L88,63 L88,104 L104,119.5 L104,126.5 L100,126.5 L81,118 L62,126.5 L58,126.5 L58,119.5 L74,104 Z" />
     </group>
 </vector>

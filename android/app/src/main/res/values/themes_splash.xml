@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme of MainActivity (set in AndroidManifest.xml). On Android 8-11 it is exactly the app theme.
+         On Android 12+ values-v31/themes_splash.xml adds the OnBoard launch screen (navy background, the
+         "A" mark, the logo at the bottom). Android 12+ always shows a launch screen; these items only
+         choose what it shows, so no code and no extra library is needed. -->
+    <style name="Theme.SafarSaathi.Splash" parent="Theme.SafarSaathi" />
+</resources>

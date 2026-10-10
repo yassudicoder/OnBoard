@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Safar Saathi colours: Material 3 colour scheme, DARK mode (used when the phone is in dark theme).
+    <!-- OnBoard colours: Material 3 colour scheme, DARK mode (used when the phone is in dark theme).
          Same names as values/colors.xml (light mode); see the notes there. -->
 
     <!-- Primary: main brand colour (buttons, active states) -->
-    <color name="md_theme_primary">#A9C7FF</color>
-    <color name="md_theme_onPrimary">#003063</color>
-    <color name="md_theme_primaryContainer">#00468C</color>
-    <color name="md_theme_onPrimaryContainer">#D6E3FF</color>
-    <color name="md_theme_inversePrimary">#285EA7</color>
+    <color name="md_theme_primary">#B9C3FF</color>
+    <color name="md_theme_onPrimary">#00218B</color>
+    <color name="md_theme_primaryContainer">#0032C3</color>
+    <color name="md_theme_onPrimaryContainer">#DEE1FF</color>
+    <color name="md_theme_inversePrimary">#1B4DFF</color>
 
     <!-- Secondary: calmer companion colour (e.g. the selected bottom-bar pill) -->
-    <color name="md_theme_secondary">#BDC7DC</color>
-    <color name="md_theme_onSecondary">#283141</color>
-    <color name="md_theme_secondaryContainer">#3E4758</color>
-    <color name="md_theme_onSecondaryContainer">#DAE2F9</color>
+    <color name="md_theme_secondary">#C3C5DD</color>
+    <color name="md_theme_onSecondary">#2C2F42</color>
+    <color name="md_theme_secondaryContainer">#434659</color>
+    <color name="md_theme_onSecondaryContainer">#DFE1F9</color>
 
     <!-- Tertiary: saffron accent -->
-    <color name="md_theme_tertiary">#FFB77A</color>
-    <color name="md_theme_onTertiary">#4C2700</color>
-    <color name="md_theme_tertiaryContainer">#6D3A00</color>
-    <color name="md_theme_onTertiaryContainer">#FFDCC2</color>
+    <color name="md_theme_tertiary">#FFB59E</color>
+    <color name="md_theme_onTertiary">#5E1700</color>
+    <color name="md_theme_tertiaryContainer">#852400</color>
+    <color name="md_theme_onTertiaryContainer">#FFDBD0</color>
 
     <!-- Error -->
     <color name="md_theme_error">#FFB4AB</color>

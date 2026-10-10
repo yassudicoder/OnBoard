@@ -90,6 +90,7 @@
              exported="true" + the MAIN/LAUNCHER filter = it opens when you tap the app icon. -->
         <activity
             android:name=".MainActivity"
+            android:theme="@style/Theme.SafarSaathi.Splash"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

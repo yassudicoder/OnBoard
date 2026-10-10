@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ launch screen, as in the Figma "Loading" screens: navy background, the orange "A"
+         mark in the middle, the OnBoard logo at the bottom. It disappears as soon as the first screen
+         is drawn. See values/themes_splash.xml for the older Android versions. -->
+    <style name="Theme.SafarSaathi.Splash" parent="Theme.SafarSaathi">
+        <item name="android:windowSplashScreenBackground">@color/brand_navy</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <!-- 200 x 80 dp, the size Android reserves for a branding image. -->
+        <item name="android:windowSplashScreenBrandingImage">@drawable/splash_branding</item>
+    </style>
+</resources>
