@@ -1,15 +1,19 @@
 {
   "_comment": [
     "Demo trips for Safar Saathi. Loaded by the backend's seed loader when the database has no trips yet.",
-    "Everything here is invented demo data: airlines (IndiJet IJ, SkyMitra SM), hotels, bookings and references.",
-    "Trips get database ids in file order on an empty database: trip 1 = business demo, trip 2 = Marathi holiday demo.",
-    "Blocks and links get ids in file order too (trip 1 blocks first, then trip 2).",
-    "Times are relative so the demo never goes stale: 'day' = days after the trip day, 'start'/'end' = HH:mm in",
-    "Asia/Kolkata. 'endDay' defaults to 'day'. The trip day = today + safarsaathi.seed.day-offset (default 1 = tomorrow).",
+    "Everything here is invented demo data: airlines (IndiJet IJ, SkyMitra SM, Marjan Air MJ), flights, hotels, bookings and references.",
+    "Trips get database ids in file order on an empty database: trip 1 = business demo, trip 2 = Marathi holiday demo,",
+    "trip 3 = Delhi to London via Doha (Disruption Recovery demo). Blocks, links and connections get ids in file order too.",
+    "Times are relative so the demo never goes stale: 'day' = days after the trip day, 'start'/'end' = local HH:mm.",
+    "A FLIGHT block has 'flight' (flight number, airports, terminals or null): 'start' is local time at the departure",
+    "airport, 'end' local time at the arrival airport (zones from recovery/airport-rules.json). Other blocks are in",
+    "'zone' if given, else Asia/Kolkata. 'endDay' defaults to 'day'. Trip day = today + safarsaathi.seed.day-offset.",
     "Links point at blocks by their 'key'. A link means: 'to' may start at least minGapMinutes + travelMinutes",
-    "after 'from' ends. freeChangeUntilMinutes is an offset from the block's start (-30 = free changes until",
-    "30 minutes before it starts); null = no free-change window (a fee always applies, see changeFeeInr).",
-    "Enum values must match CLAUDE.md section 3 exactly."
+    "after 'from' ends. A link between two flights is a connection: minGapMinutes must be 0 (the minimum connection",
+    "time comes from recovery/airport-rules.json) and 'ticketType' says if both flights are on one ticket (missing = UNKNOWN).",
+    "freeChangeUntilMinutes is an offset from the block's start (-30 = free changes until 30 minutes before it",
+    "starts); null = no free-change window (a fee always applies, see changeFeeInr).",
+    "Enum values must match the backend's enums exactly."
   ],
   "trips": [
     {
@@ -25,6 +29,7 @@
           "key": "flight",
           "type": "FLIGHT",
           "title": "Flight IJ 512 Mumbai to Bengaluru",
+          "flight": { "flightNo": "IJ 512", "depAirport": "BOM", "arrAirport": "BLR", "depTerminal": "T2", "arrTerminal": "T1" },
           "day": 0, "start": "08:00", "end": "09:45",
           "locationName": "Mumbai Airport T2 (BOM)",
           "lat": 19.0896, "lng": 72.8656,
@@ -115,6 +120,7 @@
           "key": "flight-pnq-del",
           "type": "FLIGHT",
           "title": "Flight SM 231 Pune to Delhi",
+          "flight": { "flightNo": "SM 231", "depAirport": "PNQ", "arrAirport": "DEL", "depTerminal": null, "arrTerminal": "T3" },
           "day": 0, "start": "06:10", "end": "08:20",
           "locationName": "Pune Airport (PNQ)",
           "lat": 18.5821, "lng": 73.9197,
@@ -127,13 +133,14 @@
           "key": "flight-del-ixl",
           "type": "FLIGHT",
           "title": "Flight SM 445 Delhi to Leh",
+          "flight": { "flightNo": "SM 445", "depAirport": "DEL", "arrAirport": "IXL", "depTerminal": "T3", "arrTerminal": null },
           "day": 0, "start": "10:15", "end": "11:40",
           "locationName": "Delhi Airport T3 (DEL)",
           "lat": 28.5562, "lng": 77.1000,
           "provider": "MOCK_AIR", "providerRef": "R4T8WD",
           "flex": "FIXED", "anchor": false,
           "freeChangeUntilMinutes": null, "changeFeeInr": 2500,
-          "notes": "Connection at Delhi: at least 75 minutes between flights. Arrives at Leh (IXL), 3,500 m above sea level."
+          "notes": "Connection at Delhi: OnBoard has no official minimum connection time for Delhi, so it shows UNKNOWN. Arrives at Leh (IXL), 3,500 m above sea level."
         },
         {
           "key": "bags-ixl",
@@ -173,10 +180,50 @@
         }
       ],
       "links": [
-        { "from": "flight-pnq-del", "to": "flight-del-ixl", "minGapMinutes": 75, "travelMinutes": 0,  "travelMode": "WALK" },
+        { "from": "flight-pnq-del", "to": "flight-del-ixl", "minGapMinutes": 0,  "travelMinutes": 0,  "travelMode": "WALK", "ticketType": "SINGLE_BOOKING" },
         { "from": "flight-del-ixl", "to": "bags-ixl",       "minGapMinutes": 0,  "travelMinutes": 0,  "travelMode": "NONE" },
         { "from": "bags-ixl",       "to": "cab-ixl",        "minGapMinutes": 0,  "travelMinutes": 0,  "travelMode": "WALK" },
         { "from": "cab-ixl",        "to": "hotel-leh",      "minGapMinutes": 0,  "travelMinutes": 20, "travelMode": "CAB" }
+      ]
+    },
+    {
+      "key": "demo-connection-doha",
+      "title": "Delhi to London via Doha",
+      "purpose": "HOLIDAY",
+      "persona": "FIRST_TIME",
+      "language": "hi",
+      "travellers": 1,
+      "status": "PLANNED",
+      "blocks": [
+        {
+          "key": "flight-del-doh",
+          "type": "FLIGHT",
+          "title": "Flight IJ 1907 Delhi to Doha",
+          "flight": { "flightNo": "IJ 1907", "depAirport": "DEL", "arrAirport": "DOH", "depTerminal": "T3", "arrTerminal": null },
+          "day": 0, "start": "17:50", "end": "19:35",
+          "locationName": "Delhi Airport T3 (DEL)",
+          "lat": 28.5562, "lng": 77.1000,
+          "provider": "MOCK_AIR", "providerRef": "H8D4LQ",
+          "flex": "FIXED", "anchor": false,
+          "freeChangeUntilMinutes": null, "changeFeeInr": 0,
+          "notes": "Fictional flight. Departs 17:50 Delhi time, lands 19:35 Doha time. Same booking reference as the Doha-London flight, but OnBoard still asks whether it is one ticket."
+        },
+        {
+          "key": "flight-doh-lhr",
+          "type": "FLIGHT",
+          "title": "Flight MJ 31 Doha to London",
+          "flight": { "flightNo": "MJ 31", "depAirport": "DOH", "arrAirport": "LHR", "depTerminal": null, "arrTerminal": null },
+          "day": 0, "start": "21:55", "endDay": 1, "end": "03:10",
+          "locationName": "Hamad International Airport (DOH)",
+          "lat": 25.2731, "lng": 51.6081,
+          "provider": "MOCK_AIR", "providerRef": "H8D4LQ",
+          "flex": "FIXED", "anchor": false,
+          "freeChangeUntilMinutes": null, "changeFeeInr": 0,
+          "notes": "Fictional flight (Marjan Air is invented). Departs 21:55 Doha time, lands 03:10 London time the next morning."
+        }
+      ],
+      "links": [
+        { "from": "flight-del-doh", "to": "flight-doh-lhr", "minGapMinutes": 0, "travelMinutes": 0, "travelMode": "WALK", "ticketType": "UNKNOWN" }
       ]
     }
   ]

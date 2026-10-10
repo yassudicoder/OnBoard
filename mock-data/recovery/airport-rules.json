@@ -1,0 +1,160 @@
+{
+  "about": [
+    "Airport rules for OnBoard Disruption Recovery: time zones, minimum connection times (MCT), gate closing and nearby airports.",
+    "Read by the backend (connection.FileAirportRulesProvider) and, from phase C3, bundled in the app. Shape: recovery-core/src/main/java/com/safarsaathi/recovery/rules/.",
+    "Every number says what it is: kind OFFICIAL (from an official page: sourceUrl + lastChecked), DEMO_VALUE (set by the team because nothing official is public; the app always says 'demo value') or ESTIMATE (team estimate; the app says 'estimate').",
+    "An airport with no connectionRules is fine: its connections show UNKNOWN. Never fill in a number you can't source; add a DEMO_VALUE only with the team's agreement.",
+    "nearbyAirports: only with a sourced ground transfer time (no invented distances).",
+    "The backend refuses to start when this file breaks a rule (AirportRules.problems()), and a test checks it."
+  ],
+  "preparedBy": "OnBoard team",
+  "lastChecked": "2026-10-11",
+  "defaults": {
+    "transfer": {
+      "taxiMinutes": 10,
+      "deplaningMinutes": 10,
+      "transferSecurityMinutes": 20,
+      "kind": "ESTIMATE",
+      "source": "Team estimate, not an official figure"
+    },
+    "gateClose": {
+      "minutes": 20,
+      "kind": "ESTIMATE",
+      "source": "Team estimate, not an airline figure: the boarding pass shows the real gate-closing time",
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11"
+    },
+    "atRiskMarginMinutes": 15,
+    "atRiskMarginNote": "Product choice, not a fact: meeting the minimum with less than 15 minutes to spare is shown as 'at risk'."
+  },
+  "airports": [
+    {
+      "iata": "DEL",
+      "name": "Indira Gandhi International Airport, Delhi",
+      "city": { "en": "Delhi", "hi": "दिल्ली", "mr": "दिल्ली" },
+      "country": "IN",
+      "timeZone": "Asia/Kolkata",
+      "connectionRules": [],
+      "gateClose": null,
+      "transfer": null,
+      "nearbyAirports": [],
+      "sourceUrl": "https://www.newdelhiairport.in/passenger-transit-guide/",
+      "lastChecked": "2026-10-11",
+      "notes": "No official public minimum connection time found on the airport's site or airline pages (searched 2026-10-11), so connections in Delhi show UNKNOWN."
+    },
+    {
+      "iata": "DOH",
+      "name": "Hamad International Airport, Doha",
+      "city": { "en": "Doha", "hi": "दोहा", "mr": "दोहा" },
+      "country": "QA",
+      "timeZone": "Asia/Qatar",
+      "connectionRules": [
+        {
+          "type": "INTL_INTL",
+          "terminalChange": null,
+          "minutes": 60,
+          "kind": "DEMO_VALUE",
+          "source": "DEMO VALUE - not an official figure",
+          "sourceUrl": null,
+          "lastChecked": "2026-10-11"
+        }
+      ],
+      "gateClose": {
+        "minutes": 20,
+        "kind": "OFFICIAL",
+        "source": "Hamad International Airport, Transfers page: \"Your boarding gate will close 20 minutes before the flight departure time.\"",
+        "sourceUrl": "https://dohahamadairport.com/airport-guide/at-the-airport/transfers",
+        "lastChecked": "2026-10-11"
+      },
+      "transfer": null,
+      "nearbyAirports": [],
+      "sourceUrl": "https://dohahamadairport.com/airport-guide/at-the-airport/transfers",
+      "lastChecked": "2026-10-11",
+      "notes": "The airport publishes no airport-wide minimum connection time (checked 2026-10-11); airlines publish figures for their own flights only, which don't apply to our fictional airlines. So the 60 minutes are a team-set DEMO VALUE."
+    },
+    {
+      "iata": "LHR",
+      "name": "London Heathrow Airport",
+      "city": { "en": "London", "hi": "लंदन", "mr": "लंडन" },
+      "country": "GB",
+      "timeZone": "Europe/London",
+      "connectionRules": [],
+      "gateClose": null,
+      "transfer": null,
+      "nearbyAirports": [],
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11",
+      "notes": "Final destination of demo trip 3; no connection rules entered."
+    },
+    {
+      "iata": "DXB",
+      "name": "Dubai International Airport",
+      "city": { "en": "Dubai", "hi": "दुबई", "mr": "दुबई" },
+      "country": "AE",
+      "timeZone": "Asia/Dubai",
+      "connectionRules": [],
+      "gateClose": null,
+      "transfer": null,
+      "nearbyAirports": [],
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11",
+      "notes": "No official airport-wide minimum connection time found (searched 2026-10-11). flydubai publishes minimum times for its own flights only (https://www.flydubai.com/en/plan/connections/), which don't apply to other airlines. Connections in Dubai show UNKNOWN until the team decides (phase C2)."
+    },
+    {
+      "iata": "BOM",
+      "name": "Chhatrapati Shivaji Maharaj International Airport, Mumbai",
+      "city": { "en": "Mumbai", "hi": "मुंबई", "mr": "मुंबई" },
+      "country": "IN",
+      "timeZone": "Asia/Kolkata",
+      "connectionRules": [],
+      "gateClose": null,
+      "transfer": null,
+      "nearbyAirports": [],
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11",
+      "notes": "Used by demo trip 1 (no connection there)."
+    },
+    {
+      "iata": "BLR",
+      "name": "Kempegowda International Airport, Bengaluru",
+      "city": { "en": "Bengaluru", "hi": "बेंगलुरु", "mr": "बंगळुरू" },
+      "country": "IN",
+      "timeZone": "Asia/Kolkata",
+      "connectionRules": [],
+      "gateClose": null,
+      "transfer": null,
+      "nearbyAirports": [],
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11",
+      "notes": "Used by demo trip 1 (no connection there)."
+    },
+    {
+      "iata": "PNQ",
+      "name": "Pune Airport",
+      "city": { "en": "Pune", "hi": "पुणे", "mr": "पुणे" },
+      "country": "IN",
+      "timeZone": "Asia/Kolkata",
+      "connectionRules": [],
+      "gateClose": null,
+      "transfer": null,
+      "nearbyAirports": [],
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11",
+      "notes": "Used by demo trip 2 (no connection there)."
+    },
+    {
+      "iata": "IXL",
+      "name": "Kushok Bakula Rimpochee Airport, Leh",
+      "city": { "en": "Leh", "hi": "लेह", "mr": "लेह" },
+      "country": "IN",
+      "timeZone": "Asia/Kolkata",
+      "connectionRules": [],
+      "gateClose": null,
+      "transfer": null,
+      "nearbyAirports": [],
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11",
+      "notes": "Used by demo trip 2 (no connection there)."
+    }
+  ]
+}

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.safarsaathi.backend.config.AppProperties;
+import com.safarsaathi.backend.connection.ConnectionService;
 import com.safarsaathi.backend.ripple.BlockOutcome;
 import com.safarsaathi.backend.ripple.BrokenLink;
 import com.safarsaathi.backend.ripple.RippleBlock;
@@ -37,12 +38,13 @@ import com.safarsaathi.backend.trip.TripNotFoundException;
 import com.safarsaathi.backend.trip.TripRepository;
 
 /**
- * Applies one disruption (a block delayed or cancelled) to a trip: runs the ripple engine and saves what it decided.
- * Used by the {@link FlightWatcher}, and through it by the demo buttons.
+ * Applies one disruption (a block delayed or cancelled) to a trip: runs the ripple engine, saves what it decided and
+ * rechecks the trip's connections (Disruption Recovery). Used by the {@link FlightWatcher}, and through it by the demo
+ * buttons. The one disruption engine of the app: Disruption Recovery builds on it, never beside it.
  *
  * <p>Everything happens in ONE database transaction ({@link #apply}): the new times and statuses of every affected
- * block, the {@link DisruptionEvent} row and the trip's new version are saved together, or (on any error) none of
- * them. So the app never sees a half-applied ripple.
+ * block, the {@link DisruptionEvent} rows, the connections' new checks and the trip's new version are saved together,
+ * or (on any error) none of them. So the app never sees a half-applied ripple.
  */
 @Service
 public class DisruptionService {
@@ -56,17 +58,20 @@ public class DisruptionService {
     private final DisruptionEventRepository eventRepository;
     private final TripMapper mapper;
     private final Clock clock;
+    private final ConnectionService connectionService;
     private final RippleEngine rippleEngine;
 
     public DisruptionService(TripRepository tripRepository, BlockRepository blockRepository,
                              LinkRepository linkRepository, DisruptionEventRepository eventRepository,
-                             TripMapper mapper, AppProperties properties, Clock clock) {
+                             TripMapper mapper, AppProperties properties, Clock clock,
+                             ConnectionService connectionService) {
         this.tripRepository = tripRepository;
         this.blockRepository = blockRepository;
         this.linkRepository = linkRepository;
         this.eventRepository = eventRepository;
         this.mapper = mapper;
         this.clock = clock;
+        this.connectionService = connectionService;
         // The engine is plain Java with no state, so one shared copy is enough.
         this.rippleEngine = new RippleEngine(ZoneId.of(properties.zone()));
     }
@@ -94,7 +99,8 @@ public class DisruptionService {
      *   <li>load the trip's blocks and links, and run the ripple engine ("now" from the shared Clock);</li>
      *   <li>save the changed block (new times, or CANCELLED) and every downstream block's new status, plus the new
      *       times of the blocks the engine moved (AUTO_ADJUSTED). Blocks not downstream keep their status;</li>
-     *   <li>store a {@link DisruptionEvent}, add 1 to the trip's version and set its updatedAt.</li>
+     *   <li>store a {@link DisruptionEvent} (plus a LIKELY_MISSED one per connection that no longer works), recheck the
+     *       trip's connections, add 1 to the trip's version and set its updatedAt.</li>
      * </ol>
      *
      * @throws TripNotFoundException  (404) unknown trip
@@ -122,7 +128,7 @@ public class DisruptionService {
         // 1. Ask the engine. It only calculates; nothing is saved yet. A relative delay ("+90 minutes") is added to
         //    the changed block's times as read just now, inside this transaction.
         Instant now = clock.instant();
-        RippleResult ripple = rippleEngine.run(toRippleBlocks(blocks), toRippleLinks(links),
+        RippleResult ripple = rippleEngine.run(toRippleBlocks(blocks), toRippleLinks(links, blocksById),
                 change.toRippleChange(changed), now);
 
         // 2. Copy its verdicts onto the blocks. outcomes[0] is the changed block itself: new times for a delay,
@@ -142,7 +148,8 @@ public class DisruptionService {
         // 3. Remember what happened, and give the trip a new version so the app knows to refresh.
         Instant detectedAt = now.truncatedTo(ChronoUnit.SECONDS); // whole seconds, like every time in the API
         eventRepository.save(event(tripId, blockId, change.kind(), change.detail(), detectedAt));
-        recordMissedConnections(tripId, ripple, blocksById, detectedAt);
+        recordLikelyMissedConnections(tripId, ripple, blocksById, detectedAt);
+        connectionService.recheck(tripId, blocksById, detectedAt); // the new times are the data "as of" now
 
         trip.setVersion(trip.getVersion() + 1);
         trip.setUpdatedAt(detectedAt);
@@ -152,31 +159,36 @@ public class DisruptionService {
     }
 
     /**
-     * Saves a MISSED event for every connection the traveller can no longer make.
+     * Saves a LIKELY_MISSED event for every connection the traveller can probably no longer make. It is a PREDICTION
+     * from the latest times (the airline may still hold the flight or rebook the traveller), hence the name; a
+     * confirmed miss is a different event, CONFIRMED_MISSED (phase C2).
      *
      * <p>The rule comes from the ripple engine: a "broken link" means a block that cannot move by itself
      * (NEEDS_USER) can no longer be reached in time. When that block is a FLIGHT or a TRAIN, it leaves at a fixed time
-     * whether the traveller is there or not, so the connection is missed (e.g. the Delhi-Leh flight after a late
-     * Pune-Delhi flight). A late meeting or hotel is NEEDS_USER too, but it waits for you: that is not a missed
-     * connection, so it gets no MISSED event.
+     * whether the traveller is there or not, so the connection is likely missed (e.g. the Doha-London flight after a
+     * late Delhi-Doha flight). Between two flights the engine uses the airport's minimum connection time (see
+     * {@link #toRippleLinks}), so this matches the connection's LIKELY_MISSED status. A late meeting or hotel is
+     * NEEDS_USER too, but it waits for you: that is not a missed connection, so it gets no event.
      *
-     * <p>At most ONE MISSED event per block: a later delay of the same trip finds the connection already recorded and
+     * <p>At most ONE such event per block: a later delay of the same trip finds the connection already recorded and
      * adds nothing. Saved in the same transaction as everything else in {@link #apply}, so a failed apply leaves no
-     * MISSED event behind either.
+     * event behind either.
      */
-    private void recordMissedConnections(long tripId, RippleResult ripple, Map<Long, Block> blocksById,
-                                         Instant detectedAt) {
+    private void recordLikelyMissedConnections(long tripId, RippleResult ripple, Map<Long, Block> blocksById,
+                                               Instant detectedAt) {
         for (BrokenLink broken : ripple.brokenLinks()) {
             Block missed = blocksById.get(broken.toBlockId());
-            if (!leavesAtAFixedTime(missed)
-                    || eventRepository.existsByTripIdAndBlockIdAndKind(tripId, missed.getId(), DisruptionKind.MISSED)) {
+            if (!leavesAtAFixedTime(missed) || eventRepository.existsByTripIdAndBlockIdAndKind(tripId,
+                    missed.getId(), DisruptionKind.LIKELY_MISSED)) {
                 continue;
             }
             Block arrivingFrom = blocksById.get(broken.fromBlockId());
-            String detail = "Missed connection: " + missed.getTitle() + " leaves before you can get there from "
-                    + arrivingFrom.getTitle() + " (" + broken.minutesShort() + " minutes short).";
+            String detail = "Likely to miss the connection (prediction): " + missed.getTitle()
+                    + " leaves before you can get there from " + arrivingFrom.getTitle() + " ("
+                    + broken.minutesShort() + " minutes short).";
             // saveAndFlush, so the exists-check above sees it if two broken links lead into the same block.
-            eventRepository.saveAndFlush(event(tripId, missed.getId(), DisruptionKind.MISSED, detail, detectedAt));
+            eventRepository.saveAndFlush(event(tripId, missed.getId(), DisruptionKind.LIKELY_MISSED, detail,
+                    detectedAt));
         }
     }
 
@@ -205,33 +217,53 @@ public class DisruptionService {
         }
     }
 
-    /** The trip's blocks as the ripple engine sees them (only the facts it needs). */
+    /** The trip's blocks as the ripple engine sees them (only the facts it needs, with their local zones). */
     private static List<RippleBlock> toRippleBlocks(List<Block> blocks) {
         return blocks.stream()
                 .map(block -> new RippleBlock(block.getId(), block.getType() == BlockType.HOTEL,
                         block.getStartTime(), block.getEndTime(), block.getFlex(), block.isAnchor(),
-                        block.getFreeChangeUntilMinutes(), block.getStatus()))
+                        block.getFreeChangeUntilMinutes(), block.getStatus(), ZoneId.of(block.getStartZone()),
+                        ZoneId.of(block.getEndZone())))
                 .toList();
     }
 
-    private static List<RippleLink> toRippleLinks(List<Link> links) {
+    /**
+     * The trip's links as the ripple engine sees them. Between two flights the gap is the airport's minimum
+     * connection time from the airport rules file (ConnectionService), not a number stored on the link. When the
+     * airport has no such figure the gap is 0: the engine then only flags a flight that leaves before you land, and
+     * the connection itself shows UNKNOWN.
+     */
+    private List<RippleLink> toRippleLinks(List<Link> links, Map<Long, Block> blocksById) {
         return links.stream()
-                .map(link -> new RippleLink(link.getFromBlockId(), link.getToBlockId(), link.getMinGapMinutes(),
-                        link.getTravelMinutes()))
+                .map(link -> new RippleLink(link.getFromBlockId(), link.getToBlockId(),
+                        minGapMinutes(link, blocksById), link.getTravelMinutes()))
                 .toList();
+    }
+
+    private int minGapMinutes(Link link, Map<Long, Block> blocksById) {
+        Block from = blocksById.get(link.getFromBlockId());
+        Block to = blocksById.get(link.getToBlockId());
+        if (from != null && to != null && from.getType() == BlockType.FLIGHT && to.getType() == BlockType.FLIGHT) {
+            Integer minimum = connectionService.minimumConnectionMinutes(from, to);
+            return minimum == null ? 0 : minimum;
+        }
+        return link.getMinGapMinutes(); // a missing block: the engine reports the bad link itself
     }
 
     private DisruptionResult toResult(Trip trip, FlightStatusChange change, RippleResult ripple,
                                       Map<Long, Block> blocksById) {
         List<DisruptionResult.Outcome> outcomes = ripple.outcomes().stream()
-                .map(outcome -> new DisruptionResult.Outcome(
-                        outcome.blockId(),
-                        blocksById.get(outcome.blockId()).getTitle(),
-                        outcome.status(),
-                        mapper.toApiTime(outcome.newStart()), // null stays null
-                        mapper.toApiTime(outcome.newEnd()),
-                        outcome.minutesLate(),
-                        outcome.reason()))
+                .map(outcome -> {
+                    Block block = blocksById.get(outcome.blockId());
+                    return new DisruptionResult.Outcome(
+                            outcome.blockId(),
+                            block.getTitle(),
+                            outcome.status(),
+                            mapper.toApiTime(outcome.newStart(), block.getStartZone()), // null stays null
+                            mapper.toApiTime(outcome.newEnd(), block.getEndZone()),
+                            outcome.minutesLate(),
+                            outcome.reason());
+                })
                 .toList();
         return new DisruptionResult(trip.getId(), trip.getVersion(), ripple.changedBlockId(), change.kind(),
                 outcomes, ripple.brokenLinks());

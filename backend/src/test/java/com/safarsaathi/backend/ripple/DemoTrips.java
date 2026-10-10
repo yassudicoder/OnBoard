@@ -10,8 +10,10 @@ import com.safarsaathi.backend.trip.BlockStatus;
 import com.safarsaathi.backend.trip.Flex;
 
 /**
- * The two demo trips from mock-data/demo-trips.json as ripple-engine input: the same times, flex, anchors,
+ * The first two demo trips from mock-data/demo-trips.json as ripple-engine input: the same times, flex, anchors,
  * free-change windows and links, and the ids they get on an empty database (trip 1 = blocks 1-6, trip 2 = 7-11).
+ * One difference: the Delhi connection here needs 75 minutes, a test value. In the real app a flight-to-flight gap
+ * comes from the airport rules file, which has no figure for Delhi (DisruptionService then uses 0).
  * The trip day is a fixed date, so the tests never depend on today's date.
  */
 final class DemoTrips {

@@ -20,8 +20,13 @@ spring:
     import: "optional:file:.env[.properties]"
 
   jackson:
-    # Write dates and times in JSON in Indian Standard Time (UTC+05:30).
+    # The default zone for date types that carry none (e.g. java.util.Date): Indian Standard Time (UTC+05:30).
     time-zone: Asia/Kolkata
+    serialization:
+      # Write each time with its OWN offset: a landing in Doha stays "19:35+03:00" instead of being turned into
+      # "22:05+05:30". Our code already picks the right local time (TripMapper); times that belong to no place
+      # (createdAt, the health check) are built in Indian time there, so they still show +05:30.
+      write-dates-with-context-time-zone: false
 
   datasource:
     # The PostgreSQL database. Same variable names and defaults as docker-compose.yml, so both always agree.

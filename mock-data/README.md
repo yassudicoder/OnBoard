@@ -3,7 +3,7 @@
 JSON files that fill the backend with realistic **fake** data, so the whole demo runs with zero API keys and the same
 story plays out every time.
 
-> **Phase 1:** `demo-trips.json` (the two demo trips) is here. The other files below are created in the phase shown.
+> **Phase 1:** `demo-trips.json` (the demo trips; three since Disruption Recovery C1) is here. The other files below are created in the phase shown.
 
 **Everything here is invented.** Use made-up names, PNRs, phone numbers and booking references, and never put real
 personal data in this folder. It is committed to git.
@@ -14,7 +14,8 @@ personal data in this folder. It is committed to git.
 
 | File | What it holds | Created in | Used by |
 |---|---|---|---|
-| `demo-trips.json` | The two demo trips as blocks + links ([details below](#demo-tripsjson-the-two-demo-trips)) | **Phase 1 (here now)** | The backend's seed loader (`DemoTripSeeder`): at startup on an empty database, and on **Reset demo** (`POST /api/demo/reset`) |
+| `demo-trips.json` | The three demo trips as blocks + links ([details below](#demo-tripsjson-the-demo-trips)) | **Phase 1 (here now)**; trip 3 in C1 | The backend's seed loader (`DemoTripSeeder`): at startup on an empty database, and on **Reset demo** (`POST /api/demo/reset`) |
+| `recovery/airport-rules.json` | Disruption Recovery: per airport its time zone, minimum connection times, gate closing, nearby airports; each number with its kind (`OFFICIAL` + source link, `DEMO_VALUE` or `ESTIMATE`) and last-checked date | **C1 (here now)** | `FileAirportRulesProvider` (backend); the app from C3. Shape: `recovery-core/.../rules/` |
 | `flights.json` | Mock flight inventory: 6–8 Indian routes, 3 airlines, a few flights a day each, seats left (some nearly full), fare, bag allowance and bag/seat fees | Phase 4 | MockAir; later Plan B (Phase 5) and cost compare (Phase 7) |
 | `hotels.json` | Hotels near the demo destinations (Bengaluru near the airport and Whitefield, Delhi airport, Leh): rooms, price per night, check-in time | Phase 4 | MockStay |
 | `cabs.json` | Cab types (e.g. mini, sedan, SUV) with base fare and per-km price; night surge 1.8× from 00:00 to 05:00 | Phase 4 | MockCab, cost compare |
@@ -34,9 +35,9 @@ files or in the mock partner code:
 
 ---
 
-## demo-trips.json: the two demo trips
+## demo-trips.json: the demo trips
 
-When the backend starts and its database has **no trips yet**, the seed loader reads this file and saves both trips.
+When the backend starts and its database has **no trips yet**, the seed loader reads this file and saves every trip.
 On every later start it sees the trips already there and leaves them alone. **Reset demo** on
 <http://localhost:8080/demo> (`POST /api/demo/reset`) deletes all trips and loads this file again, with fresh dates.
 
@@ -50,8 +51,13 @@ deployed jar, where the repo folder doesn't exist.
   not miss; asks the user; Google Calendar or mock) · hotel check-in 14:00 (MockStay) · dinner 20:00 (MockTable).
   Travel times: airport → office 75 min, office → hotel 40 min, airport → hotel 60 min.
 - **Trip 2, first-time flyer (Marathi):** "Leh holiday via Delhi". Pune → Delhi → Leh, a 58-year-old traveller,
-  elderly persona, purpose HOLIDAY. The Delhi connection has a 75-minute minimum connection time. Leh hotel + airport
-  cab.
+  elderly persona, purpose HOLIDAY. Both flights are on one booking (`ticketType` SINGLE_BOOKING). Delhi has no
+  official minimum connection time in `recovery/airport-rules.json`, so that connection shows UNKNOWN (until C1 it used
+  a team-set 75 minutes on the link). Leh hotel + airport cab.
+- **Trip 3, Disruption Recovery (Hindi):** "Delhi to London via Doha". IJ 1907 Delhi 17:50 → Doha 19:35 (local times),
+  MJ 31 Doha 21:55 → London 03:10 the next morning. Fictional airlines (IndiJet, Marjan Air). `ticketType` UNKNOWN, so
+  the app asks. Doha needs 60 min (a DEMO VALUE), so the 140-minute connection is fine until the demo delays flight 1 by
+  95 minutes.
 
 ### What the file looks like
 
@@ -98,11 +104,14 @@ Shortened to one block and one link (the real file has all of them):
 | trip | `title`, `purpose`, `persona`, `language`, `travellers`, `status` | Copied into the trip as they are. `language` is a short code (`en`, `mr`, ...). |
 | block | `key` | A name for the block inside its trip. Links use it to point at blocks. |
 | block | `type`, `title`, `locationName`, `lat`, `lng`, `provider`, `providerRef`, `flex`, `anchor`, `changeFeeInr`, `notes` | Copied into the block as they are. |
-| block | `day`, `start`, `end`, `endDay` | The block's times, relative to the trip day (next section). |
+| block | `day`, `start`, `end`, `endDay` | The block's times, relative to the trip day, in LOCAL time (next section). |
+| block | `flight` | FLIGHT blocks only, required there: `flightNo`, `depAirport`, `arrAirport`, `depTerminal`, `arrTerminal` (terminals may be `null`). The airports must be in `recovery/airport-rules.json`: their time zones place `start` and `end`. |
+| block | `zone` | Optional, not for flights: the block's time zone, e.g. `Europe/London`. Missing = `Asia/Kolkata`. |
 | block | `freeChangeUntilMinutes` | Until when a change is free, in minutes from the block's start: `-30` = until 30 minutes before it starts, `0` = until it starts, `null` = never free (`changeFeeInr` always applies). |
 | block | `providerRef` | The booking reference at the provider. `null` = nothing booked (bag claim). |
 | link | `from`, `to` | The `key`s of two blocks of the same trip. |
-| link | `minGapMinutes`, `travelMinutes`, `travelMode` | "`to` may start at the earliest `minGapMinutes` + `travelMinutes` after `from` ends". |
+| link | `minGapMinutes`, `travelMinutes`, `travelMode` | "`to` may start at the earliest `minGapMinutes` + `travelMinutes` after `from` ends". Between two flights `minGapMinutes` must be `0`: the minimum connection time comes from `recovery/airport-rules.json`. |
+| link | `ticketType` | Only between two flights (that link becomes a connection): `SINGLE_BOOKING`, `SEPARATE_TICKETS` or `UNKNOWN` (missing = `UNKNOWN`). |
 
 `freeChangeUntilMinutes`, `providerRef`, `locationName`, `lat`, `lng` and `notes` may be `null`. Blocks have no
 `status` here: every block starts as `OK`, and every trip starts at `version` 1.
@@ -114,7 +123,9 @@ The file has no dates. The seed loader works them out when it runs:
 - **Trip day** = today in India (Asia/Kolkata, from the backend's `Clock`) + `safarsaathi.seed.day-offset` days.
   The default offset is **1, so the trip is always tomorrow**, counted from the day the trips were loaded.
 - `day` = days after the trip day (`0` = the trip day itself, `1` = the day after, ...).
-- `start` and `end` = the clock time, `HH:mm` on a 24-hour clock, in Indian time.
+- `start` and `end` = the clock time, `HH:mm` on a 24-hour clock, in LOCAL time: for a flight, `start` at the
+  departure airport and `end` at the arrival airport (Doha 19:35 = `+03:00`); for other blocks their `zone`, or Indian
+  time. The database keeps these first times as the block's scheduled times, which never change.
 - `endDay` = the day the block ends, only needed when that's a later day (an overnight train, a hotel stay). Without
   it, the block ends on its `day`.
 
@@ -133,6 +144,9 @@ On an **empty** database, the database numbers everything in file order, trip 1 
 |---|---|---|---|
 | 1 | Client visit: Mumbai to Bengaluru | 1 `flight`, 2 `bags`, 3 `cab`, 4 `meeting`, 5 `hotel`, 6 `dinner` | 1 flight → bags, 2 bags → cab, 3 cab → meeting, 4 meeting → hotel, 5 hotel → dinner |
 | 2 | Leh holiday via Delhi | 7 `flight-pnq-del`, 8 `flight-del-ixl`, 9 `bags-ixl`, 10 `cab-ixl`, 11 `hotel-leh` | 6 flight-pnq-del → flight-del-ixl, 7 flight-del-ixl → bags-ixl, 8 bags-ixl → cab-ixl, 9 cab-ixl → hotel-leh |
+| 3 | Delhi to London via Doha | 12 `flight-del-doh`, 13 `flight-doh-lhr` | 10 flight-del-doh → flight-doh-lhr |
+
+Connections (links between two flights) are numbered too: 1 = Delhi (trip 2), 2 = Doha (trip 3).
 
 The app opens trip 1 (`AppConfig.DEMO_TRIP_ID`), and the demo triggers from Phase 2 use these numbers too: for example
 `{"tripId": 1, "blockId": 1, "minutes": 90}` delays the trip-1 flight. That's why new trips, blocks and links go at
@@ -140,8 +154,8 @@ the **end** of their list: then the existing ids don't move. **Reset demo** give
 the trips, the backend restarts the id counters at 1 before it loads this file.
 
 The backend log shows each trip it loads, for example
-`Demo trip 1 saved: "Client visit: Mumbai to Bengaluru" (6 blocks, 5 links, trip day 2026-10-11)`. On a later start
-it logs `Demo trips not loaded again: the database already has 2 trip(s)`.
+`Demo trip 1 saved: "Client visit: Mumbai to Bengaluru" (6 blocks, 5 links, 0 connections, trip day 2026-10-11)`. On a
+later start it logs `Demo trips not loaded again: the database already has 3 trip(s)`.
 
 ### Allowed values
 

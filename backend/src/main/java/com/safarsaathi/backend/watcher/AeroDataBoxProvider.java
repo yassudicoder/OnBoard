@@ -36,7 +36,9 @@ import com.safarsaathi.backend.trip.Block;
  * {@code status} ("Canceled" = cancelled) and {@code departure.revisedTime.utc} / {@code arrival.revisedTime.utc}
  * (the newest estimate). 204 No Content = the flight is not known on that day.
  *
- * <p>The flight number comes from the block title, e.g. "IJ 512" in "Flight IJ 512 Mumbai to Bengaluru".
+ * <p>The flight number comes from the block's flight number field (or, for rows from before V3, its title, e.g.
+ * "IJ 512" in "Flight IJ 512 Mumbai to Bengaluru"). The date is the SCHEDULED departure date in the departure
+ * airport's local time, which is what AeroDataBox means by dateLocalRole=Departure.
  * (Our demo airlines are invented, so for them AeroDataBox always answers "not known".)
  */
 public class AeroDataBoxProvider implements FlightStatusProvider {
@@ -92,12 +94,14 @@ public class AeroDataBoxProvider implements FlightStatusProvider {
 
     @Override
     public Optional<FlightStatusChange> check(Block flight) {
-        String number = flightNumber(flight.getTitle());
+        String number = flightNumber(flight.getFlightNo() != null ? flight.getFlightNo() : flight.getTitle());
         if (number == null || !worthAsking(flight)) {
             return Optional.empty();
         }
         try {
-            LocalDate departureDay = flight.getStartTime().atZone(zone).toLocalDate();
+            Instant scheduled = flight.getScheduledStart() != null ? flight.getScheduledStart() : flight.getStartTime();
+            ZoneId departureZone = flight.getStartZone() != null ? ZoneId.of(flight.getStartZone()) : zone;
+            LocalDate departureDay = scheduled.atZone(departureZone).toLocalDate();
             String body = http.get()
                     .uri("/flights/number/{number}/{date}?dateLocalRole=Departure", number, departureDay.toString())
                     .retrieve()

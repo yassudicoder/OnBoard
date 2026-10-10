@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 
 import com.safarsaathi.backend.FixedClockConfig;
+import com.safarsaathi.backend.connection.Connection;
+import com.safarsaathi.backend.connection.ConnectionRepository;
 import com.safarsaathi.backend.trip.Block;
 import com.safarsaathi.backend.trip.BlockRepository;
 import com.safarsaathi.backend.trip.BlockStatus;
@@ -27,9 +29,12 @@ import com.safarsaathi.backend.trip.LinkRepository;
 import com.safarsaathi.backend.trip.Trip;
 import com.safarsaathi.backend.trip.TripRepository;
 import com.safarsaathi.backend.trip.TripStatus;
+import com.safarsaathi.recovery.connection.ConnectionStatus;
+import com.safarsaathi.recovery.connection.FlightPhase;
+import com.safarsaathi.recovery.connection.TicketType;
 
 /**
- * The demo seed on a real (in-memory H2) database: Flyway creates the tables, and at startup the seeder saves the two
+ * The demo seed on a real (in-memory H2) database: Flyway creates the tables, and at startup the seeder saves the three
  * demo trips from mock-data/demo-trips.json. The clock is stopped at 10 Oct 2026 17:30:05 in India
  * ({@link FixedClockConfig}), so the trip day is 11 Oct 2026.
  *
@@ -52,14 +57,18 @@ class DemoTripSeederTest {
     @Autowired
     private LinkRepository linkRepository;
 
+    @Autowired
+    private ConnectionRepository connectionRepository;
+
     @Test
-    void startupSavesBothDemoTripsWithIdsInFileOrder() {
+    void startupSavesTheThreeDemoTripsWithIdsInFileOrder() {
         List<Trip> trips = tripRepository.findAll();
         assertThat(trips)
                 .extracting(Trip::getId, Trip::getTitle, Trip::getVersion, Trip::getStatus)
                 .containsExactlyInAnyOrder(
                         tuple(1L, "Client visit: Mumbai to Bengaluru", 1, TripStatus.PLANNED),
-                        tuple(2L, "Leh holiday via Delhi", 1, TripStatus.PLANNED));
+                        tuple(2L, "Leh holiday via Delhi", 1, TripStatus.PLANNED),
+                        tuple(3L, "Delhi to London via Doha", 1, TripStatus.PLANNED));
         assertThat(trips).allSatisfy(trip -> {
             assertThat(trip.getCreatedAt()).isEqualTo(FixedClockConfig.NOW);
             assertThat(trip.getUpdatedAt()).isEqualTo(FixedClockConfig.NOW);
@@ -84,20 +93,69 @@ class DemoTripSeederTest {
                         tuple(4L, 4L, 5L, 40),
                         tuple(5L, 5L, 6L, 20));
 
-        // Trip 2: blocks 7-11 and links 6-9 (the 75-minute minimum connection time at Delhi is link 6).
+        // Trip 2: blocks 7-11 and links 6-9. Link 6 joins two flights: its minimum connection time comes from the
+        // airport rules file, so the link itself says 0.
         assertThat(blockRepository.findByTripIdOrderByStartTimeAscIdAsc(2L))
                 .extracting(Block::getId)
                 .containsExactly(7L, 8L, 9L, 10L, 11L);
         assertThat(linkRepository.findByTripIdOrderByIdAsc(2L))
                 .extracting(Link::getId, Link::getFromBlockId, Link::getToBlockId, Link::getMinGapMinutes)
                 .containsExactly(
-                        tuple(6L, 7L, 8L, 75),
+                        tuple(6L, 7L, 8L, 0),
                         tuple(7L, 8L, 9L, 0),
                         tuple(8L, 9L, 10L, 0),
                         tuple(9L, 10L, 11L, 0));
 
-        assertThat(blockRepository.findAll()).hasSize(11).allSatisfy(block ->
+        // Trip 3: blocks 12-13 and link 10.
+        assertThat(blockRepository.findByTripIdOrderByStartTimeAscIdAsc(3L))
+                .extracting(Block::getId, Block::getFlightNo)
+                .containsExactly(tuple(12L, "IJ 1907"), tuple(13L, "MJ 31"));
+        assertThat(linkRepository.findByTripIdOrderByIdAsc(3L))
+                .extracting(Link::getId, Link::getFromBlockId, Link::getToBlockId, Link::getMinGapMinutes)
+                .containsExactly(tuple(10L, 12L, 13L, 0));
+
+        assertThat(blockRepository.findAll()).hasSize(13).allSatisfy(block ->
                 assertThat(block.getStatus()).isEqualTo(BlockStatus.OK));
+    }
+
+    @Test
+    void everyLinkBetweenTwoFlightsBecomesACheckedConnection() {
+        assertThat(connectionRepository.findAll())
+                .extracting(Connection::getId, Connection::getTripId, Connection::getInboundBlockId,
+                        Connection::getOutboundBlockId, Connection::getAirport, Connection::getTicketType,
+                        Connection::getStatus)
+                .containsExactlyInAnyOrder(
+                        // Delhi has no minimum connection time in the rules file: UNKNOWN, never a guess.
+                        tuple(1L, 2L, 7L, 8L, "DEL", TicketType.SINGLE_BOOKING, ConnectionStatus.UNKNOWN),
+                        // Doha: 140 minutes against 60 (demo value).
+                        tuple(2L, 3L, 12L, 13L, "DOH", TicketType.UNKNOWN, ConnectionStatus.OK));
+        assertThat(connectionRepository.findById(2L).orElseThrow().getDataAsOf()).isEqualTo(FixedClockConfig.NOW);
+    }
+
+    @Test
+    void flightTimesAreLocalToEachAirportAndScheduledTimesAreKept() {
+        Block delhiDoha = blockRepository.findById(12L).orElseThrow();
+        assertThat(delhiDoha.getStartTime()).isEqualTo(at("2026-10-11T17:50:00+05:30")); // Delhi time
+        assertThat(delhiDoha.getEndTime()).isEqualTo(at("2026-10-11T19:35:00+03:00"));   // Doha time
+        assertThat(delhiDoha.getStartZone()).isEqualTo("Asia/Kolkata");
+        assertThat(delhiDoha.getEndZone()).isEqualTo("Asia/Qatar");
+        assertThat(delhiDoha.getScheduledStart()).isEqualTo(delhiDoha.getStartTime());
+        assertThat(delhiDoha.getScheduledEnd()).isEqualTo(delhiDoha.getEndTime());
+        assertThat(delhiDoha.getDepAirport()).isEqualTo("DEL");
+        assertThat(delhiDoha.getArrAirport()).isEqualTo("DOH");
+        assertThat(delhiDoha.getDepTerminal()).isEqualTo("T3");
+        assertThat(delhiDoha.getArrTerminal()).isNull();
+        assertThat(delhiDoha.getFlightPhase()).isEqualTo(FlightPhase.SCHEDULED);
+
+        Block dohaLondon = blockRepository.findById(13L).orElseThrow(); // lands the next morning, London time (BST)
+        assertThat(dohaLondon.getEndTime()).isEqualTo(at("2026-10-12T03:10:00+01:00"));
+        assertThat(dohaLondon.getEndZone()).isEqualTo("Europe/London");
+
+        Block meeting = blockRepository.findById(4L).orElseThrow(); // not a flight: trip zone, no flight fields
+        assertThat(meeting.getStartZone()).isEqualTo("Asia/Kolkata");
+        assertThat(meeting.getEndZone()).isEqualTo("Asia/Kolkata");
+        assertThat(meeting.getFlightNo()).isNull();
+        assertThat(meeting.getFlightPhase()).isNull();
     }
 
     @Test
@@ -134,9 +192,10 @@ class DemoTripSeederTest {
         int saved = seeder.seedIfEmpty();
 
         assertThat(saved).isZero();
-        assertThat(tripRepository.count()).isEqualTo(2);
-        assertThat(blockRepository.count()).isEqualTo(11);
-        assertThat(linkRepository.count()).isEqualTo(9);
+        assertThat(tripRepository.count()).isEqualTo(3);
+        assertThat(blockRepository.count()).isEqualTo(13);
+        assertThat(linkRepository.count()).isEqualTo(10);
+        assertThat(connectionRepository.count()).isEqualTo(2);
     }
 
     @Test
@@ -152,17 +211,20 @@ class DemoTripSeederTest {
 
         int saved = seeder.deleteAllAndReseed();
 
-        assertThat(saved).isEqualTo(2);
+        assertThat(saved).isEqualTo(3);
         assertThat(tripRepository.findAll())
                 .extracting(Trip::getId, Trip::getVersion, Trip::getCreatedAt)
                 .containsExactlyInAnyOrder(
                         tuple(1L, 1, FixedClockConfig.NOW),
-                        tuple(2L, 1, FixedClockConfig.NOW));
-        // The id counters started again at 1: blocks 1-11 and links 1-9, exactly as on an empty database.
+                        tuple(2L, 1, FixedClockConfig.NOW),
+                        tuple(3L, 1, FixedClockConfig.NOW));
+        // The id counters started again at 1: blocks 1-13, links 1-10 and connections 1-2, exactly as on an empty
+        // database.
         assertThat(blockRepository.findAll()).extracting(Block::getId)
-                .containsExactlyInAnyOrder(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L);
+                .containsExactlyInAnyOrder(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L);
         assertThat(linkRepository.findAll()).extracting(Link::getId)
-                .containsExactlyInAnyOrder(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L);
+                .containsExactlyInAnyOrder(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
+        assertThat(connectionRepository.findAll()).extracting(Connection::getId).containsExactlyInAnyOrder(1L, 2L);
         assertThat(blockRepository.findById(1L).orElseThrow().getStatus()).isEqualTo(BlockStatus.OK);
     }
 

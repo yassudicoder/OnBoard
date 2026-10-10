@@ -12,6 +12,6 @@ public interface DisruptionEventRepository extends JpaRepository<DisruptionEvent
 
     List<DisruptionEvent> findByTripIdOrderByIdAsc(Long tripId);
 
-    /** True when this block of this trip already has an event of this kind (used to record a MISSED only once). */
+    /** True when this block of this trip already has an event of this kind (used to record LIKELY_MISSED only once). */
     boolean existsByTripIdAndBlockIdAndKind(Long tripId, Long blockId, DisruptionKind kind);
 }

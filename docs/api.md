@@ -29,6 +29,11 @@ name for your laptop). The port changes if you set `PORT`. Requests and response
 | POST | `/api/demo/trigger-cancel` | Demo: cancel a block (the flight) and run the ripple engine | 2 | **Live** |
 | POST | `/api/demo/reset` | Demo: delete all trips and reload the demo trips | 2 | **Live** |
 | GET | `/demo` | Demo page: live trip timeline + buttons for the three demo calls (HTML page, not JSON) | 2 | **Live** |
+| GET | `/api/trips/{id}/connections` | Disruption Recovery: every change of planes with status, certainty, reason and sources | C1 | **Live** |
+| GET | `/api/connections/{id}/plan` | Disruption Recovery: the recovery plan | C2 | Planned |
+| POST | `/api/connections/{id}/ticket-type`, `/urgency` | Disruption Recovery: one ticket or two; NORMAL or URGENT | C2 | Planned |
+| GET | `/api/connections/{id}/alternatives` | Disruption Recovery: ranked alternatives (SAMPLE DATA) | C2 | Planned |
+| POST | `/api/demo/cancel-connection`, `set-flight-phase`, `flight-departed`, `airline-rebooked` | Demo: the other recovery triggers and facts | C2 | Planned |
 | GET | `/api/trips/{id}/now` | "Do this now" card for the current time and place | 3 | Planned |
 | POST | `/api/devices` | Register the phone's FCM push token | 3 | Planned |
 | GET | `/api/trips/{id}/planb` | Precomputed Plan B, for offline storage | 5 | Planned |
@@ -150,13 +155,16 @@ curl -i http://localhost:8080/api/trips/1
 curl.exe -i http://localhost:8080/api/trips/1
 ```
 
-**Which ids exist?** When the backend starts with an empty database, its seed loader adds the two demo trips from
+**Which ids exist?** When the backend starts with an empty database, its seed loader adds the three demo trips from
 [mock-data/demo-trips.json](../mock-data/demo-trips.json), in file order:
 
 | Trip id | Title | Block ids | Link ids |
 |---|---|---|---|
 | 1 | Client visit: Mumbai to Bengaluru (business, English) | 1–6 | 1–5 |
 | 2 | Leh holiday via Delhi (holiday, elderly first-time flyer, Marathi) | 7–11 | 6–9 |
+| 3 | Delhi to London via Doha (holiday, first-time flyer, Hindi; Disruption Recovery demo) | 12–13 | 10 |
+
+Each link between two flights is also a **connection** (C1): connection 1 = Delhi (trip 2), connection 2 = Doha (trip 3).
 
 These ids hold for a freshly created database (`docker compose down -v` gives you one; it deletes the local data).
 
@@ -192,7 +200,23 @@ Example: `GET /api/trips/1` from a database seeded on 10 October 2026, so the tr
       "status": "OK",
       "freeChangeUntilMinutes": null,
       "changeFeeInr": 2500,
-      "notes": "Arrives at Bengaluru T1 (BLR). Change fee 2,500 rupees, waived when the airline causes the disruption."
+      "notes": "Arrives at Bengaluru T1 (BLR). Change fee 2,500 rupees, waived when the airline causes the disruption.",
+      "startZone": "Asia/Kolkata",
+      "endZone": "Asia/Kolkata",
+      "flight": {
+        "flightNo": "IJ 512",
+        "depAirport": "BOM",
+        "arrAirport": "BLR",
+        "depTerminal": "T2",
+        "arrTerminal": "T1",
+        "depZone": "Asia/Kolkata",
+        "arrZone": "Asia/Kolkata",
+        "scheduledDep": "2026-10-11T08:00:00+05:30",
+        "scheduledArr": "2026-10-11T09:45:00+05:30",
+        "estimatedDep": "2026-10-11T08:00:00+05:30",
+        "estimatedArr": "2026-10-11T09:45:00+05:30",
+        "status": "SCHEDULED"
+      }
     },
     {
       "id": 2,
@@ -211,7 +235,10 @@ Example: `GET /api/trips/1` from a database seeded on 10 October 2026, so the tr
       "status": "OK",
       "freeChangeUntilMinutes": 0,
       "changeFeeInr": 0,
-      "notes": "About 20 minutes from landing to bags in hand."
+      "notes": "About 20 minutes from landing to bags in hand.",
+      "startZone": "Asia/Kolkata",
+      "endZone": "Asia/Kolkata",
+      "flight": null
     },
     {
       "id": 3,
@@ -230,7 +257,10 @@ Example: `GET /api/trips/1` from a database seeded on 10 October 2026, so the tr
       "status": "OK",
       "freeChangeUntilMinutes": -30,
       "changeFeeInr": 200,
-      "notes": "Free pickup change until 30 minutes before pickup, 200 rupees after. Ride to Whitefield takes about 75 minutes."
+      "notes": "Free pickup change until 30 minutes before pickup, 200 rupees after. Ride to Whitefield takes about 75 minutes.",
+      "startZone": "Asia/Kolkata",
+      "endZone": "Asia/Kolkata",
+      "flight": null
     },
     {
       "id": 4,
@@ -249,7 +279,10 @@ Example: `GET /api/trips/1` from a database seeded on 10 October 2026, so the tr
       "status": "OK",
       "freeChangeUntilMinutes": null,
       "changeFeeInr": 0,
-      "notes": "The reason for the trip (anchor). Moving it needs the traveller's OK; a video call is a possible fallback."
+      "notes": "The reason for the trip (anchor). Moving it needs the traveller's OK; a video call is a possible fallback.",
+      "startZone": "Asia/Kolkata",
+      "endZone": "Asia/Kolkata",
+      "flight": null
     },
     {
       "id": 5,
@@ -268,7 +301,10 @@ Example: `GET /api/trips/1` from a database seeded on 10 October 2026, so the tr
       "status": "OK",
       "freeChangeUntilMinutes": -1440,
       "changeFeeInr": 0,
-      "notes": "Check-in is a window, a late-arrival note is always allowed. Free cancellation until 24 hours before check-in. From the airport it is about 60 minutes by cab. Check-out tomorrow 11:00."
+      "notes": "Check-in is a window, a late-arrival note is always allowed. Free cancellation until 24 hours before check-in. From the airport it is about 60 minutes by cab. Check-out tomorrow 11:00.",
+      "startZone": "Asia/Kolkata",
+      "endZone": "Asia/Kolkata",
+      "flight": null
     },
     {
       "id": 6,
@@ -287,7 +323,10 @@ Example: `GET /api/trips/1` from a database seeded on 10 October 2026, so the tr
       "status": "OK",
       "freeChangeUntilMinutes": -120,
       "changeFeeInr": 500,
-      "notes": "Free change or cancel until 18:00 on the day."
+      "notes": "Free change or cancel until 18:00 on the day.",
+      "startZone": "Asia/Kolkata",
+      "endZone": "Asia/Kolkata",
+      "flight": null
     }
   ],
   "links": [
@@ -368,7 +407,7 @@ dates will differ: they follow the day your database was seeded (see the [mock-d
 | `tripId` | `1` | The trip it belongs to. |
 | `type` | `FLIGHT` | `FLIGHT`, `BAG_CLAIM`, `CAB`, `HOTEL`, `MEETING`, `EVENT`, `RESTAURANT`, `TRAIN` or `OTHER`. |
 | `title` | `Flight IJ 512 Mumbai to Bengaluru` | What the timeline shows. |
-| `startTime`, `endTime` | `2026-10-11T08:00:00+05:30` | When it starts and ends. Both are equal for a single moment, such as a cab pickup. |
+| `startTime`, `endTime` | `2026-10-11T08:00:00+05:30` | When it starts and ends, each in the local time of its place (`startZone`, `endZone`): a flight leaves in departure-airport time and lands in arrival-airport time, e.g. `2026-10-11T19:35:00+03:00` in Doha. Both are equal for a single moment, such as a cab pickup. For a flight these are the latest times (after a delay); the timetable is in `flight`. |
 | `locationName` | `Mumbai Airport T2 (BOM)` | Where it happens. May be `null`. |
 | `lat`, `lng` | `19.0896`, `72.8656` | Position on a map (latitude, longitude). May be `null`. |
 | `provider` | `MOCK_AIR` | Who holds the booking: `MOCK_AIR`, `MOCK_STAY`, `MOCK_CAB`, `MOCK_TABLE`, `GOOGLE_CALENDAR`, or `NONE` when nothing is booked (bag claim). |
@@ -379,6 +418,20 @@ dates will differ: they follow the day your database was seeded (see the [mock-d
 | `freeChangeUntilMinutes` | `-30` | Until when a change is free, in minutes counted from `startTime`: `-30` = until 30 minutes before the start, `0` = until the start. `null` = never free, so `changeFeeInr` always applies. |
 | `changeFeeInr` | `200` | The fee in whole rupees for a change outside the free window. `0` = no fee. |
 | `notes` | `About 20 minutes from landing to bags in hand.` | Extra information in plain English. May be `null`. |
+| `startZone`, `endZone` | `Asia/Kolkata` | The time zone of the start and of the end (C1). A flight: its departure and arrival airport. |
+| `flight` | *(object)* | A FLIGHT block's flight fields (C1, below); `null` for every other block. |
+
+#### Flight fields (inside `flight`, C1)
+
+| Field | Example | What it means |
+|---|---|---|
+| `flightNo` | `IJ 1907` | The flight number (our demo airlines are invented). |
+| `depAirport`, `arrAirport` | `DEL`, `DOH` | Three-letter airport codes. |
+| `depTerminal`, `arrTerminal` | `T3`, `null` | `null` = not known; never guessed. |
+| `depZone`, `arrZone` | `Asia/Kolkata`, `Asia/Qatar` | The airports' time zones (from `mock-data/recovery/airport-rules.json`). |
+| `scheduledDep`, `scheduledArr` | `2026-10-11T17:50:00+05:30` | The timetable. **Never changes**, also not after a delay. |
+| `estimatedDep`, `estimatedArr` | `2026-10-11T19:25:00+05:30` | The latest known times: equal to the timetable until a change is reported. |
+| `status` | `DELAYED` | Worked out, not stored: `CANCELLED`, else the reported phase (`BOARDING`, `IN_AIR`, `LANDED`), else `DELAYED` (later than the timetable) or `SCHEDULED`. |
 
 #### Link fields
 
@@ -387,7 +440,7 @@ dates will differ: they follow the day your database was seeded (see the [mock-d
 | `id` | `3` | The link's number. |
 | `tripId` | `1` | The trip it belongs to. |
 | `fromBlockId`, `toBlockId` | `3`, `4` | The link runs from this block to that one. |
-| `minGapMinutes` | `0` | The minimum wait between the two, for example 75 for the flight connection in Delhi (trip 2). |
+| `minGapMinutes` | `0` | The minimum wait between the two. Between two flights it is always `0`: the minimum connection time comes from the airport rules file instead (C1, see [connections](#get-apitripsidconnections)). |
 | `travelMinutes` | `75` | How long it takes to get from the first place to the second. |
 | `travelMode` | `CAB` | How: `WALK`, `CAB`, `METRO`, or `NONE` (same place, e.g. flight → bag claim). |
 
@@ -398,8 +451,10 @@ ripple engine catches: see [trigger-delay](#post-apidemotrigger-delay).
 
 #### What the app can rely on
 
-- **Times** are ISO-8601 text with the `+05:30` offset (Asia/Kolkata) and whole seconds, e.g.
-  `2026-10-11T08:00:00+05:30`. Java's `OffsetDateTime.parse(...)` reads them as they are.
+- **Times** are ISO-8601 text with an offset and whole seconds, e.g. `2026-10-11T08:00:00+05:30`. Since C1 a time at a
+  place carries that place's own offset (`+03:00` in Doha, `+01:00` in London in October); times that belong to no place
+  (`createdAt`, `updatedAt`) stay in Indian time (`+05:30`). Java's `OffsetDateTime.parse(...)` reads them as they are,
+  and `.toInstant()` gives the exact moment whatever the offset.
 - **Order:** `blocks` are sorted by `startTime`, and blocks that start at the same moment by `id`. `links` are sorted by
   `id`.
 - **Nulls:** a field without a value is sent as `null`, never left out, so every field name is always there.
@@ -658,7 +713,7 @@ curl.exe -i -X POST http://localhost:8080/api/demo/reset
 Answer (`200 OK`):
 
 ```json
-{"trips": 2, "message": "Demo data reloaded"}
+{"trips": 3, "message": "Demo data reloaded"}
 ```
 
 `trips` is how many trips were loaded. The app notices the new `createdAt`, so it replaces its saved copy even though
@@ -720,6 +775,78 @@ commands in front of the judges. Open <http://localhost:8080/demo> (`/demo/` wor
 
 The page is plain HTML, CSS and JavaScript with no outside files (it works without internet), in
 `backend/src/main/resources/static/demo/index.html`.
+
+---
+
+## Live in C1 (Disruption Recovery): connections
+
+### GET /api/trips/{id}/connections
+
+Every change of planes in the trip (a link between two flights), checked by the shared connection checker
+(`recovery-core`) after every disruption and saved with its result. An empty list `[]` when the trip has none (trip 1);
+`404` Problem Details for an unknown trip.
+
+```bash
+curl http://localhost:8080/api/trips/3/connections
+```
+
+Answer after `POST /api/demo/trigger-delay` with `{"tripId": 3, "blockId": 12, "minutes": 95}` (pretty-printed):
+
+```json
+[
+  {
+    "id": 2,
+    "tripId": 3,
+    "inboundBlockId": 12,
+    "outboundBlockId": 13,
+    "inboundFlightNo": "IJ 1907",
+    "outboundFlightNo": "MJ 31",
+    "airport": "DOH",
+    "airportZone": "Asia/Qatar",
+    "connectionType": "INTL_INTL",
+    "terminalChange": null,
+    "status": "LIKELY_MISSED",
+    "certainty": "PREDICTED",
+    "landsAt": "2026-10-11T21:10:00+03:00",
+    "nextLeavesAt": "2026-10-11T21:55:00+03:00",
+    "availableMinutes": 45,
+    "neededMinutes": 60,
+    "projectedSlackMinutes": -15,
+    "mct": {"minutes": 60, "kind": "DEMO_VALUE", "source": "DEMO VALUE - not an official figure",
+            "sourceUrl": null, "lastChecked": "2026-10-11"},
+    "transfer": {"minutes": 40, "kind": "ESTIMATE", "source": "Team estimate, not an official figure",
+                 "sourceUrl": null, "lastChecked": null},
+    "gateClose": {"minutes": 20, "kind": "OFFICIAL",
+                  "source": "Hamad International Airport, Transfers page: \"Your boarding gate will close 20 minutes before the flight departure time.\"",
+                  "sourceUrl": "https://dohahamadairport.com/airport-guide/at-the-airport/transfers",
+                  "lastChecked": "2026-10-11"},
+    "ticketType": "UNKNOWN",
+    "basedOnDemoValue": true,
+    "reason": "You land in Doha at 21:10, your next flight leaves at 21:55. Doha needs at least 60 min (demo value). You have 45 min.",
+    "missConfirmedAt": null,
+    "updatedAt": "2026-10-10T17:40:05+05:30",
+    "dataAsOf": "2026-10-10T17:40:05+05:30"
+  }
+]
+```
+
+| Field | What it means |
+|---|---|
+| `status` | `OK`, `AT_RISK`, `LIKELY_MISSED` (predictions) · `CONFIRMED_MISSED`, `CANCELLED`, `REBOOKED_BY_AIRLINE`, `RESOLVED` (confirmed facts) · `UNKNOWN` (no minimum connection time for this airport: never guessed). |
+| `certainty` | `PREDICTED`, `CONFIRMED` or `UNKNOWN`. The app must style predicted and confirmed differently. |
+| `landsAt`, `nextLeavesAt` | Flight 1's (latest) landing and flight 2's departure, in the connection airport's local time. |
+| `availableMinutes` | From landing to the next departure; negative when flight 2 leaves first. |
+| `neededMinutes`, `mct` | The minimum connection time and where it comes from; `null` when unknown. `kind`: `OFFICIAL` (with `sourceUrl`), `DEMO_VALUE` (team-set, say "demo value") or `ESTIMATE`. |
+| `projectedSlackMinutes` | `availableMinutes - neededMinutes`; negative = minutes short; `null` when unknown. |
+| `transfer`, `gateClose` | Taxiing + getting off + transfer security (always an estimate) and how long before departure the gate closes. With the minimum they decide `AT_RISK` (less than 15 minutes to spare). |
+| `ticketType` | `SINGLE_BOOKING`, `SEPARATE_TICKETS` or `UNKNOWN` (the app asks once, C3). |
+| `basedOnDemoValue` | `true` = the status rests on a DEMO VALUE minimum: show "based on a demo minimum connection time". |
+| `reason` | Plain English, local airport times. |
+| `missConfirmedAt` | When the miss was first confirmed (flight 2 left while flight 1 had not landed); stays set. |
+| `updatedAt`, `dataAsOf` | When the server last checked it, and when the flight data behind it arrived (the app's "as of"). Indian time. |
+
+The rules in full: [recovery-core/README.md](../recovery-core/README.md). A delay that makes a connection
+`LIKELY_MISSED` also leaves a `LIKELY_MISSED` disruption event on the outbound flight (called `MISSED` before C1).
 
 ---
 

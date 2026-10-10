@@ -1,6 +1,7 @@
 package com.safarsaathi.backend.ripple;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Objects;
 
 import com.safarsaathi.backend.trip.BlockStatus;
@@ -23,9 +24,13 @@ import com.safarsaathi.backend.trip.Flex;
  * @param freeChangeUntilMinutes until when a change is free, in minutes from the start: -30 = until 30 minutes
  *                               before the start, 0 = until it starts; null = a change is never free
  * @param status                 the block's status right now
+ * @param startZone              the local time zone of the start (a flight: the departure airport); null = the
+ *                               engine's default zone (the trip's zone). Used for the times in messages and the hotel
+ *                               rule, never for the maths, which works on exact moments
+ * @param endZone                the local time zone of the end (a flight: the arrival airport); null = default zone
  */
 public record RippleBlock(long id, boolean hotel, Instant start, Instant end, Flex flex, boolean anchor,
-                          Integer freeChangeUntilMinutes, BlockStatus status) {
+                          Integer freeChangeUntilMinutes, BlockStatus status, ZoneId startZone, ZoneId endZone) {
 
     /** Checks the values once here, so the engine can trust them. */
     public RippleBlock {
@@ -36,5 +41,11 @@ public record RippleBlock(long id, boolean hotel, Instant start, Instant end, Fl
         if (end.isBefore(start)) {
             throw new IllegalArgumentException("Block " + id + " ends before it starts");
         }
+    }
+
+    /** A block in the engine's default zone (the trip's zone), e.g. every block of an Indian trip. */
+    public RippleBlock(long id, boolean hotel, Instant start, Instant end, Flex flex, boolean anchor,
+                       Integer freeChangeUntilMinutes, BlockStatus status) {
+        this(id, hotel, start, end, flex, anchor, freeChangeUntilMinutes, status, null, null);
     }
 }
