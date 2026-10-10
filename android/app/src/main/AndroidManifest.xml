@@ -7,6 +7,21 @@
     <!-- The app talks to our backend (and later to Google Maps). -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Ride handoff: "is the phone online?", so the ride button can say "Uber needs internet to book". Android grants
+         this one without asking. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Ride handoff: since Android 11 an app only "sees" the other apps it names here. We look for the Uber app (to
+         say "Opened in Uber" vs "its website") and for browsers (the fallback when Uber is not installed). -->
+    <queries>
+        <package android:name="com.ubercab" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
     <!-- android:name=".SafarSaathiApp" = our own Application class; it runs once when the app process starts.
          networkSecurityConfig = which servers may be reached over plain http (see res/xml/network_security_config.xml). -->
     <application

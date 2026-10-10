@@ -109,6 +109,36 @@ public class HomeFragmentTest {
     }
 
     @Test
+    public void rideButtons_toTheTerminalAndToTheHotelFromTheTrip() {
+        useSavedTrip(TestTrips.demoTrip1());
+        try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {
+            eventually(() -> onView(allOf(withId(R.id.ride_button), isDescendantOfA(withId(R.id.home_ride_departure))))
+                    .check(matches(allOf(withText("Get a ride to Mumbai T2"), isEnabled()))));
+            // The T2 point is not checked by the team yet, so the screen says so.
+            onView(allOf(withId(R.id.ride_note), isDescendantOfA(withId(R.id.home_ride_departure))))
+                    .check(matches(withText(containsString("Approximate drop-off point"))));
+            // ("Leave by" is not checked here: the test trip's date is fixed, so that time may have passed already.
+            //  RidePointsTest checks the arithmetic.)
+            // After you land: the hotel comes from the saved trip.
+            onView(withId(R.id.home_arrival_place)).check(matches(withText("Place of block 5 · from your trip")));
+            onView(allOf(withId(R.id.ride_button), isDescendantOfA(withId(R.id.home_ride_arrival))))
+                    .check(matches(allOf(withText(R.string.ride_to_hotel), isEnabled())));
+        }
+    }
+
+    @Test
+    public void cancelledFlight_hidesTheRideToItsTerminal() {
+        TripMapper.MappedTrip trip = TestTrips.demoTrip1();
+        trip.blocks.get(0).status = BlockEntity.STATUS_CANCELLED; // block 1 = the flight
+        useSavedTrip(trip);
+        try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {
+            eventually(() -> onView(withId(R.id.home_arrival_place))
+                    .check(matches(withText("Place of block 5 · from your trip"))));
+            onView(withId(R.id.home_ride_departure)).check(matches(withEffectiveVisibility(Visibility.GONE)));
+        }
+    }
+
+    @Test
     public void nothingSaved_andNoNetwork_explainsAndOffersRetry() {
         useSavedTrip(null);
         try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {

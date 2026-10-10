@@ -20,6 +20,7 @@ personal data in this folder. It is committed to git.
 | `cabs.json` | Cab types (e.g. mini, sedan, SUV) with base fare and per-km price; night surge 1.8× from 00:00 to 05:00 | Phase 4 | MockCab, cost compare |
 | `restaurants.json` | A few restaurants (Bengaluru, Leh) with table slots and party sizes | Phase 4 | MockTable |
 | `offers.json` | 6–8 card offers: bank, card type, % off, max discount ₹, valid airlines, valid from/to, minimum spend ₹ | Phase 7 | True-cost compare (F7) |
+| `rides/ride-points.json` | **Ride handoff to Uber (11 Oct).** Airport drop-off points (`name`, `lat`, `lng`, `terminal`, `sourceUrl`, `lastChecked`, `verified`), the "Leave by" estimate (ride + time at the airport) and nearby terminals with a transfer estimate. Coordinates are terminal-building centres from OpenStreetMap (© OpenStreetMap contributors, ODbL), **`"verified": false`** until a teammate checks them, so the app says "Approximate drop-off point". A point without `sourceUrl` is ignored; never invent one | Ride handoff | The app only (bundled as an asset; nothing is sent to our server) |
 | `terminal-map.json` | Points for ONE terminal (Mumbai T2 or Delhi T1, picked in Phase 7): gates, security, check-in rows, washrooms, food, exits. Each has x/y coordinates on our own vector map, plus walking minutes between neighbouring points | Phase 7 | Airport map screen, entry → gate directions |
 
 The partner rules (free-change windows, fees) come from CLAUDE.md §5. Phase 4 decides whether they live in these

@@ -26,6 +26,12 @@ has the full brief and the phases R0 → P). We build it phase by phase and stop
 - **Home:** greets Aditi (the demo's sample traveller) and shows a flight card: the flight and its times from the
   backend, and **Gate / Boarding: "Not announced yet"**, because there is no gate source until phase G4 and the app never
   invents a gate or a time. "Navigate to gate" and "Register a bag" open the new tabs.
+- **Home → ride handoff to Uber (11 Oct):** "Leave by 06:10 (estimate)" + **Get a ride to Mumbai T2** on the flight card,
+  and **After you land → Ride to your hotel** (the hotel from the trip, or a place you type). Each button only opens Uber (app, or
+  Uber's website if the app is missing) with pickup and drop-off filled in, using Uber's public deep link: no Uber API,
+  no key. Price and booking happen in Uber, so the app only ever says "Opened in Uber". Airport points come from
+  OpenStreetMap and are labelled "Approximate drop-off point" until the team checks them
+  (`mock-data/rides/ride-points.json`).
 - **Navigate, Bags, Help:** say what they will do and which phase builds them (G1–G3, B1, B3).
 - **Profile:** traveller, this trip, large text, saved cards, and **More → Wallet** (boarding passes by photo or code,
   Aadhaar last 4 digits / masked PAN / visas, everything as one PDF).
@@ -38,6 +44,7 @@ Profile → More then links to the parked screens. Details: "Parked" in [CLAUDE.
 |---|---|---|
 | `main` | Phases 0–2 of the old plan, as of the first commit | stable |
 | `feature/backend-hardening` | backend hardening + README updates | pushed; pull request to `main` not opened yet |
+| `feature/ride-handoff` | Ride handoff to Uber (deep links): flight card + "After you land". Recovery-alternative ride button to be added after C3 merges. | committed locally (worktree `../OnBoard-ride`), not pushed |
 | (not committed yet) | Android Home / Wallet / Profile work and R0 | on Yash's laptop, waiting for the team's OK |
 
 **Backend hardening, in short** (details: [backend/README.md](backend/README.md)): listens on `127.0.0.1` by default
@@ -136,6 +143,9 @@ restart the backend. For now, REAL only means "key found"; the real calls are bu
 
 The Android app works the same way: an empty `MAPS_API_KEY` in `android/local.properties` means a mock/offline map
 instead of Google Maps. **The whole demo runs on mocks, so never wait for a key.**
+The ride buttons need no key at all: `UBER_CLIENT_ID` (optional) only credits sign-ups to our Uber developer app, and
+`RIDE_PROVIDER=mock` shows a demo dialog (pickup, drop-off and the exact link) instead of opening Uber, for emulators
+without Uber. Profile → Connection shows which one is on, and the ride button taps counted on this phone.
 
 ---
 

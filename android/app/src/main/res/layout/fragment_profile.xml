@@ -341,6 +341,34 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     tools:text="OnBoard 0.1.0" />
+
+                <!-- Ride handoff: which ride provider is on (REAL Uber link or MOCK demo dialog) and the local-only
+                     tap counts per ride button (RideTapCounter; never sent anywhere). -->
+                <TextView
+                    style="@style/Widget.SafarSaathi.SheetLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_rides" />
+
+                <TextView
+                    android:id="@+id/profile_rides"
+                    style="@style/Widget.SafarSaathi.SheetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Uber link (real) · client_id not set" />
+
+                <TextView
+                    style="@style/Widget.SafarSaathi.SheetLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_ride_taps" />
+
+                <TextView
+                    android:id="@+id/profile_ride_taps"
+                    style="@style/Widget.SafarSaathi.SheetValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Departure 2 · Arrival 1" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>

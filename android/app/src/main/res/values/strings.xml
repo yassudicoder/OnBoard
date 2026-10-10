@@ -400,4 +400,46 @@
     <string name="fee_after_window">After that, a change costs ₹%1$s.</string>
     <!-- Joins the free-change rule and the fee into one paragraph. -->
     <string name="sheet_changes_value">%1$s %2$s</string>
+
+    <!-- Ride handoff (Uber deep links, ui/ride). We only OPEN Uber with the places filled in: never say "booked", and
+         never show a driver, car, ETA or price, because Uber does not tell us any of that. Our times say "estimate". -->
+    <string name="ride_get_to">Get a ride to %1$s</string>
+    <string name="ride_to_hotel">Ride to your hotel</string>
+    <string name="ride_to_destination">Ride to your destination</string>
+    <string name="ride_somewhere_else">Somewhere else</string>
+    <string name="ride_choose_place">Choose a place</string>
+    <string name="ride_leave_by">Leave by %1$s (estimate)</string>
+    <string name="ride_leave_by_detail">About %1$d min by road, and at the airport %2$d min before departure. Team\'s demo values: check your airline\'s check-in closing time.</string>
+    <string name="ride_disabled_no_dropoff">No drop-off place yet. Choose where to go first.</string>
+    <string name="ride_approximate_pickup">Approximate pickup point</string>
+    <string name="ride_approximate_dropoff">Approximate drop-off point</string>
+    <string name="ride_check_dropoff">Check the drop-off in %1$s before you book.</string>
+    <string name="ride_offline">You\'re offline. Uber needs internet to book.</string>
+    <string name="ride_opened_app">Opened in Uber</string>
+    <string name="ride_opened_browser">Opened in Uber (its website: the Uber app isn\'t installed)</string>
+    <string name="ride_opened_demo">Demo only: Uber was not opened</string>
+    <string name="ride_opened_nothing">Couldn\'t open Uber: no app or browser on this phone can open the link.</string>
+    <string name="ride_demo_title">Demo: Uber not opened</string>
+    <string name="ride_demo_message">On a phone with Uber, this opens Uber with:\n\nPickup: %1$s\nDrop-off: %2$s\n\nPrice, availability and booking happen inside Uber.\n\nLink:\n%3$s</string>
+    <string name="ride_demo_close">Close</string>
+    <string name="ride_demo_open_anyway">Open link anyway</string>
+    <string name="ride_place_my_location">Your current location (found by Uber)</string>
+    <string name="ride_place_approximate">%1$s (approximate point)</string>
+    <string name="ride_place_title">Where to?</string>
+    <string name="ride_place_hint">Address or place name</string>
+    <string name="ride_place_helper">Kept on this phone. Uber gets it only when you tap the ride button.</string>
+    <string name="ride_place_saved">Saved places</string>
+    <string name="ride_place_use">Use this place</string>
+    <string name="ride_place_empty">Type an address</string>
+    <string name="home_arrival_title">After you land</string>
+    <string name="home_arrival_hotel">%1$s · from your trip</string>
+    <string name="home_arrival_typed">%1$s · typed by you</string>
+    <string name="home_arrival_none">No hotel address in your trip.</string>
+    <string name="profile_rides">Rides</string>
+    <string name="profile_rides_real">Uber link (real) · client_id %1$s</string>
+    <string name="profile_rides_client_set">set</string>
+    <string name="profile_rides_client_missing">not set</string>
+    <string name="profile_rides_mock">Demo dialog (mock): Uber is not opened</string>
+    <string name="profile_ride_taps">Ride button taps (kept on this phone)</string>
+    <string name="profile_ride_taps_value">Departure %1$d · Arrival %2$d</string>
 </resources>
