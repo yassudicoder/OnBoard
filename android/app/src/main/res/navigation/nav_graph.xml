@@ -3,19 +3,64 @@
        android:id     -> the destination id. The bottom bar items (menu/bottom_nav_menu.xml) use the SAME ids.
        android:name   -> the Fragment class that draws the screen.
        android:label  -> the title shown in the top bar.
-     startDestination = the screen the app opens on (Home, "Do this now").
-     Later phases add more screens here (e.g. block details, the Fix-it screen) and the routes between them. -->
+     startDestination = the screen the app opens on (Home).
+
+     The five tabs come first. Then screens opened from Profile: the Wallet, and the PARKED screens of the old
+     trip-timeline plan (CLAUDE.md "Parked"). Parked screens stay in the graph so their code and tests keep working;
+     the app only links to them when feature.tripTimeline=true (android/local.properties). -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/navigation_home">
 
+    <!-- ===== The five tabs ===== -->
+
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.safarsaathi.app.ui.home.HomeFragment"
         android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_navigate"
+        android:name="com.safarsaathi.app.ui.navigate.NavigateFragment"
+        android:label="@string/title_navigate"
         tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/navigation_bags"
+        android:name="com.safarsaathi.app.ui.bags.BagsFragment"
+        android:label="@string/title_bags"
+        tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/navigation_help"
+        android:name="com.safarsaathi.app.ui.help.HelpFragment"
+        android:label="@string/title_help"
+        tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.safarsaathi.app.ui.profile.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <!-- ===== Opened from Profile ===== -->
+
+    <fragment
+        android:id="@+id/navigation_wallet"
+        android:name="com.safarsaathi.app.ui.wallet.WalletFragment"
+        android:label="@string/title_wallet"
+        tools:layout="@layout/fragment_wallet" />
+
+    <!-- ===== PARKED (old trip-timeline plan), only linked when feature.tripTimeline=true ===== -->
+
+    <fragment
+        android:id="@+id/navigation_trip_status"
+        android:name="com.safarsaathi.app.ui.trip.TripStatusFragment"
+        android:label="@string/title_trip_status"
+        tools:layout="@layout/fragment_trip_status" />
 
     <fragment
         android:id="@+id/navigation_trip"
@@ -28,17 +73,4 @@
         android:name="com.safarsaathi.app.ui.assistant.AssistantFragment"
         android:label="@string/title_assistant"
         tools:layout="@layout/fragment_placeholder" />
-
-    <fragment
-        android:id="@+id/navigation_wallet"
-        android:name="com.safarsaathi.app.ui.wallet.WalletFragment"
-        android:label="@string/title_wallet"
-        tools:layout="@layout/fragment_placeholder" />
-
-    <fragment
-        android:id="@+id/navigation_profile"
-        android:name="com.safarsaathi.app.ui.profile.ProfileFragment"
-        android:label="@string/title_profile"
-        tools:layout="@layout/fragment_placeholder" />
-
 </navigation>

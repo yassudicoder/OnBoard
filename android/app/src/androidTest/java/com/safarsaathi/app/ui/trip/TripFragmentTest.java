@@ -1,7 +1,6 @@
 package com.safarsaathi.app.ui.trip;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -28,6 +27,7 @@ import com.safarsaathi.app.data.local.AppDatabase;
 import com.safarsaathi.app.data.local.BlockEntity;
 import com.safarsaathi.app.testing.LocalNetworkAccess;
 import com.safarsaathi.app.testing.OfflineApi;
+import com.safarsaathi.app.testing.Screens;
 import com.safarsaathi.app.testing.TestTrips;
 
 import org.junit.After;
@@ -40,7 +40,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * UI test of the Trip tab (Espresso, on an emulator or phone): a trip saved in Room is shown, with no
+ * UI test of the PARKED trip timeline screen (Espresso, on an emulator or phone; opened directly, whatever
+ * feature.tripTimeline says): a trip saved in Room is shown, with no
  * network. Through the ServiceLocator test hook the screen gets an in-memory database holding demo trip 1
  * and a backend that is always offline, so the result is the same with or without a real backend running.
  */
@@ -83,8 +84,8 @@ public class TripFragmentTest {
     public void savedTrip_isShownOffline_withTitlesAndTheAnchorStar() {
         useSavedTrip(TestTrips.demoTrip1());
 
-        try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {
-            onView(withId(R.id.navigation_trip)).perform(click());
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            Screens.open(scenario, R.id.navigation_trip); // parked screen, not a tab
 
             eventually(() -> onView(withText("Client visit: Mumbai to Bengaluru")).check(matches(isDisplayed())));
             eventually(() -> onView(withText(startsWith("Offline · showing your saved plan from")))
@@ -104,8 +105,8 @@ public class TripFragmentTest {
         trip.blocks.get(3).status = BlockEntity.STATUS_NEEDS_USER; // the client meeting
         useSavedTrip(trip);
 
-        try (ActivityScenario<MainActivity> ignored = ActivityScenario.launch(MainActivity.class)) {
-            onView(withId(R.id.navigation_trip)).perform(click());
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            Screens.open(scenario, R.id.navigation_trip); // parked screen, not a tab
 
             eventually(() -> onView(withId(R.id.trip_attention_title))
                     .check(matches(allOf(isDisplayed(),

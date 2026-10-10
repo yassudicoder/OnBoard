@@ -8,8 +8,6 @@ air travellers, in their own language, even offline:
 - **Baggage Shield:** photograph your bag and scan its tag before you hand it over, and get a time-stamped record that
   cannot be changed later. If the bag arrives damaged, late or not at all, the app tells you exactly what to do, where
   and by when. Lost something at the airport? It points you to the right Lost & Found, with the form pre-filled.
-- **Document Vault** (added 11 Oct): your passport, visas, tickets, boarding passes, hotel and insurance in one encrypted
-  folder per trip that opens with no internet, for when you are stuck in transit. Copies never replace the originals.
 - **Disruption Recovery** (added 11 Oct): when a late or cancelled flight breaks your connection, OnBoard spots it early,
   tells you why in local airport time, prepares the request to the airline and ranks realistic alternatives, and keeps
   the plan on your phone for when you have no internet. It never books anything without your explicit OK.
@@ -23,44 +21,20 @@ The full project brief (rules, stack, phases) is in [CLAUDE.md](CLAUDE.md). Deta
 
 **Team:** Yash: backend · Divyesh: Android app · Anushree: integration testing.
 
-**New direction (11 Oct):** the app now focuses on **Gate Navigation** and **Baggage Shield**, plus the
-**Document Vault** added the same day ([CLAUDE.md](CLAUDE.md) has the full brief and the phases R0 → P and V1 → V6). We
-build it phase by phase and stop after each one for the team's go-ahead.
+**New direction (11 Oct):** the app now focuses on **Gate Navigation** and **Baggage Shield** ([CLAUDE.md](CLAUDE.md)
+has the full brief and the phases R0 → P). We build it phase by phase and stop after each one for the team's go-ahead.
 
 **What you see in the app now (R0):** the bottom bar is **Home · Navigate · Bags · Help · Profile**.
 
 - **Home:** greets Aditi (the demo's sample traveller) and shows a flight card: the flight and its times from the
   backend, and **Gate / Boarding: "Not announced yet"**, because there is no gate source until phase G4 and the app never
   invents a gate or a time. "Navigate to gate" and "Register a bag" open the new tabs.
-- **Navigate (G1-G3): Google-Maps-style walking directions inside Mumbai T2.** The map is always labelled **"Demo
-  schematic, not an official airport map"**. Everything below works offline (map, routes and words ship inside the app).
-  - **Find a place:** search bar ("32" finds Gate 32), Departures / Arrivals, icons for gates, security, washrooms,
-    lifts and help desks.
-  - **Directions:** tap a place → **Directions**. The app first asks **"Where are you now?"**: scan a QR "You are here"
-    code, or choose your place. A phone can't locate itself inside a terminal, so the app never guesses.
-  - **Preview:** e.g. "4 min (280 m) · via Security check", with the note "Walking time only, an estimate · security
-    queues not included". Toggles: **Step-free** (lifts only) and **Slower pace**.
-  - **Start:** green banner ("10 m · Turn left at Check-in row D", then "Then …"), and the map turns so you walk "up",
-    following a blue arrow. Time, distance and arrival time (estimate) at the bottom. Voice guidance, **Steps** list,
-    **Help nearby** (nearest help desk / washrooms / lift / buggy stop, then "Continue to Gate 32").
-  - **What moves the arrow:** your steps along the route (an estimate, corrected when the phone notices you turning at
-    the next corner), a QR code, or "I'm here" on a place. Off the route → a new route from there. Debug builds have
-    **Demo walk** (×1 / ×4 / ×8), labelled as a simulation.
-  - **Instructions:** in English, Hindi or Marathi (follows the phone's language).
-  - **Getting to the airport:** "Directions to T2 (Google Maps)" on Home opens the real Google Maps app.
-  - **For the demo:** print [docs/qr-anchors.html](docs/qr-anchors.html) (8 "You are here" cards).
-- **Bags, Help:** say what they will do and which phase builds them (B1, B3).
+- **Navigate, Bags, Help:** say what they will do and which phase builds them (G1–G3, B1, B3).
 - **Profile:** traveller, this trip, large text, saved cards, and **More → Wallet** (boarding passes by photo or code,
   Aadhaar last 4 digits / masked PAN / visas, everything as one PDF).
-- **Profile → More → Document vault (V1):** opens only after fingerprint, face or phone PIN; locks itself after 5 minutes
-  (1 / 5 / 15, your choice); screenshots of it come out black. **Load sample trip** adds Paramvir's made-up Delhi → Kigali
-  → Kinshasa folder (8 SAMPLE documents, grouped by leg or by type). Open a document: key details, the number hidden
-  except its last 2 characters, and the page, decrypted in memory and checked against its SHA-256 fingerprint. Vault
-  settings: lock, auto-lock, screenshot blocking, **Check all files**, **Delete the whole vault**. Everything is
-  encrypted on the phone (Android Keystore + SQLCipher + AES-256-GCM per file); how and why: [docs/privacy.md](docs/privacy.md).
-  Adding your own documents (camera, PDF, MRZ) comes in V2.
 
-**Disruption Recovery (C1 built, branch `feature/disruption-recovery`, backend only so far):** every flight now knows its
+**Disruption Recovery (C1 done and in `main`, backend only so far; C2 onward on `feature/disruption-recovery`):**
+every flight now knows its
 airports and shows its times in local airport time (landing in Doha = Doha time), keeps its timetable times next to the
 latest estimate, and every change of planes is a **connection** with a status and a reason. Try it with the backend
 running: `curl -X POST http://localhost:8080/api/demo/trigger-delay -H "Content-Type: application/json" -d
@@ -75,10 +49,10 @@ Profile → More then links to the parked screens. Details: "Parked" in [CLAUDE.
 
 | Branch | What's on it | State |
 |---|---|---|
-| `main` | Phases 0–2 of the old plan, as of the first commit | stable |
-| `feature/backend-hardening` | backend hardening + README updates | pushed; pull request to `main` not opened yet |
-| (not committed yet) | Android Home / Wallet / Profile work and R0 | on Yash's laptop, waiting for the team's OK |
-| `feature/disruption-recovery` | Disruption Recovery C1 (backend + `recovery-core`), branched from `feature/backend-hardening` | separate worktree, not committed yet, waiting for the team's OK |
+| `main` | backend hardening + R0 (new tabs, Home, Wallet, Profile) + Disruption Recovery C1 | stable |
+| `feature/gate-navigation` | Gate Navigation G1–G3 (map, routing, Google-Maps-style navigation); G4 next | pushed; pull request to `main` after G4 |
+| `feature/disruption-recovery` | Disruption Recovery C2 onward (C1 is in `main`) | separate worktree |
+| `feature/backend-hardening` | already in `main`; its last commit `14c880b` is an accidental "commit all" of everyone's work | **do not merge** |
 
 **Backend hardening, in short** (details: [backend/README.md](backend/README.md)): listens on `127.0.0.1` by default
 (the emulator still reaches it at `http://10.0.2.2:8080`); demo buttons exist only with `APP_MODE=demo`; two changes at
@@ -206,10 +180,9 @@ PowerShell needs the `.\` in front; in cmd it's optional. The debug APK lands in
 ```text
 .
 ├── android/             Android app (Java, XML layouts, Material 3). Open THIS folder in Android Studio.
-├── backend/             Spring Boot 3 backend (Java 17, Maven): REST API, airport map, /demo page, ...
-├── routing-core/        plain Java shared by backend and app: airport map model + checks, route finder, instructions
-├── recovery-core/       plain Java shared by backend and app: connection checker (Disruption Recovery)
+├── backend/             Spring Boot 3 backend (Java 17, Maven): REST API, ripple engine, /demo page, later more
 ├── docs/                architecture.md, api.md, demo-script.md
+├── recovery-core/       plain Java shared by backend and app: connection checker (Disruption Recovery)
 ├── mock-data/           demo seed data (JSON): demo-trips.json; airports/BOM-T2/ (demo schematic) from G1;
 │                        recovery/airport-rules.json (time zones, minimum connection times with sources)
 ├── docker-compose.yml   local PostgreSQL 17 (the backend needs it from Phase 1)
@@ -227,19 +200,19 @@ New plan (11 Oct 2026): Gate Navigation + Baggage Shield. Details of every phase
 | Phase | What it delivers | Status |
 |---|---|---|
 | R0 | Refocus: new brief, new tabs (Home · Navigate · Bags · Help · Profile), old screens parked behind a flag | **Done** (11 Oct 2026) |
-| G1 | Airport map: Mumbai T2 demo schematic, map endpoint, offline cache, map with floors and points of interest | **Built**, waiting for the go-ahead |
-| G2 | Routing: shortest walk, step-free option, walking speeds, landmark instructions (English, Hindi, Marathi) | **Built**, waiting for the go-ahead |
-| G3 | Navigation screen: next instruction, route line, blue dot, QR "You are here", simulated walk, re-route, voice | **Built** (no ongoing notification yet), waiting for the go-ahead |
+| G1 | Airport map: Mumbai T2 demo schematic, map endpoint, offline cache, map with floors and points of interest | Planned |
+| G2 | Routing: shortest walk, step-free option, walking speeds, landmark instructions (English, Hindi, Marathi) | Planned |
+| G3 | Navigation screen: next instruction, route line, blue dot, QR "You are here", simulated walk, re-route, voice | Planned |
 | G4 | Gate changes: gate watcher, push alert, automatic re-route mid-walk, `/demo` trigger | Planned |
-| B1 | Bag Shield capture: register bag, scan tag, guided photos, fingerprints (SHA-256), signed receipt | Planned |
-| B2 | Counter & Station pages, tamper-evident hash chain, verification | Planned |
-| B3 | Problems & claims: before/after, PIR guidance, claim pack PDF, deadlines, Lost & Found guide | Planned |
-| P | Polish & demo: airplane-mode test, large text, Hindi/Marathi review, demo script, deploy notes | Planned |
-| C1 | Disruption Recovery data + connection check: local airport times, scheduled vs estimated, sourced minimum connection times, demo trip 3, `GET /api/trips/{id}/connections` | **Built** (backend), waiting for the go-ahead |
+| C1 | Disruption Recovery data + connection check: local airport times, scheduled vs estimated, sourced minimum connection times, demo trip 3, `GET /api/trips/{id}/connections` | **Done** (11 Oct 2026, in `main`; backend) |
 | C2 | Recovery plan on the server: three triggers, ticket type, urgency, ranked alternatives (SAMPLE DATA), overnight guidance | Planned |
 | C3 | Offline plan on the phone: Plan B pack, Home "At risk" card, Recovery screen | Planned |
 | C4 | Airline request drafts (English + Hindi/Marathi), mail app / share sheet, honest states | Planned |
 | C5 | Push + reconnect: "What changed", demo script | Planned |
+| B1 | Bag Shield capture: register bag, scan tag, guided photos, fingerprints (SHA-256), signed receipt | Planned |
+| B2 | Counter & Station pages, tamper-evident hash chain, verification | Planned |
+| B3 | Problems & claims: before/after, PIR guidance, claim pack PDF, deadlines, Lost & Found guide | Planned |
+| P | Polish & demo: airplane-mode test, large text, Hindi/Marathi review, demo script, deploy notes | Planned |
 
 Before the change of direction: Phase 0 (setup) was done, phases 1–2 (trip data, ripple engine, delay demo) were built
 and are now **parked**, and the backend hardening is done on `feature/backend-hardening`.

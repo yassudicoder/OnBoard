@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The five tabs of the bottom bar, in order.
+<!-- The five tabs of the bottom bar, in order: Home, Navigate, Bags, Help, Profile (CLAUDE.md, app screens).
      IMPORTANT: each item id MUST be the same as a destination id in navigation/nav_graph.xml.
      That shared id is how NavigationUI knows which screen to open when a tab is tapped. -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
@@ -10,23 +10,22 @@
         android:title="@string/tab_home" />
 
     <item
-        android:id="@+id/navigation_trip"
+        android:id="@+id/navigation_navigate"
+        android:icon="@drawable/ic_navigate_24"
+        android:title="@string/tab_navigate" />
+
+    <item
+        android:id="@+id/navigation_bags"
         android:icon="@drawable/ic_trip_24"
-        android:title="@string/tab_trip" />
+        android:title="@string/tab_bags" />
 
     <item
-        android:id="@+id/navigation_assistant"
-        android:icon="@drawable/ic_assistant_24"
-        android:title="@string/tab_assistant" />
-
-    <item
-        android:id="@+id/navigation_wallet"
-        android:icon="@drawable/ic_wallet_24"
-        android:title="@string/tab_wallet" />
+        android:id="@+id/navigation_help"
+        android:icon="@drawable/ic_help_24"
+        android:title="@string/tab_help" />
 
     <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_profile_24"
         android:title="@string/tab_profile" />
-
 </menu>

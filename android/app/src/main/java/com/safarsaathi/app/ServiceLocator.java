@@ -7,6 +7,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.room.Room;
 
 import com.safarsaathi.app.data.TripRepository;
+import com.safarsaathi.app.data.WalletRepository;
 import com.safarsaathi.app.data.local.AppDatabase;
 import com.safarsaathi.app.data.remote.SafarSaathiApi;
 
@@ -44,10 +45,13 @@ public final class ServiceLocator {
     private final SafarSaathiApi api;
     private final ExecutorService ioExecutor;
     private final TripRepository tripRepository;
+    private final WalletRepository walletRepository;
 
     /** Set only by instrumented tests, see {@link #setTripRepositoryForTests}. */
     @Nullable
     private volatile TripRepository tripRepositoryForTests;
+    @Nullable
+    private volatile WalletRepository walletRepositoryForTests;
 
     private ServiceLocator(Application app) {
         // Settings from local.properties, baked into BuildConfig at build time (see app/build.gradle.kts).
@@ -79,6 +83,8 @@ public final class ServiceLocator {
         ioExecutor = Executors.newSingleThreadExecutor(task -> new Thread(task, "safar-saathi-io"));
 
         tripRepository = new TripRepository(database.tripDao(), api, ioExecutor, Clock.systemUTC());
+        // Boarding passes and saved cards: phone-only data, written on the same background thread.
+        walletRepository = new WalletRepository(database.walletDao(), ioExecutor, Clock.systemUTC());
     }
 
     /**
@@ -142,6 +148,12 @@ public final class ServiceLocator {
         return replacement != null ? replacement : tripRepository;
     }
 
+    /** Boarding passes and saved cards (the test replacement, if a test set one). */
+    public WalletRepository getWalletRepository() {
+        WalletRepository replacement = walletRepositoryForTests;
+        return replacement != null ? replacement : walletRepository;
+    }
+
     // ============================================================================================
     // TEST HOOK - for instrumented tests (src/androidTest) only. Never call this from app code.
     // A UI test builds a TripRepository with an in-memory database and a fake SafarSaathiApi, puts a
@@ -151,5 +163,11 @@ public final class ServiceLocator {
     @VisibleForTesting
     public void setTripRepositoryForTests(@Nullable TripRepository replacement) {
         tripRepositoryForTests = replacement;
+    }
+
+    /** Same idea for the Wallet and Profile data. Pass null to go back to the real one. */
+    @VisibleForTesting
+    public void setWalletRepositoryForTests(@Nullable WalletRepository replacement) {
+        walletRepositoryForTests = replacement;
     }
 }

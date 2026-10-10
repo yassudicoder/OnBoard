@@ -34,6 +34,12 @@ val localProperties = Properties().apply {
 val backendBaseUrl: String = localProperties.getProperty("BACKEND_BASE_URL", "").trim()
     .ifEmpty { "http://10.0.2.2:8080/" }
 
+// Parked features (CLAUDE.md "Parked"): the old trip-timeline screens. Off unless android/local.properties says
+// feature.tripTimeline=true (or the build gets -Pfeature.tripTimeline=true). Off = the app has no link to them;
+// their code and tests stay and keep passing.
+val featureTripTimeline: Boolean = (localProperties.getProperty("feature.tripTimeline")
+    ?: (project.findProperty("feature.tripTimeline") as String?) ?: "false").trim().toBoolean()
+
 // Google Maps key (used from Phase 7). The "is the key set?" rule lives HERE, and only here:
 // missing, empty or only spaces = not set -> HAS_MAPS_KEY is false (below) -> the app uses
 // mock/offline maps (AppConfig.mapsMode() says "MOCK").
@@ -56,6 +62,8 @@ android {
         // local.properties -> app (see the box at the top of this file).
         // buildConfigField writes Java source into the generated BuildConfig class, so a String needs quotes.
         buildConfigField("String", "BACKEND_BASE_URL", "\"$backendBaseUrl\"")
+        // Parked trip-timeline screens: linked from Profile only when true (see featureTripTimeline above).
+        buildConfigField("boolean", "FEATURE_TRIP_TIMELINE", featureTripTimeline.toString())
         // Only "is there a key?" goes into BuildConfig, never the key itself.
         buildConfigField("boolean", "HAS_MAPS_KEY", mapsApiKey.isNotEmpty().toString())
         // The key itself only goes into AndroidManifest.xml (${MAPS_API_KEY}), where the Maps SDK reads it.
@@ -113,6 +121,12 @@ dependencies {
     // The compiler generates the database code from our @Entity/@Dao classes while the app builds.
     implementation(libs.androidx.room.runtime)
     annotationProcessor(libs.androidx.room.compiler)
+
+    // Wallet: reads the barcode on a boarding pass photo (PDF417, Aztec, QR) on the phone itself, with no internet.
+    // The "bundled" model is inside the app, so it also works on emulators and phones without Google Play.
+    implementation(libs.mlkit.barcode.scanning)
+    // Wallet PDF: draws each boarding pass's barcode (as a QR code) into the downloaded ticket.
+    implementation(libs.zxing.core)
 
     // Talking to our backend: Retrofit turns SafarSaathiApi into HTTP calls, Gson reads the JSON,
     // OkHttp does the actual networking (its logging interceptor prints requests in debug builds).

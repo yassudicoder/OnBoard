@@ -38,3 +38,7 @@ MAPS_API_KEY=
 #       Windows asked, and usually blocks it anyway on a Wi-Fi marked "Public". Venue/college Wi-Fi also
 #       often keeps devices apart. In those cases use the USB way.
 BACKEND_BASE_URL=http://10.0.2.2:8080/
+
+# Parked feature flag (CLAUDE.md "Parked"). true = Profile > More links to the old trip timeline and trip status
+# screens (the delay / ripple demo). Leave it out, or false, for the Gate Navigation + Baggage Shield app.
+# feature.tripTimeline=false
