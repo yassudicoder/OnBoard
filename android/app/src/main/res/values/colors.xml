@@ -70,6 +70,6 @@
     <color name="status_done_container">#E3E2E6</color>
     <color name="status_done_on_container">#303033</color>
 
-    <!-- App icon background: the splash navy from the design (same in light and dark mode, so only here). -->
-    <color name="ic_launcher_background">@color/brand_navy</color>
+    <!-- App icon background (same in light and dark mode, so it is only defined here). -->
+    <color name="ic_launcher_background">#285EA7</color>
 </resources>
