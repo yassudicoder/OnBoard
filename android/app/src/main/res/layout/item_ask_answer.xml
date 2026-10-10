@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ask OnBoard: an answer, on the left: OnBoard's icon, the answer bubble, then a row with WHERE the answer came from
+     ("Answered on your phone · as of 05:42") and a speaker button, and, when the answer has one, a button that opens the
+     right screen ("Navigate to gate", "Open Bags"...). -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="12dp"
+    android:paddingTop="6dp"
+    android:paddingEnd="40dp"
+    android:paddingBottom="6dp">
+
+    <ImageView
+        android:id="@+id/ask_answer_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="@drawable/bg_circle"
+        android:backgroundTint="?attr/colorPrimaryContainer"
+        android:importantForAccessibility="no"
+        android:padding="6dp"
+        android:src="@drawable/ic_assistant_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/colorOnPrimaryContainer" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/ask_answer_bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@id/ask_answer_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeWidth="0dp">
+
+        <TextView
+            android:id="@+id/ask_answer_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorOnSurface"
+            android:textIsSelectable="true"
+            tools:text="आपकी फ्लाइट IJ 512 का गेट अभी घोषित नहीं हुआ है। आपकी फ्लाइट 08:00 पर रवाना होगी।" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Where the answer came from: icon + text, so it never depends on colour alone (CLAUDE.md UX rules). -->
+    <TextView
+        android:id="@+id/ask_answer_source"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:drawablePadding="6dp"
+        android:gravity="center_vertical"
+        android:textAppearance="?attr/textAppearanceLabelMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:drawableStartCompat="@drawable/ic_saved_offline_24"
+        app:drawableTint="?attr/colorOnSurfaceVariant"
+        app:layout_constraintBottom_toBottomOf="@id/ask_answer_speak"
+        app:layout_constraintEnd_toStartOf="@id/ask_answer_speak"
+        app:layout_constraintStart_toStartOf="@id/ask_answer_bubble"
+        app:layout_constraintTop_toTopOf="@id/ask_answer_speak"
+        tools:text="Answered on your phone · as of 05:42" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/ask_answer_speak"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/ask_speak_answer"
+        app:icon="@drawable/ic_volume_up_24"
+        app:iconTint="?attr/colorOnSurfaceVariant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ask_answer_bubble" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/ask_answer_action"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@id/ask_answer_bubble"
+        app:layout_constraintTop_toBottomOf="@id/ask_answer_speak"
+        tools:text="Navigate to gate"
+        tools:visibility="visible" />
+</androidx.constraintlayout.widget.ConstraintLayout>

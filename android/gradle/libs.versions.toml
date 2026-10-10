@@ -34,6 +34,10 @@ zxingCore = "3.5.4"
 # Google code scanner (Google Play services): the QR "You are here" scanner screen on the Navigate tab, no camera
 # permission needed. 16.1.0 is the newest on Google Maven (checked 2026-10-11).
 codeScanner = "16.1.0"
+# Ask OnBoard (A1): ML Kit language identification, BUNDLED model (inside the app, ~1 MB, works offline and without
+# Play services): tells Hindi from Marathi and spots Hindi in English letters. 17.0.6 is the newest on Google Maven and
+# in the ML Kit release notes (checked 2026-10-11); that release added 16 KB page-size support.
+mlkitLanguageId = "17.0.6"
 retrofit = "3.0.0"
 # Keep this equal to the OkHttp version that Retrofit 3.0.0 itself uses (4.12.0), so there is only one OkHttp.
 okhttp = "4.12.0"
@@ -62,6 +66,7 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxingCore" }
 mlkit-barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkitBarcode" }
 play-services-code-scanner = { group = "com.google.android.gms", name = "play-services-code-scanner", version.ref = "codeScanner" }
+mlkit-language-id = { group = "com.google.mlkit", name = "language-id", version.ref = "mlkitLanguageId" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }

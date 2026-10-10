@@ -46,6 +46,13 @@ has the full brief and the phases R0 → P). We build it phase by phase and stop
 - **Bags, Help:** say what they will do and which phase builds them (B1, B3).
 - **Profile:** traveller, this trip, large text, saved cards, and **More → Wallet** (boarding passes by photo or code,
   Aadhaar last 4 digits / masked PAN / visas, everything as one PDF).
+- **Home → Ask OnBoard (A1, quick answers):** the bar at the top of Home ("Ask OnBoard: gate, boarding, bags…"). Type or
+  tap the mic and ask in English, हिंदी, मराठी or Hinglish ("Mera gate kahan hai?", "Majhi bag kuthe aahe?",
+  "When does boarding close?"); the answer comes in the same language, read aloud when you asked by voice. It works in
+  airplane mode: answers come from the trip saved on the phone and the T2 demo map, never from a guess, so today the
+  gate and boarding times honestly say "not announced yet" (no gate source until G4) and the chip under each answer
+  says "Answered on your phone · as of 05:42". "Language" chip: Auto, or always one language. Flights/hotels/cabs:
+  it explains that needs the online assistant (A3) or points to Home's Uber buttons. It never reads the Document Vault.
 
 **Parked, not deleted:** the old trip-timeline plan (trip status, timeline, ripple engine, the delay demo). Its code and
 tests stay and keep passing. To see it again, put `feature.tripTimeline=true` in `android/local.properties` and rebuild:
@@ -210,6 +217,9 @@ New plan (11 Oct 2026): Gate Navigation + Baggage Shield. Details of every phase
 | B2 | Counter & Station pages, tamper-evident hash chain, verification | Planned |
 | B3 | Problems & claims: before/after, PIR guidance, claim pack PDF, deadlines, Lost & Found guide | Planned |
 | P | Polish & demo: airplane-mode test, large text, Hindi/Marathi review, demo script, deploy notes | Planned |
+| A1 | Ask OnBoard quick answers: 4 languages, voice in/out, offline, golden phrase tests | **Done** (11 Oct 2026) |
+| A2 | Ask OnBoard on-device AI (optional model download, offline, grounded in phone data) | Go-ahead given |
+| A3–A4 | Ask OnBoard: cloud AI with search and confirm-only bookings, router + settings | Planned |
 
 Before the change of direction: Phase 0 (setup) was done, phases 1–2 (trip data, ripple engine, delay demo) were built
 and are now **parked**, and the backend hardening is done on `feature/backend-hardening`.
