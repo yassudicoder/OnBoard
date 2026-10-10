@@ -5,7 +5,7 @@
 spring:
   application:
     # Shown in the logs and as "app" in GET /api/health.
-    name: safar-saathi-backend
+    name: onboard-backend
 
   config:
     # Local secrets: also read a git-ignored ".env" file (copy .env.example in the repo root to .env).
@@ -58,6 +58,13 @@ spring:
 server:
   # Hosts such as Render or Railway tell the app which port to use through PORT; locally it is 8080.
   port: ${PORT:8080}
+  # Which network address the backend listens on. SERVER_ADDRESS, default 127.0.0.1 = this computer ONLY:
+  #   - the Android emulator still reaches it at http://10.0.2.2:8080 (10.0.2.2 IS this computer's 127.0.0.1),
+  #   - a phone on a USB cable reaches it after "adb reverse tcp:8080 tcp:8080" (http://localhost:8080),
+  #   - other laptops on the hackathon Wi-Fi can NOT reach it, so nobody else can press our demo buttons.
+  # Set SERVER_ADDRESS=0.0.0.0 (every network) only when you need that: a Docker container or a host such as
+  # Render/Railway, or a phone on Wi-Fi. There, use APP_MODE=prod, which switches the demo controls off.
+  address: ${SERVER_ADDRESS:127.0.0.1}
 
 management:
   endpoints:

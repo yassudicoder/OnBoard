@@ -44,8 +44,36 @@ class ProviderStatusLoggerTest {
         assertThat(report).contains("(value hidden)").doesNotContain("secret", "private_key");
     }
 
+    @Test
+    void reportSaysTheBackendIsLocalOnlyAndTheDemoControlsAreOnInDemoMode() {
+        String report = reportFor(Map.of());
+
+        assertThat(report).contains("Listening on 127.0.0.1: this computer only",
+                "Demo controls (POST /api/demo/...): ON").doesNotContain("WARNING");
+    }
+
+    @Test
+    void reportWarnsWhenDemoModeListensOnEveryNetwork() {
+        String report = reportFor(Map.of(), "0.0.0.0");
+
+        assertThat(report).contains("Listening on 0.0.0.0: other devices", "Demo controls (POST /api/demo/...): ON",
+                "WARNING: demo mode on an address other computers can reach");
+    }
+
+    @Test
+    void reportSaysTheDemoControlsAreOffInProdMode() {
+        String report = reportFor(Map.of("APP_MODE", "prod"), "0.0.0.0");
+
+        assertThat(report).contains("App mode: prod", "Demo controls (POST /api/demo/...): OFF")
+                .doesNotContain("WARNING");
+    }
+
     private static String reportFor(Map<String, String> env) {
+        return reportFor(env, "127.0.0.1");
+    }
+
+    private static String reportFor(Map<String, String> env, String address) {
         AppProperties settings = TestSettings.fromEnv(env);
-        return new ProviderStatusLogger(settings, new ProviderStatus(settings)).buildReport("8080");
+        return new ProviderStatusLogger(settings, new ProviderStatus(settings)).buildReport(address, "8080");
     }
 }

@@ -36,11 +36,27 @@ public record AppProperties(String mode, String zone, @DefaultValue Providers pr
     /** Runs once, when the record is created: fills in defaults and rejects a mistyped APP_MODE early. */
     public AppProperties {
         // Blank counts as "not set": copying .env.example to .env gives lines like "APP_MODE=" with no value.
-        mode = isBlank(mode) ? DEFAULT_MODE : mode.strip().toLowerCase(Locale.ROOT);
+        mode = normaliseMode(mode);
         zone = isBlank(zone) ? DEFAULT_ZONE : zone.strip();
         if (!mode.equals("demo") && !mode.equals("prod")) {
             throw new IllegalArgumentException("APP_MODE must be 'demo' or 'prod', but it is '" + mode + "'");
         }
+    }
+
+    /**
+     * APP_MODE as we compare it: blank means the default ("demo"), and spaces and capitals are ignored ("Prod " is
+     * "prod"). Public so {@link com.safarsaathi.backend.demo.DemoModeOnly} reads the mode exactly the same way.
+     */
+    public static String normaliseMode(String mode) {
+        return isBlank(mode) ? DEFAULT_MODE : mode.strip().toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * True in demo mode only. The demo controls (POST /api/demo/trigger-delay, trigger-cancel, reset) exist only
+     * then; in prod mode nobody can delay, cancel or reset trips through them.
+     */
+    public boolean demoControlsEnabled() {
+        return DEFAULT_MODE.equals(mode);
     }
 
     /** One entry per outside service. Each comment names the environment variable(s) that fill it. */

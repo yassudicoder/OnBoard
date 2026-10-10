@@ -21,8 +21,8 @@
     <groupId>com.safarsaathi</groupId>
     <artifactId>backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Safar Saathi backend</name>
-    <description>Backend for Safar Saathi: trips, disruption ripple, Plan B and booking changes</description>
+    <name>OnBoard backend</name>
+    <description>Backend for OnBoard: trips, disruption ripple, Plan B and booking changes</description>
 
     <properties>
         <!-- Our code targets Java 17. We build with JDK 21; the parent POM turns this into "javac -release 17". -->

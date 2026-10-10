@@ -43,7 +43,7 @@ class HealthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value("UP"))
-                .andExpect(jsonPath("$.app").value("safar-saathi-backend"))
+                .andExpect(jsonPath("$.app").value("onboard-backend"))
                 .andExpect(jsonPath("$.mode").value("demo"))
                 .andExpect(jsonPath("$.zone").value("Asia/Kolkata"))
                 .andExpect(jsonPath("$.providers", aMapWithSize(7)))

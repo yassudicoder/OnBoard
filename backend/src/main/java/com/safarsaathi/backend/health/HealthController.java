@@ -17,7 +17,7 @@ import com.safarsaathi.backend.config.ProviderStatus;
  *
  * <p>Example answer:
  * <pre>
- * {"status":"UP","app":"safar-saathi-backend","mode":"demo","time":"2026-10-10T14:05:00+05:30",
+ * {"status":"UP","app":"onboard-backend","mode":"demo","time":"2026-10-10T14:05:00+05:30",
  *  "zone":"Asia/Kolkata","providers":{"flightStatus":"MOCK","ai":"MOCK", ... ,"weather":"REAL"}}
  * </pre>
  * Spring's own check, /actuator/health, also exists; this one adds the app-specific details.

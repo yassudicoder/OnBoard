@@ -1,5 +1,8 @@
 package com.safarsaathi.backend.demo;
 
+import java.util.Optional;
+
+import org.springframework.context.annotation.Conditional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,8 +22,11 @@ import com.safarsaathi.backend.watcher.MockFlightStatusProvider;
  *   <li>reset: forget the reported changes and reload the demo trips.</li>
  * </ul>
  * Each runs inside {@link FlightWatcher#runExclusively}, so the timer's check never runs in the middle of it.
+ *
+ * <p>Demo mode only ({@link DemoModeOnly}), like {@link DemoController}.
  */
 @Service
+@Conditional(DemoModeOnly.class)
 public class DemoService {
 
     /** Longest delay one press may add: one day. Enough for every demo story, and keeps the numbers sane. */
@@ -57,8 +63,9 @@ public class DemoService {
         return flightWatcher.runExclusively(() -> {
             // Check the ids first (404, 409): a change reported for a wrong block would wait in the mock forever.
             Block block = disruptionService.findBlockToChange(tripId, blockId);
+            Optional<MockFlightStatusProvider.Pending> before = mockFlightStatus.pendingFor(block.getId());
             mockFlightStatus.reportDelay(block.getId(), minutes);
-            return checkNow(block);
+            return checkNowOrTakeBack(block, before);
         });
     }
 
@@ -69,8 +76,9 @@ public class DemoService {
         }
         return flightWatcher.runExclusively(() -> {
             Block block = disruptionService.findBlockToChange(tripId, blockId);
+            Optional<MockFlightStatusProvider.Pending> before = mockFlightStatus.pendingFor(block.getId());
             mockFlightStatus.reportCancel(block.getId());
-            return checkNow(block);
+            return checkNowOrTakeBack(block, before);
         });
     }
 
@@ -85,6 +93,20 @@ public class DemoService {
             mockFlightStatus.clear();
             return seeder.deleteAllAndReseed();
         });
+    }
+
+    /**
+     * {@link #checkNow}, but if saving fails, our report is taken back before the error goes to the caller.
+     * The button press then has NO effect at all: the timer will not quietly apply it 30 s later, and pressing the
+     * button again does not count the delay twice. ({@code before} = what was waiting for the block before.)
+     */
+    private DisruptionResult checkNowOrTakeBack(Block block, Optional<MockFlightStatusProvider.Pending> before) {
+        try {
+            return checkNow(block);
+        } catch (RuntimeException e) {
+            mockFlightStatus.restore(block.getId(), before);
+            throw e;
+        }
     }
 
     /** Lets the watcher check the block with the mock provider, which now holds exactly the change just reported. */

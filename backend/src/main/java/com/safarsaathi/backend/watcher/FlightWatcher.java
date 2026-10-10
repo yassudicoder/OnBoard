@@ -113,7 +113,13 @@ public class FlightWatcher {
      * Checks one block right now with the given provider, and applies the change if there is one.
      * The demo buttons use this with the mock provider, so their answer shows the ripple at once.
      *
+     * <p>Save first, forget second: the provider is told {@link FlightStatusProvider#applied} only after
+     * {@link DisruptionService#apply} has returned, i.e. after its database transaction is committed. If saving
+     * throws (database down, ...), the provider still holds the change and the next check tries again; the failed
+     * attempt saved nothing (one transaction), so the retry cannot save it twice.
+     *
      * @return what the disruption did, or empty when the provider reports no change
+     * @throws RuntimeException when saving fails (the change then stays with the provider for the next check)
      */
     public Optional<DisruptionResult> checkBlock(Block block, FlightStatusProvider source) {
         synchronized (lock) {
@@ -122,6 +128,7 @@ public class FlightWatcher {
                 return Optional.empty();
             }
             DisruptionResult result = disruptionService.apply(block.getTripId(), block.getId(), change.get());
+            source.applied(block, change.get());
             log.info("Flight watcher: {} on block {} of trip {} ({}). Trip {} is now version {}.",
                     result.kind(), block.getId(), block.getTripId(), change.get().detail(), result.tripId(),
                     result.version());

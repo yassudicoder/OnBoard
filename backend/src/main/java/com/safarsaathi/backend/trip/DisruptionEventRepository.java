@@ -11,4 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface DisruptionEventRepository extends JpaRepository<DisruptionEvent, Long> {
 
     List<DisruptionEvent> findByTripIdOrderByIdAsc(Long tripId);
+
+    /** True when this block of this trip already has an event of this kind (used to record a MISSED only once). */
+    boolean existsByTripIdAndBlockIdAndKind(Long tripId, Long blockId, DisruptionKind kind);
 }

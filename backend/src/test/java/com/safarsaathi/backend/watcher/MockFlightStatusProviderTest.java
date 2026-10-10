@@ -5,10 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.safarsaathi.backend.ripple.RippleChange;
 import com.safarsaathi.backend.trip.Block;
 import com.safarsaathi.backend.trip.DisruptionKind;
 
@@ -18,17 +20,68 @@ class MockFlightStatusProviderTest {
     private final MockFlightStatusProvider provider = new MockFlightStatusProvider();
 
     @Test
-    void reportedDelayIsHandedOutOnceRelativeToTheCurrentTimes() {
+    void reportedDelayIsRelativeToTheBlockTimesWhenItIsSaved() {
         Block flight = flight(1, "2026-10-11T08:00:00+05:30", "2026-10-11T09:45:00+05:30");
         provider.reportDelay(1, 90);
 
         FlightStatusChange change = provider.check(flight).orElseThrow();
 
         assertThat(change.kind()).isEqualTo(DisruptionKind.DELAY);
-        assertThat(change.newStart()).isEqualTo(at("2026-10-11T09:30:00+05:30"));
-        assertThat(change.newEnd()).isEqualTo(at("2026-10-11T11:15:00+05:30"));
+        assertThat(change.delayMinutes()).isEqualTo(90);
         assertThat(change.detail()).isEqualTo("Delayed by 90 minutes (mock flight status)");
-        assertThat(provider.check(flight)).isEmpty(); // used up
+        RippleChange resolved = change.toRippleChange(flight);
+        assertThat(resolved.newStart()).isEqualTo(at("2026-10-11T09:30:00+05:30"));
+        assertThat(resolved.newEnd()).isEqualTo(at("2026-10-11T11:15:00+05:30"));
+    }
+
+    @Test
+    void checkingDoesNotForgetTheChangeUntilItIsSaved() {
+        Block flight = flight(1, "2026-10-11T08:00:00+05:30", "2026-10-11T09:45:00+05:30");
+        provider.reportDelay(1, 90);
+
+        FlightStatusChange first = provider.check(flight).orElseThrow();
+        // Saving failed, so the watcher never called applied(): the next check hands out the same change again.
+        assertThat(provider.check(flight)).contains(first);
+
+        provider.applied(flight, first); // saved now
+        assertThat(provider.check(flight)).isEmpty();
+        assertThat(provider.pendingCount()).isZero();
+    }
+
+    @Test
+    void aDelayReportedAfterTheCheckIsKeptForTheNextCheck() {
+        Block flight = flight(1, "2026-10-11T08:00:00+05:30", "2026-10-11T09:45:00+05:30");
+        provider.reportDelay(1, 30);
+        FlightStatusChange checked = provider.check(flight).orElseThrow();
+
+        provider.reportDelay(1, 60); // arrives while the +30 is being saved
+        provider.applied(flight, checked);
+
+        assertThat(provider.check(flight).orElseThrow().delayMinutes()).isEqualTo(60);
+    }
+
+    @Test
+    void savingACancellationForgetsEverythingForThatBlock() {
+        Block flight = flight(1, "2026-10-11T08:00:00+05:30", "2026-10-11T09:45:00+05:30");
+        provider.reportCancel(1);
+        FlightStatusChange cancel = provider.check(flight).orElseThrow();
+        provider.reportDelay(1, 15); // a cancellation wins over any later delay
+
+        provider.applied(flight, cancel);
+
+        assertThat(provider.check(flight)).isEmpty();
+    }
+
+    @Test
+    void aCancellationReportedWhileADelayIsSavedIsStillToDo() {
+        Block flight = flight(1, "2026-10-11T08:00:00+05:30", "2026-10-11T09:45:00+05:30");
+        provider.reportDelay(1, 30);
+        FlightStatusChange delay = provider.check(flight).orElseThrow();
+        provider.reportCancel(1);
+
+        provider.applied(flight, delay);
+
+        assertThat(provider.check(flight).orElseThrow().cancelled()).isTrue();
     }
 
     @Test
@@ -36,7 +89,7 @@ class MockFlightStatusProviderTest {
         Block flight = flight(1, "2026-10-11T08:00:00+05:30", "2026-10-11T09:45:00+05:30");
         provider.reportDelay(1, 30);
         provider.reportDelay(1, 60);
-        assertThat(provider.check(flight).orElseThrow().newStart()).isEqualTo(at("2026-10-11T09:30:00+05:30"));
+        assertThat(provider.check(flight).orElseThrow().delayMinutes()).isEqualTo(90);
 
         provider.reportDelay(1, 30);
         provider.reportCancel(1);
@@ -44,7 +97,20 @@ class MockFlightStatusProviderTest {
         FlightStatusChange change = provider.check(flight).orElseThrow();
         assertThat(change.cancelled()).isTrue();
         assertThat(change.kind()).isEqualTo(DisruptionKind.CANCEL);
-        assertThat(change.newStart()).isNull();
+        assertThat(change.delayMinutes()).isNull();
+    }
+
+    @Test
+    void restorePutsBackWhatWasWaitingBefore() {
+        provider.reportDelay(1, 30);
+        Optional<MockFlightStatusProvider.Pending> before = provider.pendingFor(1);
+
+        provider.reportDelay(1, 90);
+        provider.restore(1, before);
+        assertThat(provider.pendingFor(1)).contains(new MockFlightStatusProvider.Pending(30, false));
+
+        provider.restore(1, Optional.empty());
+        assertThat(provider.pendingFor(1)).isEmpty();
     }
 
     @Test
@@ -66,6 +132,7 @@ class MockFlightStatusProviderTest {
     static Block flight(long id, String start, String end) {
         Block block = new Block();
         ReflectionTestUtils.setField(block, "id", id);
+        block.setTripId(1L);
         block.setTitle("Flight IJ 512 Mumbai to Bengaluru");
         block.setStartTime(at(start));
         block.setEndTime(at(end));

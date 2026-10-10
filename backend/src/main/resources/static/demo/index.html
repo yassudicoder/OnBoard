@@ -15,7 +15,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>Safar Saathi demo</title>
+  <title>OnBoard demo</title>
   <!-- An empty icon, so the browser does not ask the server for /favicon.ico (which does not exist). -->
   <link rel="icon" href="data:,">
   <style>
@@ -109,7 +109,7 @@
 </head>
 <body>
 <main>
-  <h1>Safar Saathi &middot; live demo</h1>
+  <h1>OnBoard &middot; live demo</h1>
   <p class="muted">These buttons play the airline: delay or cancel a booking, and watch the plan ripple down the
     trip. The phone app shows the same trip within a few seconds.</p>
 
@@ -405,7 +405,7 @@
     });
     const needs = result.outcomes.filter(o => o.status === "NEEDS_USER").length;
     box.appendChild(el("p", "muted", needs === 0
-        ? "Nothing needs the traveller: Safar Saathi handled it."
+        ? "Nothing needs the traveller: OnBoard handled it."
         : needs + (needs === 1 ? " booking needs" : " bookings need") + " the traveller's decision (red)."));
   }
 

@@ -1,5 +1,6 @@
 package com.safarsaathi.backend.demo;
 
+import org.springframework.context.annotation.Conditional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,9 +18,13 @@ import com.safarsaathi.backend.watcher.DisruptionResult;
  * </ul>
  * Errors are Problem Details JSON: 404 unknown trip or block (or a block of another trip), 400 missing fields,
  * minutes of 0 or less, or a body that is not JSON, 409 a block that is already cancelled or done.
+ *
+ * <p>Demo mode only ({@link DemoModeOnly}): with APP_MODE=prod this controller is not created, so every
+ * POST /api/demo/... answers 404.
  */
 @RestController
 @RequestMapping("/api/demo")
+@Conditional(DemoModeOnly.class)
 public class DemoController {
 
     private final DemoService demoService;
