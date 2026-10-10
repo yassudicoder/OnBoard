@@ -20,8 +20,10 @@ public final class Answer {
         /** The Navigate tab, to find a place on the terminal map. */
         OPEN_MAP,
         OPEN_BAGS,
-        /** Profile > More > Document vault (it asks for the fingerprint / PIN itself). */
+        /** The Document Vault (it asks for the fingerprint / PIN itself). */
         OPEN_VAULT,
+        /** The vault is locked: show its fingerprint / face / PIN prompt here, then answer the same question again. */
+        UNLOCK_VAULT,
         /** Home: flight card, changes, and the Uber ride buttons. */
         OPEN_HOME
     }

@@ -138,3 +138,16 @@ DOCUMENT_EXPIRY	MR	passport kadhi sampel
 WHERE_IS	MR	toilet kuthe aahe
 WHERE_IS	MR	lift kuthay aahe
 HELP	MR	mala madat pahije
+
+# ---- Travel documents (answered from the vault's summaries) ----
+DOCUMENT_MISSING	HINGLISH	Kya mera visa saved hai?
+DOCUMENT_MISSING	EN	Is my visa saved?
+DOCUMENT_MISSING	EN	Am I missing any documents?
+DOCUMENT_MISSING	HI	क्या मेरा वीज़ा सेव है?
+DOCUMENT_MISSING	MR	माझा व्हिसा सेव्ह आहे का?
+DOCUMENT_MISSING	MR	Majha passport thevla aahe ka?
+DOCUMENT_MISSING	HINGLISH	mera insurance phone mein hai kya?
+DOCUMENT_EXPIRY	MR	Majha passport kadhi expire hoto?
+DOCUMENT_EXPIRY	EN	Is my travel insurance still valid?
+DOCUMENT_EXPIRY	HI	मेरा बीमा कब तक वैध है?
+DOCUMENT_EXPIRY	HINGLISH	visa kab tak valid hai

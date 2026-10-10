@@ -5,6 +5,9 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -16,9 +19,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.view.MenuProvider;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -26,12 +31,18 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
+import com.safarsaathi.app.BuildConfig;
 import com.safarsaathi.app.MainActivity;
 import com.safarsaathi.app.R;
+import com.safarsaathi.app.ServiceLocator;
 import com.safarsaathi.app.data.ask.Answer;
 import com.safarsaathi.app.data.ask.AnswerText;
 import com.safarsaathi.app.data.ask.AskLanguage;
+import com.safarsaathi.app.data.ask.DemoTripOnPhone;
 import com.safarsaathi.app.databinding.FragmentAskBinding;
+
+import java.time.Instant;
+import java.util.Collections;
 
 /**
  * Ask OnBoard (layout: fragment_ask.xml): the traveller types or says a question in English, Hindi, Marathi or
@@ -51,6 +62,9 @@ public class AskFragment extends Fragment {
     public static final String ARG_START_VOICE = "startVoice";
 
     /** The quick questions, most asked first (the brief's three, then the others). */
+    /** Debug menu item id (a plain number: menu items added in code need no resource id). */
+    private static final int MENU_DEMO_TRIP = 1;
+
     private static final String[] CHIP_KEYS = {"chip.gate", "chip.boarding_close", "chip.bag", "chip.washroom",
             "chip.flight", "chip.next"};
 
@@ -152,6 +166,7 @@ public class AskFragment extends Fragment {
             }
         });
         updateActionButton();
+        addDebugMenu();
 
         boolean startVoice = getArguments() != null && getArguments().getBoolean(ARG_START_VOICE, false);
         if (savedInstanceState == null && startVoice) {
@@ -371,7 +386,7 @@ public class AskFragment extends Fragment {
     /** Opens the screen an answer's button points to, exactly as if the traveller had tapped that tab. */
     private void openScreen(Answer.Action action) {
         int tab;
-        if (action == Answer.Action.OPEN_VAULT) {
+        if (action == Answer.Action.OPEN_VAULT || action == Answer.Action.UNLOCK_VAULT) {
             // The Document Vault is not on this branch yet (CLAUDE.md §3E): Profile is where its link will be.
             tab = R.id.navigation_profile;
         } else if (action == Answer.Action.OPEN_BAGS) {
@@ -399,6 +414,46 @@ public class AskFragment extends Fragment {
                     Math.max(bars.bottom, keyboard.bottom));
             return insets;
         });
+    }
+
+    // ---- Debug builds: load the demo trip on the phone ----
+
+    /**
+     * Debug builds only: "Load demo trip on phone" in the toolbar menu, so trip answers can be shown on an emulator or a
+     * phone without the backend (CLAUDE.md §3E). Release builds never show it.
+     */
+    private void addDebugMenu() {
+        if (!BuildConfig.DEBUG) {
+            return;
+        }
+        requireActivity().addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+                menu.add(Menu.NONE, MENU_DEMO_TRIP, Menu.NONE, R.string.ask_demo_trip_menu);
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() != MENU_DEMO_TRIP) {
+                    return false;
+                }
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.ask_demo_trip_menu)
+                        .setMessage(R.string.ask_demo_trip_confirm)
+                        .setPositiveButton(R.string.ask_demo_trip_load, (dialog, which) -> loadDemoTrip())
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+                return true;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    }
+
+    /** Saves the demo trip like a server copy (on the database thread); Home and Ask show it at once via Room. */
+    private void loadDemoTrip() {
+        DemoTripOnPhone demo = DemoTripOnPhone.build(Instant.now());
+        ServiceLocator.get().getIoExecutor().execute(() -> ServiceLocator.get().getDatabase().tripDao()
+                .replaceTrip(demo.trip, demo.blocks, Collections.emptyList()));
+        snack(getString(R.string.ask_demo_trip_loaded));
     }
 
     /** A short message just above the input bar (not over it). */
