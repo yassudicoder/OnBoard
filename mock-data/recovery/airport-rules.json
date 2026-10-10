@@ -24,6 +24,13 @@
       "sourceUrl": null,
       "lastChecked": "2026-10-11"
     },
+    "departureProcess": {
+      "minutes": 90,
+      "kind": "ESTIMATE",
+      "source": "Team estimate: check-in, security and passport control before a new departure, not an official figure",
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11"
+    },
     "atRiskMarginMinutes": 15,
     "atRiskMarginNote": "Product choice, not a fact: meeting the minimum with less than 15 minutes to spare is shown as 'at risk'."
   },
@@ -92,13 +99,37 @@
       "city": { "en": "Dubai", "hi": "दुबई", "mr": "दुबई" },
       "country": "AE",
       "timeZone": "Asia/Dubai",
+      "connectionRules": [
+        {
+          "type": "INTL_INTL",
+          "terminalChange": null,
+          "minutes": 75,
+          "kind": "DEMO_VALUE",
+          "source": "DEMO VALUE - not an official figure",
+          "sourceUrl": null,
+          "lastChecked": "2026-10-11"
+        }
+      ],
+      "gateClose": null,
+      "transfer": null,
+      "nearbyAirports": [],
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11",
+      "notes": "No official airport-wide minimum connection time found (searched 2026-10-11). flydubai publishes minimum times for its own flights only (https://www.flydubai.com/en/plan/connections/), which don't apply to other airlines. The team set a 75-minute DEMO VALUE (decided 2026-10-11 for the C2 'via Dubai' alternatives)."
+    },
+    {
+      "iata": "BAH",
+      "name": "Bahrain International Airport",
+      "city": { "en": "Bahrain", "hi": "बहरीन", "mr": "बहरीन" },
+      "country": "BH",
+      "timeZone": "Asia/Bahrain",
       "connectionRules": [],
       "gateClose": null,
       "transfer": null,
       "nearbyAirports": [],
       "sourceUrl": null,
       "lastChecked": "2026-10-11",
-      "notes": "No official airport-wide minimum connection time found (searched 2026-10-11). flydubai publishes minimum times for its own flights only (https://www.flydubai.com/en/plan/connections/), which don't apply to other airlines. Connections in Dubai show UNKNOWN until the team decides (phase C2)."
+      "notes": "Used by a SAMPLE alternative route. No minimum connection time on purpose: such a route shows 'connection time not checked' and is never the recommended option while a checked route exists."
     },
     {
       "iata": "BOM",

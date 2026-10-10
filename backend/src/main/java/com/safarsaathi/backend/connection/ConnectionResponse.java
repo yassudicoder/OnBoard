@@ -2,6 +2,7 @@ package com.safarsaathi.backend.connection;
 
 import java.time.OffsetDateTime;
 
+import com.safarsaathi.recovery.alternatives.Urgency;
 import com.safarsaathi.recovery.connection.Certainty;
 import com.safarsaathi.recovery.connection.ConnectionStatus;
 import com.safarsaathi.recovery.connection.TicketType;
@@ -24,6 +25,9 @@ import com.safarsaathi.recovery.rules.ValueKind;
  * @param basedOnDemoValue      true = the status rests on a DEMO VALUE minimum; the app must say "based on a demo
  *                              minimum connection time"
  * @param reason                plain English, local airport times
+ * @param urgency               NORMAL or URGENT: how the traveller wants alternatives ranked (C2)
+ * @param rebookedFlight        the flight the airline rebooked the traveller on (confirmed), or null (C2)
+ * @param rebookedDeparture     its departure in the connection airport's local time, or null when not known
  * @param missConfirmedAt       when the miss was first confirmed, or null
  * @param updatedAt             when the server last checked this connection (Indian time, like createdAt)
  * @param dataAsOf              when the flight data behind it arrived: the app's "as of" time
@@ -52,6 +56,9 @@ public record ConnectionResponse(
         TicketType ticketType,
         boolean basedOnDemoValue,
         String reason,
+        Urgency urgency,
+        String rebookedFlight,
+        OffsetDateTime rebookedDeparture,
         OffsetDateTime missConfirmedAt,
         OffsetDateTime updatedAt,
         OffsetDateTime dataAsOf) {

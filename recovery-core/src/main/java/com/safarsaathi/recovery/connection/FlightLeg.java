@@ -43,6 +43,19 @@ public final class FlightLeg {
         return estimatedArr != null ? estimatedArr : scheduledArr;
     }
 
+    /** The airline code in front of the flight number: "IJ" for "IJ 1907"; null when there is no flight number. */
+    public String airlineCode() {
+        if (flightNo == null || flightNo.trim().isEmpty()) {
+            return null;
+        }
+        String trimmed = flightNo.trim();
+        int space = trimmed.indexOf(' ');
+        if (space > 0) {
+            return trimmed.substring(0, space);
+        }
+        return trimmed.length() > 2 ? trimmed.substring(0, 2) : trimmed;
+    }
+
     /** The departure in the departure airport's local time. */
     public ZonedDateTime localDeparture() {
         return departure().atZone(depZone);

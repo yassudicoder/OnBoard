@@ -1,0 +1,75 @@
+{
+  "about": [
+    "Airline policy packs for Disruption Recovery: what each airline says it provides during long delays, and how to reach it.",
+    "kind OFFICIAL = copied from the airline's own page (sourceUrl + lastChecked); SAMPLE = invented for a fictional demo airline.",
+    "delayAssistanceText null = not known: the app says 'Ask the airline whether meals, a hotel or transport are provided under your ticket.'",
+    "Fictional airlines get no phone numbers and only .example web/email addresses (a reserved domain that reaches nobody).",
+    "passengerRightsText never promises anything; the links are official pages (lastChecked = when a teammate opened them).",
+    "Read by the backend's FileAirlinePolicyProvider; checked by AirlinePolicies.problems() at startup."
+  ],
+  "lastChecked": "2026-10-11",
+  "airlines": [
+    {
+      "airlineCode": "IJ",
+      "name": "IndiJet",
+      "fictional": true,
+      "kind": "SAMPLE",
+      "delayAssistanceText": null,
+      "contactChannels": [
+        { "type": "WEB", "label": "Manage booking (fictional airline)", "value": "https://indijet.example/manage" },
+        { "type": "EMAIL", "label": "Rebooking by email (fictional airline)", "value": "rebooking@indijet.example" },
+        { "type": "DESK", "label": "IndiJet ticket or transfer counter at the airport", "value": null }
+      ],
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11",
+      "notes": "Invented airline. Its delay assistance is deliberately unknown, to show the 'ask the airline' text."
+    },
+    {
+      "airlineCode": "MJ",
+      "name": "Marjan Air",
+      "fictional": true,
+      "kind": "SAMPLE",
+      "delayAssistanceText": "SAMPLE POLICY (fictional airline): if a Marjan Air flight is cancelled, or a connection on one Marjan Air ticket is missed, transfer desk staff can give meal vouchers and, for overnight waits, may offer a hotel room subject to availability.",
+      "contactChannels": [
+        { "type": "WEB", "label": "Manage booking (fictional airline)", "value": "https://marjanair.example/manage" },
+        { "type": "EMAIL", "label": "Disruption help by email (fictional airline)", "value": "help@marjanair.example" },
+        { "type": "DESK", "label": "Marjan Air transfer desk at the airport", "value": null }
+      ],
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11",
+      "notes": "Invented airline. The policy text is invented too, and labelled SAMPLE."
+    },
+    {
+      "airlineCode": "DA",
+      "name": "Dunes Air",
+      "fictional": true,
+      "kind": "SAMPLE",
+      "delayAssistanceText": null,
+      "contactChannels": [
+        { "type": "WEB", "label": "Manage booking (fictional airline)", "value": "https://dunesair.example/manage" }
+      ],
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11",
+      "notes": "Invented airline (SAMPLE alternative routes via Dubai)."
+    },
+    {
+      "airlineCode": "DN",
+      "name": "Dilmun Air",
+      "fictional": true,
+      "kind": "SAMPLE",
+      "delayAssistanceText": null,
+      "contactChannels": [
+        { "type": "WEB", "label": "Manage booking (fictional airline)", "value": "https://dilmunair.example/manage" }
+      ],
+      "sourceUrl": null,
+      "lastChecked": "2026-10-11",
+      "notes": "Invented airline (SAMPLE alternative route via Bahrain)."
+    }
+  ],
+  "passengerRightsText": "Passenger-rights rules may apply depending on your route and airline. OnBoard can't tell whether they apply to you, and nothing here is a promise of meals, a hotel or compensation. Official information:",
+  "passengerRightsLinks": [
+    { "label": "India: Passenger Charter of Rights (Ministry of Civil Aviation)", "url": "https://www.civilaviation.gov.in/index.php/ministry-documents/passenger-charter-of-rights", "lastChecked": "2026-10-11" },
+    { "label": "UK: flight delays (Civil Aviation Authority)", "url": "https://www.caa.co.uk/air-passengers/travel-problems-and-rights/flight-delays-and-cancellations/delays/", "lastChecked": "2026-10-11" },
+    { "label": "UK: flight cancellations (Civil Aviation Authority)", "url": "https://www.caa.co.uk/air-passengers/travel-problems-and-rights/flight-delays-and-cancellations/cancellations/", "lastChecked": "2026-10-11" }
+  ]
+}

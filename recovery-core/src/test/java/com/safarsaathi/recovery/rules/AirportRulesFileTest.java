@@ -26,7 +26,8 @@ class AirportRulesFileTest {
 
         assertThat(rules.problems()).isEmpty();
         assertThat(rules.airports).extracting(airport -> airport.iata)
-                .contains("DEL", "DOH", "LHR", "DXB", "BOM", "BLR", "PNQ", "IXL");
+                .contains("DEL", "DOH", "LHR", "DXB", "BAH", "BOM", "BLR", "PNQ", "IXL");
+        assertThat(rules.defaults.departureProcess.kind).isEqualTo(ValueKind.ESTIMATE);
     }
 
     @Test
@@ -46,11 +47,21 @@ class AirportRulesFileTest {
     }
 
     @Test
-    void airportsWithoutAnOfficialFigureHaveNoRules() throws IOException {
+    void dubaiUsesTheAgreedDemoValue() throws IOException {
+        assertThat(load().find("DXB").connectionRules).singleElement().satisfies(rule -> {
+            assertThat(rule.type).isEqualTo(ConnectionType.INTL_INTL);
+            assertThat(rule.minutes).isEqualTo(75);
+            assertThat(rule.kind).isEqualTo(ValueKind.DEMO_VALUE);
+            assertThat(rule.source).isEqualTo("DEMO VALUE - not an official figure");
+        });
+    }
+
+    @Test
+    void airportsWithoutAnyFigureHaveNoRules() throws IOException {
         AirportRules rules = load();
 
-        assertThat(rules.find("DEL").connectionRules).isEmpty();
-        assertThat(rules.find("DXB").connectionRules).isEmpty();
+        assertThat(rules.find("DEL").connectionRules).isEmpty(); // UNKNOWN: no official figure, no demo value
+        assertThat(rules.find("BAH").connectionRules).isEmpty(); // "connection time not checked" in alternatives
     }
 
     @Test

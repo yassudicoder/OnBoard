@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import com.safarsaathi.recovery.alternatives.Urgency;
 import com.safarsaathi.recovery.connection.ConnectionStatus;
 import com.safarsaathi.recovery.connection.TicketType;
 import com.safarsaathi.recovery.rules.ConnectionType;
@@ -123,6 +124,23 @@ public class Connection {
     @Column(name = "data_as_of", nullable = false)
     private Instant dataAsOf;
 
+    /** The traveller's choice for ranking alternatives (V4). */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 8)
+    private Urgency urgency = Urgency.NORMAL;
+
+    /** The flight the airline rebooked the traveller on (confirmed by airline data or the traveller); null = none. */
+    @Column(name = "rebooked_flight", length = 16)
+    private String rebookedFlight;
+
+    /** Its departure, when known. */
+    @Column(name = "rebooked_departure")
+    private Instant rebookedDeparture;
+
+    /** When the traveller marked the connection as sorted (made it, or has a new plan); null = not yet. */
+    @Column(name = "resolved_at")
+    private Instant resolvedAt;
+
     // Getters and setters: JPA reads and fills the fields; the rest of our code uses these methods.
 
     public Long getId() { return id; }
@@ -207,4 +225,16 @@ public class Connection {
 
     public Instant getDataAsOf() { return dataAsOf; }
     public void setDataAsOf(Instant dataAsOf) { this.dataAsOf = dataAsOf; }
+
+    public Urgency getUrgency() { return urgency; }
+    public void setUrgency(Urgency urgency) { this.urgency = urgency; }
+
+    public String getRebookedFlight() { return rebookedFlight; }
+    public void setRebookedFlight(String rebookedFlight) { this.rebookedFlight = rebookedFlight; }
+
+    public Instant getRebookedDeparture() { return rebookedDeparture; }
+    public void setRebookedDeparture(Instant rebookedDeparture) { this.rebookedDeparture = rebookedDeparture; }
+
+    public Instant getResolvedAt() { return resolvedAt; }
+    public void setResolvedAt(Instant resolvedAt) { this.resolvedAt = resolvedAt; }
 }

@@ -53,6 +53,10 @@ public final class AirportRules {
             if (defaults.gateClose == null) {
                 problems.add("defaults.gateClose is missing");
             }
+            checkSourced("defaults.departureProcess", defaults.departureProcess, problems);
+            if (defaults.departureProcess == null) {
+                problems.add("defaults.departureProcess is missing");
+            }
             if (defaults.atRiskMarginMinutes < 0) {
                 problems.add("defaults.atRiskMarginMinutes must be 0 or more");
             }

@@ -1,0 +1,18 @@
+{
+  "about": [
+    "Product choices for Disruption Recovery plans: decisions, not facts about airports or airlines.",
+    "Ranking score in minutes (lower = better) = minutes later than the original arrival + changes of planes x stopPenaltyMinutes + extra cost / 1000 x minutesPerThousandInr.",
+    "NORMAL: an extra change of planes counts like arriving 3 h later, every 1,000 rupees extra like 10 min later (cost only counts for separate tickets).",
+    "URGENT: arrival dominates; a change of planes counts like 30 min, 1,000 rupees like 1 min.",
+    "Read by the backend's FileRecoverySettings and (from C3) the app; checked by RecoverySettings.problems()."
+  ],
+  "lastChecked": "2026-10-11",
+  "normal": { "stopPenaltyMinutes": 180, "minutesPerThousandInr": 10 },
+  "urgent": { "stopPenaltyMinutes": 30, "minutesPerThousandInr": 1 },
+  "searchWindowHours": 36,
+  "maxLayoverHours": 12,
+  "overnightThresholdHours": 6,
+  "staleAfterMinutes": 15,
+  "otherOptionsShown": 2,
+  "alternativesKept": 10
+}

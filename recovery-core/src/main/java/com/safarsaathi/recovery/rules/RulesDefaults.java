@@ -8,6 +8,11 @@ public final class RulesDefaults {
     /** When the gate closes before departure if neither the airport nor the airline says: a team estimate. */
     public SourcedMinutes gateClose;
     /**
+     * Check-in, security and passport control before a new departure, when a flight is cancelled before it leaves
+     * (the plan then starts at the departure airport): a team estimate.
+     */
+    public SourcedMinutes departureProcess;
+    /**
      * A product choice, not a fact: a connection that meets the minimum but leaves less than this many minutes to
      * spare is shown as "at risk".
      */

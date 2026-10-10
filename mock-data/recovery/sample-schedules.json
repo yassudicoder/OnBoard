@@ -1,0 +1,26 @@
+{
+  "about": [
+    "SAMPLE DATA: invented daily flights of invented airlines, for the Disruption Recovery demo only. Not a real timetable.",
+    "Airlines (all fictional): IJ IndiJet, MJ Marjan Air, DA Dunes Air, DN Dilmun Air.",
+    "Read by the backend's SampleScheduleProvider, which offers direct flights and one-stop routes between them.",
+    "'departs' is local time at 'from', 'arrives' local time at 'to', 'arrivalDayOffset' = days later (0 = same day).",
+    "Time zones come from airport-rules.json. Every flight runs every day. fareInr = a SAMPLE one-way fare in rupees.",
+    "Seats are never known here: options from this file always show 'availability unknown'."
+  ],
+  "lastChecked": "2026-10-11",
+  "flights": [
+    { "flightNo": "IJ 1907", "from": "DEL", "to": "DOH", "departs": "17:50", "arrives": "19:35", "arrivalDayOffset": 0, "depTerminal": "T3", "arrTerminal": null, "fareInr": 21500, "fareRules": "SAMPLE: change fee ₹3,000 + fare difference; refund minus ₹4,500" },
+    { "flightNo": "IJ 1909", "from": "DEL", "to": "DOH", "departs": "08:20", "arrives": "10:05", "arrivalDayOffset": 0, "depTerminal": "T3", "arrTerminal": null, "fareInr": 19800, "fareRules": "SAMPLE: change fee ₹3,000 + fare difference; refund minus ₹4,500" },
+    { "flightNo": "IJ 1", "from": "DEL", "to": "LHR", "departs": "13:45", "arrives": "18:55", "arrivalDayOffset": 0, "depTerminal": "T3", "arrTerminal": null, "fareInr": 54000, "fareRules": "SAMPLE: change fee ₹6,000 + fare difference; non-refundable" },
+    { "flightNo": "MJ 31", "from": "DOH", "to": "LHR", "departs": "21:55", "arrives": "03:10", "arrivalDayOffset": 1, "depTerminal": null, "arrTerminal": null, "fareInr": 31500, "fareRules": "SAMPLE: free change within 24 h of a disruption; refund minus ₹5,000" },
+    { "flightNo": "MJ 33", "from": "DOH", "to": "LHR", "departs": "07:40", "arrives": "12:55", "arrivalDayOffset": 0, "depTerminal": null, "arrTerminal": null, "fareInr": 33800, "fareRules": "SAMPLE: free change within 24 h of a disruption; refund minus ₹5,000" },
+    { "flightNo": "MJ 37", "from": "DOH", "to": "LHR", "departs": "13:30", "arrives": "18:45", "arrivalDayOffset": 0, "depTerminal": null, "arrTerminal": null, "fareInr": 29900, "fareRules": "SAMPLE: free change within 24 h of a disruption; refund minus ₹5,000" },
+    { "flightNo": "DA 101", "from": "DEL", "to": "DXB", "departs": "21:30", "arrives": "23:35", "arrivalDayOffset": 0, "depTerminal": "T3", "arrTerminal": null, "fareInr": 17600, "fareRules": "SAMPLE: change fee ₹2,500 + fare difference; non-refundable" },
+    { "flightNo": "DA 112", "from": "DOH", "to": "DXB", "departs": "01:45", "arrives": "03:50", "arrivalDayOffset": 0, "depTerminal": null, "arrTerminal": null, "fareInr": 9800, "fareRules": "SAMPLE: change fee ₹2,500 + fare difference; non-refundable" },
+    { "flightNo": "DA 114", "from": "DOH", "to": "DXB", "departs": "22:40", "arrives": "00:45", "arrivalDayOffset": 1, "depTerminal": null, "arrTerminal": null, "fareInr": 9800, "fareRules": "SAMPLE: change fee ₹2,500 + fare difference; non-refundable" },
+    { "flightNo": "DA 3", "from": "DXB", "to": "LHR", "departs": "01:40", "arrives": "06:15", "arrivalDayOffset": 0, "depTerminal": null, "arrTerminal": null, "fareInr": 36500, "fareRules": "SAMPLE: change fee ₹4,000 + fare difference; non-refundable" },
+    { "flightNo": "DA 5", "from": "DXB", "to": "LHR", "departs": "06:00", "arrives": "10:25", "arrivalDayOffset": 0, "depTerminal": null, "arrTerminal": null, "fareInr": 36500, "fareRules": "SAMPLE: change fee ₹4,000 + fare difference; non-refundable" },
+    { "flightNo": "DN 404", "from": "DOH", "to": "BAH", "departs": "23:20", "arrives": "00:10", "arrivalDayOffset": 1, "depTerminal": null, "arrTerminal": null, "fareInr": 8700, "fareRules": "SAMPLE: non-refundable" },
+    { "flightNo": "DN 9", "from": "BAH", "to": "LHR", "departs": "01:30", "arrives": "06:00", "arrivalDayOffset": 0, "depTerminal": null, "arrTerminal": null, "fareInr": 30200, "fareRules": "SAMPLE: non-refundable" }
+  ]
+}

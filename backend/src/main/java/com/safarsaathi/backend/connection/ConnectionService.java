@@ -90,7 +90,8 @@ public class ConnectionService {
      * Runs inside the caller's transaction, after the caller locked the trip row (DisruptionService.apply).
      *
      * @param blocksById every block of the trip, already updated
-     * @param dataAsOf   when the flight data behind this check arrived
+     * @param dataAsOf   when the flight data behind this check arrived; null = no new flight data (e.g. the traveller
+     *                   only chose a ticket type), so each connection keeps its own "as of" time
      */
     public List<Connection> recheck(long tripId, Map<Long, Block> blocksById, Instant dataAsOf) {
         List<Connection> connections = connectionRepository.findByTripIdOrderByIdAsc(tripId);
@@ -117,6 +118,17 @@ public class ConnectionService {
     }
 
     /**
+     * The connection, or 404.
+     *
+     * @throws ConnectionNotFoundException (404) unknown connection
+     */
+    @Transactional(readOnly = true)
+    public Connection find(long connectionId) {
+        return connectionRepository.findById(connectionId)
+                .orElseThrow(() -> new ConnectionNotFoundException(connectionId));
+    }
+
+    /**
      * The trip's connections for the API (in id order; empty when the trip has none).
      *
      * @throws TripNotFoundException (404) unknown trip
@@ -140,7 +152,10 @@ public class ConnectionService {
     private void applyCheck(Connection connection, Block inbound, Block outbound, Instant dataAsOf) {
         ConnectionFacts facts = new ConnectionFacts();
         facts.missConfirmed = connection.getMissConfirmedAt() != null;
+        facts.rebookedFlight = connection.getRebookedFlight();
+        facts.resolved = connection.getResolvedAt() != null;
         ConnectionCheck check = checker.check(toLeg(inbound), toLeg(outbound), facts);
+        Instant now = clock.instant().truncatedTo(ChronoUnit.SECONDS);
 
         connection.setAirport(check.airport);
         connection.setConnectionType(check.connectionType);
@@ -163,17 +178,20 @@ public class ConnectionService {
         connection.setBasedOnDemoValue(check.basedOnDemoValue);
         connection.setReason(check.reason);
         if (check.status == ConnectionStatus.CONFIRMED_MISSED && connection.getMissConfirmedAt() == null) {
-            connection.setMissConfirmedAt(dataAsOf); // from now on a fact, even after both flights have landed
+            // From now on a fact, even after both flights have landed.
+            connection.setMissConfirmedAt(dataAsOf != null ? dataAsOf : now);
         }
-        connection.setUpdatedAt(clock.instant().truncatedTo(ChronoUnit.SECONDS));
-        connection.setDataAsOf(dataAsOf);
+        connection.setUpdatedAt(now);
+        if (dataAsOf != null || connection.getDataAsOf() == null) {
+            connection.setDataAsOf(dataAsOf != null ? dataAsOf : now);
+        }
     }
 
     /**
      * A flight block as the checker sees it. The block's start/end are the latest times (the estimate after a delay),
      * its scheduled times the timetable.
      */
-    static FlightLeg toLeg(Block flight) {
+    public static FlightLeg toLeg(Block flight) {
         FlightLeg leg = new FlightLeg();
         leg.flightNo = flight.getFlightNo();
         leg.depAirport = flight.getDepAirport();
@@ -231,6 +249,9 @@ public class ConnectionService {
                 connection.getTicketType(),
                 connection.isBasedOnDemoValue(),
                 connection.getReason(),
+                connection.getUrgency(),
+                connection.getRebookedFlight(),
+                mapper.toApiTime(connection.getRebookedDeparture(), airportZone),
                 mapper.toApiTime(connection.getMissConfirmedAt()),
                 mapper.toApiTime(connection.getUpdatedAt()),
                 mapper.toApiTime(connection.getDataAsOf()));
