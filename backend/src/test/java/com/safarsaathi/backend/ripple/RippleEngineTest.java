@@ -23,6 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -368,6 +370,47 @@ class RippleEngineTest {
                 new BrokenLink(1, 3, 60),
                 new BrokenLink(2, 3, 90));
         assertThat(reversed).isEqualTo(first);
+    }
+
+    // ---- Time zones (Disruption Recovery): messages in each airport's local time ----
+
+    @Test
+    void messagesShowEachTimeInItsOwnAirportsLocalTime() {
+        // Delhi 17:50 (+05:30) to Doha 19:35 (+03:00), then Doha 21:55 to London 03:10 next day (+01:00), 60 minutes
+        // to change planes in Doha. 95 minutes late: leaves Delhi 19:25 Delhi time, lands 21:10 Doha time.
+        RippleResult result = engine.run(dohaTrip(), List.of(new RippleLink(1, 2, 60, 0)),
+                RippleChange.delay(dohaTrip().get(0), 95), NOW);
+
+        assertThat(result.outcomeFor(1).orElseThrow().reason())
+                .isEqualTo("Now 19:25 to 21:10, 95 minutes later than planned.");
+        assertThat(result.outcomeFor(2).orElseThrow().reason())
+                .isEqualTo("The earliest you can make it is 22:10, 15 minutes late. It cannot be moved automatically, "
+                        + "so you decide.");
+        assertThat(result.brokenLinks()).containsExactly(new BrokenLink(1, 2, 15));
+    }
+
+    @Test
+    void anArrivalOnTheNextLocalDayShowsItsDate() {
+        RippleResult result = engine.run(dohaTrip(), List.of(new RippleLink(1, 2, 60, 0)),
+                RippleChange.delay(dohaTrip().get(1), 30), NOW);
+
+        // Leaves Doha 22:25 on 11 Oct (Doha time), lands 03:40 on 12 Oct (London time).
+        assertThat(result.outcomeFor(2).orElseThrow().reason())
+                .isEqualTo("Now 22:25 to 03:40 on 12 Oct, 30 minutes later than planned.");
+    }
+
+    /** Two flights with their airports' zones (ids 1 and 2). */
+    private static List<RippleBlock> dohaTrip() {
+        ZoneId qatar = ZoneId.of("Asia/Qatar");
+        return List.of(
+                new RippleBlock(1, false, local("2026-10-11T17:50+05:30"), local("2026-10-11T19:35+03:00"),
+                        Flex.FIXED, false, null, BlockStatus.OK, INDIA, qatar),
+                new RippleBlock(2, false, local("2026-10-11T21:55+03:00"), local("2026-10-12T03:10+01:00"),
+                        Flex.FIXED, false, null, BlockStatus.OK, qatar, ZoneId.of("Europe/London")));
+    }
+
+    private static Instant local(String timeWithOffset) {
+        return OffsetDateTime.parse(timeWithOffset).toInstant();
     }
 
     // ---- Helpers ----

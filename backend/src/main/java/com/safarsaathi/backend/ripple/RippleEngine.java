@@ -42,6 +42,10 @@ import com.safarsaathi.backend.trip.Flex;
  *
  * <p>Plain Java: no Spring, no database. "Now" is passed in (never read from the system clock) and the same input
  * always gives the same result, so tests can pick any moment and expect exact answers.
+ *
+ * <p>Time zones: the maths works on exact moments, so zones never change a verdict except for the hotel's 23:00 /
+ * midnight rule (in the hotel's own zone). Times in messages are local to the block: a flight's new departure in
+ * the departure airport's time, its new arrival in the arrival airport's time ({@link RippleBlock#startZone()}).
  */
 public final class RippleEngine {
 
@@ -56,11 +60,14 @@ public final class RippleEngine {
     private static final Comparator<RippleBlock> BY_START_THEN_ID =
             Comparator.comparing(RippleBlock::start).thenComparingLong(RippleBlock::id);
 
-    private final ZoneId zone;
+    private final ZoneId defaultZone;
 
-    /** @param zone the trip's time zone (Asia/Kolkata): used for the hotel's 23:00 / midnight rule and in messages */
-    public RippleEngine(ZoneId zone) {
-        this.zone = Objects.requireNonNull(zone, "zone");
+    /**
+     * @param defaultZone the trip's time zone (Asia/Kolkata), for blocks that do not name their own zone: used for the
+     *                    hotel's 23:00 / midnight rule and in messages
+     */
+    public RippleEngine(ZoneId defaultZone) {
+        this.defaultZone = Objects.requireNonNull(defaultZone, "defaultZone");
     }
 
     /**
@@ -152,24 +159,26 @@ public final class RippleEngine {
         if (canMoveForFree(block, now)) {
             // Move the whole block: the start to the earliest possible moment, the end by the same amount.
             return new BlockOutcome(block.id(), BlockStatus.AUTO_ADJUSTED, earliestStart, block.end().plus(late),
-                    minutesLate, "Moved from " + time(block.start(), block) + " to " + time(earliestStart, block)
+                    minutesLate, "Moved from " + startTime(block.start(), block) + " to "
+                            + startTime(earliestStart, block)
                             + ", free of charge, to fit the new plan.");
         }
         return new BlockOutcome(block.id(), BlockStatus.NEEDS_USER, null, null, minutesLate,
-                "The earliest you can make it is " + time(earliestStart, block) + ", " + minutesLate
+                "The earliest you can make it is " + startTime(earliestStart, block) + ", " + minutesLate
                         + " minutes late. " + whyYouDecide(block));
     }
 
     /**
-     * Hotel rule: check-in is a window, not a fixed time. Arriving later is fine until 23:00 local time on the
-     * check-in day (OK). Until midnight the check-in moves and the hotel gets a late-arrival note (AUTO_ADJUSTED).
-     * From midnight on the hotel may treat it as a no-show, so the traveller decides (NEEDS_USER).
+     * Hotel rule: check-in is a window, not a fixed time. Arriving later is fine until 23:00 local time (the hotel's
+     * zone) on the check-in day (OK). Until midnight the check-in moves and the hotel gets a late-arrival note
+     * (AUTO_ADJUSTED). From midnight on the hotel may treat it as a no-show, so the traveller decides (NEEDS_USER).
      */
     private BlockOutcome hotelCheckIn(RippleBlock hotel, Instant arrival, Duration late, int minutesLate) {
+        ZoneId zone = startZoneOf(hotel);
         LocalDate checkInDay = hotel.start().atZone(zone).toLocalDate();
         Instant lateArrivalAfter = checkInDay.atTime(LATE_ARRIVAL_AFTER).atZone(zone).toInstant();
         Instant midnight = checkInDay.plusDays(1).atStartOfDay(zone).toInstant();
-        String arrivalTime = time(arrival, hotel);
+        String arrivalTime = startTime(arrival, hotel);
 
         if (!arrival.isAfter(lateArrivalAfter)) {
             return new BlockOutcome(hotel.id(), BlockStatus.OK, null, null, minutesLate,
@@ -211,7 +220,7 @@ public final class RippleEngine {
     /** The changed block itself: its new times. Its status stays as it was (the caller may pick another one). */
     private BlockOutcome changedBlockOutcome(RippleBlock block, RippleChange change) {
         Duration moved = Duration.between(block.start(), change.newStart());
-        String when = "Now " + time(change.newStart(), block) + " to " + time(change.newEnd(), block);
+        String when = "Now " + startTime(change.newStart(), block) + " to " + endTime(change.newEnd(), block);
         String reason;
         if (moved.isNegative()) {
             reason = when + ", " + roundUpToMinutes(moved.negated()) + " minutes earlier than planned.";
@@ -350,10 +359,24 @@ public final class RippleEngine {
         return Math.toIntExact(minutes);
     }
 
-    /** "14:30", or "00:40 on 12 Oct" when the time is no longer on the block's own day. */
-    private String time(Instant instant, RippleBlock block) {
+    /** A start-side time (e.g. a departure) in the block's start zone: "14:30", or "00:40 on 12 Oct". */
+    private String startTime(Instant instant, RippleBlock block) {
+        return time(instant, startZoneOf(block), block);
+    }
+
+    /** An end-side time (e.g. an arrival) in the block's end zone: "19:35", or "03:10 on 12 Oct". */
+    private String endTime(Instant instant, RippleBlock block) {
+        return time(instant, block.endZone() != null ? block.endZone() : defaultZone, block);
+    }
+
+    /** "14:30" in {@code zone}, or "00:40 on 12 Oct" when that is no longer the block's own (local start) day. */
+    private String time(Instant instant, ZoneId zone, RippleBlock block) {
         ZonedDateTime local = instant.atZone(zone);
-        LocalDate blockDay = block.start().atZone(zone).toLocalDate();
+        LocalDate blockDay = block.start().atZone(startZoneOf(block)).toLocalDate();
         return local.toLocalDate().equals(blockDay) ? TIME.format(local) : TIME_ON_DAY.format(local);
+    }
+
+    private ZoneId startZoneOf(RippleBlock block) {
+        return block.startZone() != null ? block.startZone() : defaultZone;
     }
 }

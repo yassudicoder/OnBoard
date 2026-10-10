@@ -26,7 +26,8 @@ import com.safarsaathi.backend.demo.DemoTripSeeder;
 /**
  * GET /api/trips/{id} through MockMvc (a pretend HTTP client), on the seeded demo data in an in-memory database.
  * The clock is stopped at 10 Oct 2026 17:30:05 in India, so the trip day is 11 Oct 2026 and every time below is exact.
- * These checks are the contract with the Android app: field names, order, nulls and the +05:30 time format.
+ * These checks are the contract with the Android app: field names, order, nulls and the time format: each time in the
+ * local time of its place (+05:30 in India, +03:00 in Doha, +01:00 in London in October).
  */
 @SpringBootTest
 @TestPropertySource(locations = {"classpath:no-keys.properties", "classpath:test-database.properties"})
@@ -73,8 +74,8 @@ class TripControllerTest {
                 .andExpect(jsonPath("$.blocks[*].type",
                         contains("FLIGHT", "BAG_CLAIM", "CAB", "MEETING", "HOTEL", "RESTAURANT")))
                 .andExpect(jsonPath("$.blocks[*].status", contains("OK", "OK", "OK", "OK", "OK", "OK")))
-                // The first block, every one of its 17 fields.
-                .andExpect(jsonPath("$.blocks[0]", aMapWithSize(17)))
+                // The first block, every one of its 20 fields.
+                .andExpect(jsonPath("$.blocks[0]", aMapWithSize(20)))
                 .andExpect(jsonPath("$.blocks[0].id").value(1))
                 .andExpect(jsonPath("$.blocks[0].tripId").value(1))
                 .andExpect(jsonPath("$.blocks[0].type").value("FLIGHT"))
@@ -93,6 +94,23 @@ class TripControllerTest {
                 .andExpect(jsonPath("$.blocks[0].freeChangeUntilMinutes").value(nullValue()))
                 .andExpect(jsonPath("$.blocks[0].changeFeeInr").value(2500))
                 .andExpect(jsonPath("$.blocks[0].notes").value(not(nullValue())))
+                .andExpect(jsonPath("$.blocks[0].startZone").value("Asia/Kolkata"))
+                .andExpect(jsonPath("$.blocks[0].endZone").value("Asia/Kolkata"))
+                // A flight's own fields: 12 of them.
+                .andExpect(jsonPath("$.blocks[0].flight", aMapWithSize(12)))
+                .andExpect(jsonPath("$.blocks[0].flight.flightNo").value("IJ 512"))
+                .andExpect(jsonPath("$.blocks[0].flight.depAirport").value("BOM"))
+                .andExpect(jsonPath("$.blocks[0].flight.arrAirport").value("BLR"))
+                .andExpect(jsonPath("$.blocks[0].flight.depTerminal").value("T2"))
+                .andExpect(jsonPath("$.blocks[0].flight.arrTerminal").value("T1"))
+                .andExpect(jsonPath("$.blocks[0].flight.depZone").value("Asia/Kolkata"))
+                .andExpect(jsonPath("$.blocks[0].flight.arrZone").value("Asia/Kolkata"))
+                .andExpect(jsonPath("$.blocks[0].flight.scheduledDep").value("2026-10-11T08:00:00+05:30"))
+                .andExpect(jsonPath("$.blocks[0].flight.scheduledArr").value("2026-10-11T09:45:00+05:30"))
+                .andExpect(jsonPath("$.blocks[0].flight.estimatedDep").value("2026-10-11T08:00:00+05:30"))
+                .andExpect(jsonPath("$.blocks[0].flight.estimatedArr").value("2026-10-11T09:45:00+05:30"))
+                .andExpect(jsonPath("$.blocks[0].flight.status").value("SCHEDULED"))
+                .andExpect(jsonPath("$.blocks[1].flight").value(nullValue())) // not a flight
                 // A few more blocks: a null providerRef, the zero-length cab pickup, the anchor meeting.
                 .andExpect(jsonPath("$.blocks[1].providerRef").value(nullValue()))
                 .andExpect(jsonPath("$.blocks[2].startTime").value("2026-10-11T10:05:00+05:30"))
@@ -127,7 +145,29 @@ class TripControllerTest {
                 .andExpect(jsonPath("$.blocks[*].id", contains(7, 8, 9, 10, 11)))
                 .andExpect(jsonPath("$.blocks[0].startTime").value("2026-10-11T06:10:00+05:30"))
                 .andExpect(jsonPath("$.links[*].id", contains(6, 7, 8, 9)))
-                .andExpect(jsonPath("$.links[0].minGapMinutes").value(75));
+                // Between two flights the minimum connection time comes from the airport rules file, not the link.
+                .andExpect(jsonPath("$.links[0].minGapMinutes").value(0));
+    }
+
+    @Test
+    void tripThreeShowsEachTimeInItsAirportsLocalTime() throws Exception {
+        mockMvc.perform(get("/api/trips/3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Delhi to London via Doha"))
+                .andExpect(jsonPath("$.language").value("hi"))
+                .andExpect(jsonPath("$.blocks[*].id", contains(12, 13)))
+                // Leaves Delhi 17:50 Delhi time, lands 19:35 Doha time.
+                .andExpect(jsonPath("$.blocks[0].startTime").value("2026-10-11T17:50:00+05:30"))
+                .andExpect(jsonPath("$.blocks[0].endTime").value("2026-10-11T19:35:00+03:00"))
+                .andExpect(jsonPath("$.blocks[0].startZone").value("Asia/Kolkata"))
+                .andExpect(jsonPath("$.blocks[0].endZone").value("Asia/Qatar"))
+                .andExpect(jsonPath("$.blocks[0].flight.flightNo").value("IJ 1907"))
+                .andExpect(jsonPath("$.blocks[0].flight.arrTerminal").value(nullValue()))
+                // Leaves Doha 21:55 Doha time, lands 03:10 London time the next morning.
+                .andExpect(jsonPath("$.blocks[1].startTime").value("2026-10-11T21:55:00+03:00"))
+                .andExpect(jsonPath("$.blocks[1].endTime").value("2026-10-12T03:10:00+01:00"))
+                .andExpect(jsonPath("$.blocks[1].flight.arrZone").value("Europe/London"))
+                .andExpect(jsonPath("$.links[0].minGapMinutes").value(0));
     }
 
     @Test

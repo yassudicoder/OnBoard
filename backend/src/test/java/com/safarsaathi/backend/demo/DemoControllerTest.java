@@ -190,22 +190,41 @@ class DemoControllerTest {
     }
 
     @Test
-    void missedConnectionOnTripTwo() throws Exception {
-        // Pune-Delhi lands at 09:20 instead of 08:20; with the 75-minute connection time the 10:15 Leh flight is
-        // 20 minutes short. Flights never move by themselves, so the traveller decides.
+    void likelyMissedConnectionOnTripThree() throws Exception {
+        // Delhi-Doha lands at 21:10 Doha time instead of 19:35; with Doha's 60-minute minimum connection time (a demo
+        // value) the 21:55 London flight is 15 minutes short. Flights never move by themselves, so the traveller
+        // decides. Every time is in its own airport's local time.
+        triggerDelay(3, 12, 95)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tripId").value(3))
+                .andExpect(jsonPath("$.version").value(2))
+                .andExpect(jsonPath("$.outcomes[*].blockId", contains(12, 13)))
+                .andExpect(jsonPath("$.outcomes[*].status", contains("OK", "NEEDS_USER")))
+                .andExpect(jsonPath("$.outcomes[0].newStart").value("2026-10-11T19:25:00+05:30"))
+                .andExpect(jsonPath("$.outcomes[0].newEnd").value("2026-10-11T21:10:00+03:00"))
+                .andExpect(jsonPath("$.outcomes[0].reason").value("Now 19:25 to 21:10, 95 minutes later than planned."))
+                .andExpect(jsonPath("$.outcomes[1].minutesLate").value(15))
+                .andExpect(jsonPath("$.outcomes[1].reason").value("The earliest you can make it is 22:10, 15 minutes "
+                        + "late. It cannot be moved automatically, so you decide."))
+                .andExpect(jsonPath("$.brokenLinks[0].fromBlockId").value(12))
+                .andExpect(jsonPath("$.brokenLinks[0].toBlockId").value(13))
+                .andExpect(jsonPath("$.brokenLinks[0].minutesShort").value(15));
+
+        assertThat(eventRepository.findByTripIdOrderByIdAsc(3L)).extracting(event -> event.getKind())
+                .containsExactly(DisruptionKind.DELAY, DisruptionKind.LIKELY_MISSED);
+        mockMvc.perform(get("/api/trips/1")).andExpect(jsonPath("$.version").value(1)); // trip 1 untouched
+    }
+
+    @Test
+    void delhiConnectionWithoutAMinimumIsNotFlaggedByItself() throws Exception {
+        // Pune-Delhi lands 09:20, Delhi-Leh leaves 10:15. Delhi has no minimum connection time in the airport rules
+        // file, so the ripple does not guess one: the Leh flight stays OK and the connection itself says UNKNOWN.
         triggerDelay(2, 7, 60)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tripId").value(2))
-                .andExpect(jsonPath("$.version").value(2))
-                .andExpect(jsonPath("$.outcomes[*].blockId", contains(7, 8, 9, 10, 11)))
-                .andExpect(jsonPath("$.outcomes[*].status",
-                        contains("OK", "NEEDS_USER", "AUTO_ADJUSTED", "AUTO_ADJUSTED", "OK")))
-                .andExpect(jsonPath("$.outcomes[1].minutesLate").value(20))
-                .andExpect(jsonPath("$.brokenLinks[0].fromBlockId").value(7))
-                .andExpect(jsonPath("$.brokenLinks[0].toBlockId").value(8))
-                .andExpect(jsonPath("$.brokenLinks[0].minutesShort").value(20));
-
-        mockMvc.perform(get("/api/trips/1")).andExpect(jsonPath("$.version").value(1)); // trip 1 untouched
+                .andExpect(jsonPath("$.outcomes[*].status", everyItem(is("OK"))))
+                .andExpect(jsonPath("$.brokenLinks", hasSize(0)));
+        mockMvc.perform(get("/api/trips/2/connections"))
+                .andExpect(jsonPath("$[0].status").value("UNKNOWN"));
     }
 
     @Test
@@ -218,7 +237,7 @@ class DemoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", aMapWithSize(2)))
-                .andExpect(jsonPath("$.trips").value(2))
+                .andExpect(jsonPath("$.trips").value(3))
                 .andExpect(jsonPath("$.message").value("Demo data reloaded"));
 
         String newCreatedAt = "2026-10-10T18:30:05+05:30"; // the reset time, not the first load (17:30:05)
@@ -231,6 +250,9 @@ class DemoControllerTest {
                 .andExpect(jsonPath("$.blocks[*].status", everyItem(is("OK"))))
                 .andExpect(jsonPath("$.blocks[0].startTime").value("2026-10-11T08:00:00+05:30"));
         mockMvc.perform(get("/api/trips/2"))
+                .andExpect(jsonPath("$.version").value(1))
+                .andExpect(jsonPath("$.createdAt").value(newCreatedAt));
+        mockMvc.perform(get("/api/trips/3"))
                 .andExpect(jsonPath("$.version").value(1))
                 .andExpect(jsonPath("$.createdAt").value(newCreatedAt));
         assertThat(OffsetDateTime.parse(newCreatedAt).toInstant()).isAfter(MovableClockConfig.START);

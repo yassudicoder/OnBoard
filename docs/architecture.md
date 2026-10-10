@@ -168,7 +168,7 @@ flowchart TB
 
 1. **Seed loader (backend).** At startup, Flyway first creates the tables from
    `backend/src/main/resources/db/migration/V1__create_trips_blocks_links.sql`. Then, if the database has no trips
-   yet, the seed loader reads `mock-data/demo-trips.json` and saves the two demo trips. The times in that file are
+   yet, the seed loader reads `mock-data/demo-trips.json` and saves the three demo trips. The times in that file are
    relative ("day 0, 08:00"). The loader turns them into real times: the trip day is today in India (from the backend's
    injected `Clock`) plus `safarsaathi.seed.day-offset` days (default 1 = tomorrow). Details:
    [mock-data/README.md](../mock-data/README.md).

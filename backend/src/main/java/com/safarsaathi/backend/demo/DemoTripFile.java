@@ -11,6 +11,7 @@ import com.safarsaathi.backend.trip.Persona;
 import com.safarsaathi.backend.trip.Purpose;
 import com.safarsaathi.backend.trip.TravelMode;
 import com.safarsaathi.backend.trip.TripStatus;
+import com.safarsaathi.recovery.connection.TicketType;
 
 /**
  * The shape of {@code mock-data/demo-trips.json}, as Java records. Jackson (the JSON library) fills them: each JSON
@@ -28,16 +29,29 @@ record DemoTripFile(List<SeedTrip> trips) {
     }
 
     /**
-     * One block. Its times are relative to the trip day: {@code day} days after it, at {@code start} (Indian time).
-     * It ends on day {@code endDay} at {@code end}; without {@code endDay} it ends on the same day it starts.
+     * One block. Its times are relative to the trip day and LOCAL to where they happen: it starts {@code day} days
+     * after the trip day at {@code start}, and ends on day {@code endDay} at {@code end} (without {@code endDay}: the
+     * day it starts). A FLIGHT gives its airports in {@code flight}: start = local time at the departure airport, end =
+     * local time at the arrival airport (zones from mock-data/recovery/airport-rules.json). Any other block is in
+     * {@code zone}, or in the trip zone (Asia/Kolkata) when {@code zone} is missing.
      */
     record SeedBlock(String key, BlockType type, String title, int day, LocalTime start, Integer endDay,
                      LocalTime end, String locationName, Double lat, Double lng, BlockProvider provider,
                      String providerRef, Flex flex, boolean anchor, Integer freeChangeUntilMinutes,
-                     int changeFeeInr, String notes) {
+                     int changeFeeInr, String notes, String zone, SeedFlight flight) {
     }
 
-    /** One link between two blocks of the same trip, named by their {@code key}s. */
-    record SeedLink(String from, String to, int minGapMinutes, int travelMinutes, TravelMode travelMode) {
+    /** The flight fields of a FLIGHT block. Terminals may be null (not known). */
+    record SeedFlight(String flightNo, String depAirport, String arrAirport, String depTerminal,
+                      String arrTerminal) {
+    }
+
+    /**
+     * One link between two blocks of the same trip, named by their {@code key}s. Between two flights
+     * {@code minGapMinutes} must be 0 (the minimum connection time comes from the airport rules file) and
+     * {@code ticketType} says whether both flights are on one ticket (missing = UNKNOWN: the app asks).
+     */
+    record SeedLink(String from, String to, int minGapMinutes, int travelMinutes, TravelMode travelMode,
+                    TicketType ticketType) {
     }
 }

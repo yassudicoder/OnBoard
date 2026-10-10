@@ -50,11 +50,13 @@ without asking).
 ## What a disruption does (for testers)
 
 - `DisruptionService.apply` locks the trip row (`SELECT ... FOR UPDATE`) and saves everything in one transaction:
-  new times and statuses, a `DELAY`/`CANCEL` event, `MISSED` events, version + 1. Competing writers (even two backend
-  instances) are applied one after the other.
+  new times and statuses, a `DELAY`/`CANCEL` event, `LIKELY_MISSED` events, the trip's rechecked connections
+  (Disruption Recovery), version + 1. Competing writers (even two backend instances) are applied one after the other.
 - A delay is relative ("+90 min" on top of the block's current times). Pressing a delay button twice delays twice.
-- A missed connection = the ripple engine reports a broken link into a FLIGHT or TRAIN block. It is recorded once per
-  block as a `MISSED` event.
+- A likely missed connection = the ripple engine reports a broken link into a FLIGHT or TRAIN block. It is a
+  prediction, recorded once per block as a `LIKELY_MISSED` event (called `MISSED` before V3). Between two flights the
+  ripple uses the airport's minimum connection time from `mock-data/recovery/airport-rules.json` (none = 0, so only
+  "leaves before you land" counts, and the connection says UNKNOWN). Connections: `GET /api/trips/{id}/connections`.
 - A flight-status change is forgotten only after it is saved. If saving fails, the 30-second watcher retries it; a
   failed demo button press is taken back (no hidden delay later).
 
@@ -62,7 +64,8 @@ without asking).
 
 - `./mvnw test` uses an in-memory H2 database in PostgreSQL mode (no Docker needed).
 - Real PostgreSQL was checked separately on a throwaway container (two backend instances, concurrent delays,
-  MISSED events, reset, prod mode). To repeat it without touching the shared demo database, start a separate
+  missed-connection events, reset, prod mode). V3 (connections, local zones) was checked on a throwaway
+  `postgres:17.11-alpine` on 2026-10-11. To repeat it without touching the shared demo database, start a separate
   `postgres:17.11-alpine` container on another port and point `DB_URL` at it.
 - Do not run `./mvnw clean` or `package` in `backend/` while a demo backend is running from `target/*.jar`:
   Windows locks the jar.

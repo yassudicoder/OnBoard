@@ -4,8 +4,10 @@ Hackathon project for **Elevate 1.0 (DJSCE), Problem Statement 01 — "Seamless 
 4-person college team, strong in **Java**. This file is the condensed project brief. Every session follows it.
 If a decision changes, update this file in the same change.
 
-**Direction (since 2026-10-11): two features only — Gate Navigation and Baggage Shield.** The earlier plan (trip timeline,
-ripple engine, bookings, Plan B) is **parked**, not deleted: see "Parked" below.
+**Direction (since 2026-10-11): three main features, Gate Navigation, Disruption Recovery (§3D) and Baggage Shield.** The
+trip timeline UI and the old bookings / Plan B plan stay **parked**, not deleted (see "Parked" below); the ripple engine,
+flight watcher and disruption service are **un-parked** as the one engine behind Disruption Recovery (never a second
+disruption engine).
 
 - App name **OnBoard** (was "Safar Saathi"). Code names stay on purpose so nothing breaks: Android package / applicationId
   `com.safarsaathi.app`, backend package `com.safarsaathi.backend`, database `safarsaathi`, settings prefix `safarsaathi.*`.
@@ -35,11 +37,15 @@ A mobile-first Android app (plus a Spring Boot backend and two small staff web p
   re-route automatically when the gate changes.
 - **B. Baggage Shield** — timestamped, tamper-evident photo evidence of the bag before hand-over; a guided flow for damaged /
   delayed / missing bags; a Lost & Found guide for things lost at the airport.
+- **D. Disruption Recovery** — when a delay or cancellation breaks a connection, OnBoard spots it early, explains it in local
+  airport time, prepares the airline request, ranks realistic alternatives, helps ask for overnight assistance and keeps the
+  recovery plan on the phone for offline use (§3D).
 
 | PS 01 requirement | Where we meet it |
 |---|---|
 | Navigate airports | Indoor map, blue dot, turn-by-turn, landmarks |
 | Gate changes / disruptions | Gate watcher → push → automatic re-route |
+| Missed connections / cancellations | Disruption Recovery: server keeps watching, connection check with sourced minimum times, request draft, ranked alternatives, offline Plan B pack |
 | Track baggage | Bag tag registered, status from drop to belt |
 | Baggage problems | Damage / delay / loss guide, PIR help, claim pack, deadlines |
 | Offline, on-device vs cloud | Map, routing, evidence photos and guides work offline; photos upload when online |
@@ -48,7 +54,8 @@ A mobile-first Android app (plus a Spring Boot backend and two small staff web p
 | UI/UX | One clear next instruction at a time; nothing extra on screen |
 
 **Out of scope:** real indoor positioning hardware, airline system integration, submitting forms on the user's behalf, legal
-advice, any airport other than the pilot.
+advice, any airport other than the pilot (for navigation). Disruption Recovery: trains and buses (no reliable data source) and
+live safety scoring (a country pack's official advisory link at most).
 
 ---
 
@@ -156,6 +163,67 @@ advice, any airport other than the pilot.
 
 ---
 
+## 3D. Feature D — Disruption Recovery (branch `feature/disruption-recovery`)
+- **Three triggers, one `RecoveryPlan`:** DELAY_MISSED_CONNECTION (flight 1 late, connection at risk or missed);
+  CANCELLED_BEFORE_DEPARTURE (plan starts at the departure airport; demo: `trigger-cancel`); CONNECTION_CANCELLED_AT_HUB
+  (plan starts at the hub; demo: `cancel-connection`). Demo trip 3: **IJ 1907 Delhi 17:50 → Doha 19:35, MJ 31 Doha 21:55 →
+  London 03:10** (+1 day; fictional airlines IndiJet / Marjan Air), flight 1 leaves 95 min late.
+- **The one technical truth:** a phone in the air without Wi-Fi learns nothing. The SERVER keeps watching (FlightWatcher) and
+  rebuilds the plan; the phone gets it on reconnect (push + refresh). A late departure known before boarding → the app downloads
+  a **Plan B pack** at the gate. Everything offline shows "as of HH:MM" and "may be outdated".
+- **Engine:** RippleEngine + FlightWatcher + DisruptionService (un-parked). `DisruptionService.apply` rechecks the trip's
+  connections (and from C2 rebuilds the plan) in the SAME transaction. Shared plain Java in **`recovery-core`** (same pattern as
+  `routing-core`): connection checker now, ranking in C2, so the phone does the same maths offline.
+- **Connection check (built in C1, `ConnectionChecker`):** available = flight 2 departure − flight 1 projected landing (provider's
+  revised time, else timetable + delay). MCT from `mock-data/recovery/airport-rules.json` by airport + connection type
+  (DOM/INTL each side) + terminal change (unknown terminals → the stricter rule, said in the reason). Practical time = taxi +
+  deplaning + transfer security (team ESTIMATES) + gate closing. Order: RESOLVED / REBOOKED_BY_AIRLINE (confirmed facts) →
+  CANCELLED → CONFIRMED_MISSED (flight 2 left while flight 1 had not landed, or confirmed earlier; kept once known) →
+  LIKELY_MISSED (flight 2 leaves before landing) → UNKNOWN (no MCT) → LIKELY_MISSED (available < MCT) → AT_RISK (available <
+  max(MCT, practical) + 15 min margin, a product choice) → OK. Only the official/demo MCT can say "likely missed"; estimates only
+  warn. Every status has a certainty: PREDICTED (OK, AT_RISK, LIKELY_MISSED) / CONFIRMED / UNKNOWN; the UI styles them apart.
+  Reason in plain words, local airport time: "You land in Doha at 21:10, your next flight leaves at 21:55. Doha needs at least
+  60 min (demo value). You have 45 min."
+- **Sourced numbers (checked 2026-10-11):** Doha MCT = **60 min DEMO VALUE** (no official airport-wide figure is public; airline
+  figures cover only their own flights) → every result that depends on it says "based on a demo minimum connection time".
+  Doha gate closes 20 min before departure = OFFICIAL (Hamad International Airport, Transfers page). Delhi and Dubai: no official
+  MCT found → UNKNOWN (Dubai's handling for the C2 "via DXB" route is a team decision). Default gate close 20 min and transfer
+  times 10 + 10 + 20 min are team ESTIMATES.
+- **Ticket type:** SINGLE_BOOKING (airline normally responsible; check if already rebooked, send the request, go to the transfer
+  desk) · SEPARATE_TICKETS (second airline may see a no-show; fare differences, each ticket's rules, bags may not transfer) ·
+  UNKNOWN (ask once, explain the difference).
+- **Airline request (C4):** built on the phone (passenger names from the phone only, never on the server): PNR, flights, scheduled
+  vs projected times, delay/cancellation, minutes short, the request (rebooking or refund; meals/hotel if overnight); email +
+  short chat/SMS text, English + Hindi or Marathi; `AirlineChannel` (default: mail app / share sheet; a labelled MOCK airline API
+  for the demo). States DRAFT, OPENED_IN_MAIL_APP, MARKED_SENT_BY_PASSENGER, SUBMITTED_VIA_API (only after a real success). Never
+  say "sent" otherwise.
+- **Alternatives (C2):** `AlternativeFlightProvider` (mock schedule file = SAMPLE DATA; optional Duffel test mode). Same airline,
+  other airlines, other hubs (e.g. via DXB), nearby airports only if the rules file lists a sourced ground transfer time. Every
+  connection checked against MCT; transit visa via `TransitRequirementProvider` (Vault checks if present, else UNKNOWN "check
+  transit requirements"); seats VERIFIED only from a provider, else "availability unknown"; separate-ticket risk shown. Urgency
+  NORMAL (arrival, then fewest connections, then cost) or URGENT (arrival dominates). ONE recommended option with "why this
+  one" + up to 2 others. **Never book automatically**; booking/payment only after explicit approval of price and conditions
+  (sandbox only in the demo).
+- **Overnight (C2):** best option more than N hours away (config) or next day → Overnight section from `AirlinePolicyProvider`
+  (JSON pack per airline, sourceUrl + lastChecked); unknown → "Ask the airline whether meals, a hotel or transport are provided
+  under your ticket." Passenger-rights rules "may apply" with official links; never promise accommodation or compensation; never
+  book a hotel without approval; "Keep all receipts".
+- **Next steps (all triggers):** 1) check whether the airline already rebooked you; 2) ask for rebooking or refund (prepared
+  request); 3) compare alternatives; 4) check transit/visa for the chosen route; 5) overnight: the airline's policy (UNKNOWN if
+  not in the pack); 6) confirm your choice (booking/payment only after explicit approval). At a hub: "Follow signs to Transfers,
+  go to the airline's transfer desk, show this screen; if closed, use the contact channels below." No invented desk locations
+  or gates.
+- **Offline + resume (C3, C5):** Room keeps itinerary, flights, connection status + reason, drafts, top alternatives as last
+  fetched, overnight guidance, contact channels, emergency contacts, next steps; each with last-updated time and "may be
+  outdated" past a threshold. Offline uses only downloaded data and says so. On reconnect: refresh, recompute, "What changed
+  since you went offline", then the next action.
+- **Working vs mock vs future:** working = watcher, ripple, connection check, ranking, drafts, mail-app channel, offline pack,
+  sync. MOCK / SAMPLE DATA = flight status (demo buttons), alternative schedules, fictional airlines' policies, the airline-API
+  channel, the push sender without Firebase credentials. Future = Duffel test adapter, real airline APIs, a real MCT feed.
+
+
+---
+
 ## 4. Tech stack (locked; add only what a phase needs)
 
 ### Android app — `/android`
@@ -174,12 +242,13 @@ advice, any airport other than the pilot.
   `docker-compose.yml`; hosted = Supabase / Render / Railway.
 - `GateWatcher` (reuses `FlightStatusProvider`) · FCM sender (mock without credentials) · evidence store (local disk in dev;
   MinIO optional) · Ed25519 + hash chain · claim pack PDF (PDFBox or OpenPDF) · static pages `/counter`, `/station`, `/demo`.
-- Shared: `routing-core` Java module (graph, A*, instructions) with JUnit tests.
+- Shared: `routing-core` Java module (graph, A*, instructions) with JUnit tests; `recovery-core` (connection checker, later
+  ranking of alternatives) with JUnit tests, same pattern.
 
 ### Repo layout
 ```
-/android  /backend  /routing-core (shared plain Java, compiled by both builds; see routing-core/README.md)
-/mock-data (airports/BOM-T2/)  /docs  docker-compose.yml  CLAUDE.md  README.md
+/android  /backend  /routing-core  /recovery-core (shared plain Java, compiled by both builds; see their READMEs)
+/mock-data (airports/BOM-T2/, recovery/)  /docs  docker-compose.yml  CLAUDE.md  README.md
 ```
 
 ---
@@ -200,8 +269,27 @@ Claim           bagTag, type(DAMAGE|DELAY|LOSS|PILFERAGE), airline, pirRef, file
 LostItemReport  userId, whereLost(TERMINAL|AIRCRAFT|CHECKED_BAG|OTHER), terminal, location, date, pnr, flightNo,
                 category, description, photoPath, routedTo, status
 ```
+Disruption Recovery (backend; Room copies from C3):
+```
+Block (+C1)      startZone, endZone (every block); scheduledStart, scheduledEnd (never change; startTime/endTime = latest plan);
+                 FLIGHT only: flightNo, depAirport, arrAirport, depTerminal, arrTerminal, flightPhase(SCHEDULED|BOARDING|
+                 IN_AIR|LANDED). API "flight": depZone/arrZone, scheduledDep/Arr, estimatedDep/Arr, status (derived)
+Connection (C1)  id, tripId, inboundBlockId, outboundBlockId, airport, connectionType, terminalChange, mctMinutes, mctKind,
+                 mctSource(+Url, lastChecked), transferMinutes, gateCloseMinutes(+kind, source), ticketType, status,
+                 availableMinutes, projectedSlackMinutes, basedOnDemoValue, reason, missConfirmedAt, updatedAt, dataAsOf
+RecoveryPlan (C2)       id, tripId, trigger, startAirport, version, generatedAt, basedOnDataAt, urgency, steps (JSON),
+                        recommendedOptionId, alternatives, overnightInfo, isStale
+AlternativeOption (C2)  id, planId, legs (JSON), departs, arrives, stops, connectionChecks, transitVisaStatus(OK|REQUIRED|
+                        UNKNOWN), seatAvailability(VERIFIED|UNKNOWN), fareDifference, separateTickets, changeRules,
+                        source(SAMPLE|PROVIDER), rank, reason
+AirlineRequestDraft (C4, phone only)  id, planId, channel, subject, bodyEnglish, bodyLocal, shortText, state, stateChangedAt
+AirportPack (C1, file)  iata, city(en/hi/mr), country, timeZone, connectionRules, gateClose, transfer, nearbyAirports,
+                        sourceUrl, lastChecked                          -> mock-data/recovery/airport-rules.json
+AirlinePolicyPack (C2, file)  airlineCode, delayAssistanceText, contactChannels, sourceUrl, lastChecked
+```
 Demo roles: PASSENGER (app), COUNTER (staff page), STATION (arrival page), ADMIN (demo page); simple demo login, no real auth.
-Times: `java.time` everywhere, zone **Asia/Kolkata**.
+Times: `java.time` everywhere. Stored as an exact moment + the zone of its place (a flight: departure / arrival airport) and
+shown in that local time; times that belong to no place (createdAt, "as of") in **Asia/Kolkata**.
 
 ## 6. API (documented in `docs/api.md`)
 ```
@@ -216,7 +304,15 @@ GET  /api/evidence/verify/{tag}                     chain + signature check
 POST /api/claims            create claim -> claim pack PDF
 POST /api/lost-items        save the pre-filled report (we don't submit to the airport)
 GET  /api/station/{code}/inbox                      arriving bags with counter photos
+GET  /api/trips/{id}                                trip + blocks (+C1: local zones, "flight" fields) + links
+GET  /api/trips/{id}/connections                    connection status, certainty, reason, sources       (C1, built)
+GET  /api/connections/{id}/plan                     the recovery plan                                    (C2)
+POST /api/connections/{id}/ticket-type   POST /api/connections/{id}/urgency                              (C2)
+GET  /api/connections/{id}/alternatives                                                                  (C2)
 --- demo only (APP_MODE=demo; 404 in prod) ---
+POST /api/demo/trigger-delay {tripId, blockId, minutes}   POST /api/demo/trigger-cancel {tripId, blockId}   (built)
+POST /api/demo/cancel-connection · set-flight-phase {flightNo, phase} · flight-departed {flightNo} ·
+     airline-rebooked {connectionId, newFlight}                                                          (C2)
 POST /api/demo/trigger-gate-change {flightNo, toGate}
 POST /api/demo/bag-status {tag, status, beltNo}
 POST /api/demo/reset
@@ -232,6 +328,12 @@ GET  /api/health                                    app status + MOCK/REAL provi
 4. **Help:** "What happened?" decision tree; CSMIA Lost & Found card with source and last-checked date.
 5. **Profile:** language, voice guidance, elderly / step-free defaults, large text, notifications; "More" links to the Wallet
    (boarding passes, Aadhaar last-4 / masked PAN / visas, PDF) and, with the flag on, the parked screens.
+6. **Disruption Recovery (C3-C5):** Home "At risk" connection card (independent of the parked timeline flag; chip On track /
+   At risk / Likely missed / Missed / Cancelled / Rebooked) → connection detail (two-flight diagram, local times, minutes
+   available vs needed, reason, data time stamp, ticket-type question) · Plan B pack banner before boarding · Recovery screen
+   (trigger summary, numbered next steps, urgency toggle, recommended option + up to 2 others, request draft card, overnight,
+   contacts) · alternative detail · request draft preview (Send / Copy / Share, honest state) · "What changed" after reconnect.
+   Predicted and confirmed look clearly different, never by colour alone.
 - UX rules: one primary action per screen; next instruction always visible while navigating; colour is never the only signal
   (icon + text); touch targets ≥ 48dp; works in large-text mode; every estimate and all demo data labelled.
 
@@ -251,6 +353,20 @@ GET  /api/health                                    app status + MOCK/REAL provi
 - **B3 — Problems & claims:** arrival status, before/after, PIR guidance + evidence QR, claim pack PDF, deadline reminders,
   escalation, Lost & Found tree with pre-filled CSMIA fields + official portal link.
 - **P — Polish & demo:** airplane-mode test, large text, Hindi/Marathi review, `docs/demo-script.md`, deploy notes.
+- Disruption Recovery (its own track and branch `feature/disruption-recovery`, same stop-after-each rule; every phase summary
+  lists its changes to shared files: CLAUDE.md, README, demo page, Home screen):
+  - **C1 — Data and connection check:** zone-aware times, scheduled vs estimated on the server, flight block fields, airport
+    rules file (zones, MCT with source / demo label, nearby airports), demo trip 3, `recovery-core` connection checker,
+    MISSED → LIKELY_MISSED, `GET /api/trips/{id}/connections`, tests.
+  - **C2 — Recovery plan on the server:** built in `DisruptionService.apply` for all three triggers, ticket type, urgency, mock
+    alternatives + ranking + MCT and transit checks, recommended option with reason, overnight from policy packs, endpoints,
+    demo buttons, rewrite `planb/` and `docs/architecture.md` (rank options, never book automatically).
+  - **C3 — Offline plan on the phone:** Room v6 (`@AutoMigration`), Plan B pack at the gate, Home "At risk" card, Recovery
+    screen, alternative detail, predicted vs confirmed styling, "as of / may be outdated". Airplane-mode test.
+  - **C4 — Airline request:** drafts (English + Hindi/Marathi) assembled on the phone with local names, `AirlineChannel` (mail app
+    / share sheet + labelled mock), honest draft states.
+  - **C5 — Push and reconnect:** FCM with mock sender, WorkManager refresh, "What changed" summary, demo script, README and
+    CLAUDE.md updates.
 
 ## 9. Demo story (`docs/demo-script.md` in phase P)
 1. Home: **IJ 512, Gate 32, boarding closes 07:35** (from the mock gate provider) → Navigate to gate → scan the "Entry 4" QR →
@@ -262,6 +378,10 @@ GET  /api/health                                    app status + MOCK/REAL provi
 5. Arrival: bag ON_BELT, belt 7; "after" photo with a broken wheel → Damaged bag → PIR guidance → PIR ref → **claim pack PDF**
    with before/after photos, server timestamps and a passing verification; 7-day countdown starts.
 6. Lost & Found: "left my headphones near security" → CSMIA Lost & Found, form pre-filled, official portal link.
+7. Disruption Recovery (trip 3, full script in C5): at the Delhi gate a 95-min delay → "Likely missed" with the reason in Doha
+   time, Plan B pack downloads → in the air (airplane mode) the plan opens offline with "as of" times → on the server flight 2
+   departs (confirmed missed) and the airline rebooks on tomorrow 07:40 → landing: push + "What changed" → draft opened in the
+   mail app ("Opened in mail app", not "Sent") → second case: Doha-London cancelled at the hub, URGENT → route via DXB.
 
 ## 10. Definition of done (every phase)
 - App and backend build cleanly; **all tests pass**; zero API keys still runs the full demo.
@@ -271,8 +391,9 @@ GET  /api/health                                    app status + MOCK/REAL provi
 ---
 
 ## Parked (old trip-timeline plan; not deleted)
-- **What:** trip timeline, trip status (old Home), ripple engine, Plan B / bookings plan, AI assistant placeholder, `/desk`
-  placeholder. Code and tests stay and keep passing.
+- **What:** trip timeline, trip status (old Home), the old Plan B / bookings plan (purpose scoring, booking orchestrator), AI
+  assistant placeholder, `/desk` placeholder. Code and tests stay and keep passing.
+- **Un-parked (2026-10-11):** RippleEngine, FlightWatcher and DisruptionService: the engine of Disruption Recovery (§3D).
 - **Flag:** `feature.tripTimeline` in `android/local.properties` (or `-Pfeature.tripTimeline=true`), default **false** →
   `BuildConfig.FEATURE_TRIP_TIMELINE`. Off = the app has no link to the parked screens; on = Profile > More links to them.
   Tests open them directly (`testing/Screens`), so they run either way.
@@ -297,7 +418,9 @@ GET  /api/health                                    app status + MOCK/REAL provi
 Exact Android library versions live in `android/gradle/libs.versions.toml`; backend versions come from the Spring Boot parent POM.
 
 ## Conventions & gotchas
-- Times: `Instant` / `ZonedDateTime` + zone Asia/Kolkata; never `java.util.Date`. Backend gets "now" from an injected `Clock`.
+- Times: `Instant` / `ZonedDateTime`; never `java.util.Date`. Backend gets "now" from an injected `Clock`. A time at a place is
+  stored as the moment + that place's zone (`blocks.start_zone` / `end_zone`) and sent with its own offset (`TripMapper`; Jackson's
+  `write-dates-with-context-time-zone` is off so +03:00 stays +03:00); times of no place use Asia/Kolkata.
 - **AGP 9: `R.id.*` values are not compile-time constants** → no Java `switch` on view IDs; use `if/else`.
 - AGP 9: `BuildConfig` is off by default → enabled in `app/build.gradle.kts`. `android.builtInKotlin=false` keeps the app Java-only.
 - targetSdk 37 = edge-to-edge is mandatory: every screen must handle system-bar insets (MainActivity does it for the tabs).
@@ -324,3 +447,6 @@ Exact Android library versions live in `android/gradle/libs.versions.toml`; back
 - [ ] B2 — Counter & Station
 - [ ] B3 — Problems & claims
 - [ ] P — Polish & demo
+- [x] C1 — Data and connection check (done 2026-10-11, merged into `main`)
+- [ ] C2 — Recovery plan on the server · [ ] C3 — Offline plan on the phone · [ ] C4 — Airline request · [ ] C5 — Push and
+  reconnect

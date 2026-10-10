@@ -8,6 +8,9 @@ air travellers, in their own language, even offline:
 - **Baggage Shield:** photograph your bag and scan its tag before you hand it over, and get a time-stamped record that
   cannot be changed later. If the bag arrives damaged, late or not at all, the app tells you exactly what to do, where
   and by when. Lost something at the airport? It points you to the right Lost & Found, with the form pre-filled.
+- **Disruption Recovery** (added 11 Oct): when a late or cancelled flight breaks your connection, OnBoard spots it early,
+  tells you why in local airport time, prepares the request to the airline and ranks realistic alternatives, and keeps
+  the plan on your phone for when you have no internet. It never books anything without your explicit OK.
 
 Built for **Elevate 1.0 (DJSCE), Problem Statement 01 — "Seamless Aviation Journey Experience"**.
 The full project brief (rules, stack, phases) is in [CLAUDE.md](CLAUDE.md). Details are in [docs/](docs/).
@@ -47,15 +50,26 @@ has the full brief and the phases R0 → P). We build it phase by phase and stop
 - **Profile:** traveller, this trip, large text, saved cards, and **More → Wallet** (boarding passes by photo or code,
   Aadhaar last 4 digits / masked PAN / visas, everything as one PDF).
 
-**Parked, not deleted:** the old trip-timeline plan (trip status, timeline, ripple engine, the delay demo). Its code and
-tests stay and keep passing. To see it again, put `feature.tripTimeline=true` in `android/local.properties` and rebuild:
+**Disruption Recovery (C1 done and in `main`, backend only so far; C2 onward on `feature/disruption-recovery`):**
+every flight now knows its
+airports and shows its times in local airport time (landing in Doha = Doha time), keeps its timetable times next to the
+latest estimate, and every change of planes is a **connection** with a status and a reason. Try it with the backend
+running: `curl -X POST http://localhost:8080/api/demo/trigger-delay -H "Content-Type: application/json" -d
+'{"tripId":3,"blockId":12,"minutes":95}'`, then <http://localhost:8080/api/trips/3/connections> says **LIKELY_MISSED**:
+"You land in Doha at 21:10, your next flight leaves at 21:55. Doha needs at least 60 min (demo value). You have 45 min."
+Doha's 60 minutes are a team-set **demo value** (no official figure is public); airports with no figure say **UNKNOWN**.
+Sources: [mock-data/recovery/airport-rules.json](mock-data/recovery/airport-rules.json). The phone screens come in C3.
+
+**Parked, not deleted:** the old trip-timeline plan (trip status, timeline, the delay demo). Its code and tests stay and
+keep passing; its engine (ripple engine, flight watcher) now drives Disruption Recovery. To see it again, put `feature.tripTimeline=true` in `android/local.properties` and rebuild:
 Profile → More then links to the parked screens. Details: "Parked" in [CLAUDE.md](CLAUDE.md).
 
 | Branch | What's on it | State |
 |---|---|---|
-| `main` | Phases 0–2 of the old plan, as of the first commit | stable |
-| `feature/backend-hardening` | backend hardening + README updates | pushed; pull request to `main` not opened yet |
-| (not committed yet) | Android Home / Wallet / Profile work and R0 | on Yash's laptop, waiting for the team's OK |
+| `main` | backend hardening + R0 (new tabs, Home, Wallet, Profile) + Disruption Recovery C1 | stable |
+| `feature/gate-navigation` | Gate Navigation G1–G3 (map, routing, Google-Maps-style navigation); G4 next | pushed; pull request to `main` after G4 |
+| `feature/disruption-recovery` | Disruption Recovery C2 onward (C1 is in `main`) | separate worktree |
+| `feature/backend-hardening` | already in `main`; its last commit `14c880b` is an accidental "commit all" of everyone's work | **do not merge** |
 
 **Backend hardening, in short** (details: [backend/README.md](backend/README.md)): listens on `127.0.0.1` by default
 (the emulator still reaches it at `http://10.0.2.2:8080`); demo buttons exist only with `APP_MODE=demo`; two changes at
@@ -77,7 +91,7 @@ the same moment can't overwrite each other; a hosted server uses `SERVER_ADDRESS
    `docker compose ps` shows `(healthy)`. It keeps running in the background (stop it with `docker compose down`).
 5. **Run the backend:** `cd backend`, then `./mvnw spring-boot:run` (Windows: `.\mvnw.cmd spring-boot:run`).
    The first run downloads Maven and libraries, so give it a few minutes. On its first start it also creates the
-   database tables and loads the two demo trips. It's ready when the log shows `OnBoard backend is ready` and a
+   database tables and loads the three demo trips. It's ready when the log shows `OnBoard backend is ready` and a
    MOCK/REAL table. It stopped with "Connection ... refused"? See [Troubleshooting](#troubleshooting).
 6. **Check it:** open <http://localhost:8080/api/health>. You should see `"status":"UP"` and every provider `MOCK`
    except `weather` (a service whose key you added in step 3 shows `REAL`).
@@ -105,7 +119,7 @@ bookings moved by themselves and which one needs the traveller's decision. It ke
 1. **Database:** Docker Desktop running, then `docker compose up -d` in the repo root. Wait until `docker compose ps`
    shows `(healthy)`. The backend can't start without it.
 2. **Backend:** `cd backend`, then `./mvnw spring-boot:run` (Windows: `.\mvnw.cmd spring-boot:run`), and wait for
-   `OnBoard backend is ready`. On an empty database it first loads the two demo trips from
+   `OnBoard backend is ready`. On an empty database it first loads the three demo trips from
    [mock-data/demo-trips.json](mock-data/demo-trips.json). Check <http://localhost:8080/api/trips/1>: trip 1, "Client
    visit: Mumbai to Bengaluru", with 6 blocks, dated tomorrow.
 3. **App:** run it on the emulator. On Android 17 (API 37) it first asks "Allow OnBoard to find, connect to, and
@@ -186,7 +200,9 @@ PowerShell needs the `.\` in front; in cmd it's optional. The debug APK lands in
 ├── backend/             Spring Boot 3 backend (Java 17, Maven): REST API, airport map, /demo page, ...
 ├── routing-core/        plain Java shared by backend and app: airport map model + checks, route finder, instructions
 ├── docs/                architecture.md, api.md, demo-script.md
-├── mock-data/           demo seed data (JSON): demo-trips.json; airports/BOM-T2/ (demo schematic) from G1
+├── recovery-core/       plain Java shared by backend and app: connection checker (Disruption Recovery)
+├── mock-data/           demo seed data (JSON): demo-trips.json; airports/BOM-T2/ (demo schematic) from G1;
+│                        recovery/airport-rules.json (time zones, minimum connection times with sources)
 ├── docker-compose.yml   local PostgreSQL 17 (the backend needs it from Phase 1)
 ├── .env.example         backend setting NAMES. Copy it to .env (git-ignored) for your own keys.
 ├── CLAUDE.md            the full project brief and source of truth
@@ -206,6 +222,11 @@ New plan (11 Oct 2026): Gate Navigation + Baggage Shield. Details of every phase
 | G2 | Routing: shortest walk, step-free option, walking speeds, landmark instructions (English, Hindi, Marathi) | **Done** (11 Oct 2026) |
 | G3 | Navigation screen: next instruction, route line, blue dot, QR "You are here", simulated walk, re-route, voice, ongoing notification, "Missed a turn?" | **Done** (11 Oct 2026) |
 | G4 | Gate changes: gate watcher, push alert, automatic re-route mid-walk, `/demo` trigger | Planned |
+| C1 | Disruption Recovery data + connection check: local airport times, scheduled vs estimated, sourced minimum connection times, demo trip 3, `GET /api/trips/{id}/connections` | **Done** (11 Oct 2026, in `main`; backend) |
+| C2 | Recovery plan on the server: three triggers, ticket type, urgency, ranked alternatives (SAMPLE DATA), overnight guidance | Planned |
+| C3 | Offline plan on the phone: Plan B pack, Home "At risk" card, Recovery screen | Planned |
+| C4 | Airline request drafts (English + Hindi/Marathi), mail app / share sheet, honest states | Planned |
+| C5 | Push + reconnect: "What changed", demo script | Planned |
 | B1 | Bag Shield capture: register bag, scan tag, guided photos, fingerprints (SHA-256), signed receipt | Planned |
 | B2 | Counter & Station pages, tamper-evident hash chain, verification | Planned |
 | B3 | Problems & claims: before/after, PIR guidance, claim pack PDF, deadlines, Lost & Found guide | Planned |
