@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ask OnBoard (AskFragment): a chat, like Google's assistant.
+       top:    the reply-language chip (Auto / EN / हिं / मरा / Hinglish) and "Works offline";
+       middle: the chat (questions on the right, answers on the left with where they came from), or a welcome card
+               while it is empty;
+       bottom: quick-question chips (in the current reply language), a "Listening…" line, and the input bar: a text
+               field plus one round button that is a microphone when the field is empty and "send" when it is not.
+     The bottom tabs are hidden on this screen; AskFragment pads the bottom for the navigation bar and the keyboard. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ask_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="4dp">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/ask_language_chip"
+            style="@style/Widget.Material3.Chip.Assist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            app:chipIcon="@drawable/ic_translate_24"
+            app:chipIconTint="?attr/colorPrimary"
+            tools:text="Language: Auto" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/ask_offline_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:text="@string/ask_offline_badge"
+            android:textAppearance="?attr/textAppearanceLabelMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:drawableStartCompat="@drawable/ic_saved_offline_24"
+            app:drawableTint="?attr/colorOnSurfaceVariant" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/ask_messages"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            tools:listitem="@layout/item_ask_answer" />
+
+        <!-- Shown while the chat is empty. -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/ask_welcome"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <ImageView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_circle"
+                    android:backgroundTint="?attr/colorPrimaryContainer"
+                    android:importantForAccessibility="no"
+                    android:padding="18dp"
+                    android:src="@drawable/ic_assistant_24"
+                    app:tint="?attr/colorOnPrimaryContainer" />
+
+                <TextView
+                    android:id="@+id/ask_welcome_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/ask_welcome_title"
+                    android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="@string/ask_welcome_body"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:text="@string/ask_welcome_examples"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorPrimary" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </FrameLayout>
+
+    <!-- Quick questions: filled by AskFragment in the current reply language. -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingHorizontal="12dp"
+        android:scrollbars="none">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/ask_chips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleLine="true" />
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/ask_listening"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="4dp"
+        android:accessibilityLiveRegion="polite"
+        android:drawablePadding="8dp"
+        android:gravity="center_vertical"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textColor="?attr/colorPrimary"
+        android:visibility="gone"
+        app:drawableStartCompat="@drawable/ic_mic_24"
+        app:drawableTint="?attr/colorPrimary"
+        tools:text="Listening in हिंदी…"
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/ask_input_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/ask_input_layout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/ask_input_hint"
+            app:boxCornerRadiusBottomEnd="28dp"
+            app:boxCornerRadiusBottomStart="28dp"
+            app:boxCornerRadiusTopEnd="28dp"
+            app:boxCornerRadiusTopStart="28dp"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/ask_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/ask_input_hint"
+                android:imeOptions="actionSend"
+                android:inputType="textCapSentences|textShortMessage"
+                android:maxLines="4"
+                android:minHeight="48dp"
+                android:paddingHorizontal="20dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- A round filled icon button (56dp, like Google Messages' send button): microphone / stop / send. -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ask_action"
+            style="@style/Widget.Material3.Button.IconButton.Filled"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/ask_mic"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:cornerRadius="28dp"
+            app:icon="@drawable/ic_mic_24"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="24dp" />
+    </LinearLayout>
+</LinearLayout>

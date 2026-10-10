@@ -162,6 +162,9 @@ dependencies {
     // camera, so the app itself needs no camera permission and no camera code.
     implementation(libs.play.services.code.scanner)
 
+    // Ask OnBoard: on-device language identification (model inside the app, offline), to pick the reply language.
+    implementation(libs.mlkit.language.id)
+
     // Talking to our backend: Retrofit turns SafarSaathiApi into HTTP calls, Gson reads the JSON,
     // OkHttp does the actual networking (its logging interceptor prints requests in debug builds).
     implementation(libs.retrofit)

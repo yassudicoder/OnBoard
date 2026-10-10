@@ -12,6 +12,7 @@ import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -28,6 +29,7 @@ import com.safarsaathi.app.data.ride.RidePoints;
 import com.safarsaathi.app.data.ride.RideProvider;
 import com.safarsaathi.app.data.ride.RideRequest;
 import com.safarsaathi.app.databinding.FragmentHomeBinding;
+import com.safarsaathi.app.ui.ask.AskFragment;
 import com.safarsaathi.app.ui.navigate.GoogleMapsLink;
 import com.safarsaathi.app.ui.ride.RidePlaceDialog;
 import com.safarsaathi.app.ui.trip.TripOverview;
@@ -112,6 +114,9 @@ public class HomeFragment extends Fragment {
             arrivalChoice = RidePlace.typed(address);
             render();
         }));
+        // Ask OnBoard: the bar opens the chat; its microphone opens it listening (AskFragment.ARG_START_VOICE).
+        binding.homeAskBar.setOnClickListener(bar -> openAsk(false));
+        binding.homeAskVoice.setOnClickListener(button -> openAsk(true));
 
         LifecycleOwner owner = getViewLifecycleOwner();
         viewModel.getTrip().observe(owner, newTrip -> {
@@ -300,6 +305,13 @@ public class HomeFragment extends Fragment {
     private String day(Instant instant) {
         Locale locale = getResources().getConfiguration().getLocales().get(0);
         return TripTime.dayHeader(TripTime.localDate(instant), locale);
+    }
+
+    /** Opens Ask OnBoard on top of Home (Back returns here). */
+    private void openAsk(boolean startVoice) {
+        Bundle arguments = new Bundle();
+        arguments.putBoolean(AskFragment.ARG_START_VOICE, startVoice);
+        NavHostFragment.findNavController(this).navigate(R.id.navigation_ask, arguments);
     }
 
     /** Switches tab exactly as if the traveller tapped it in the bottom bar. */

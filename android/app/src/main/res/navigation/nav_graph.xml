@@ -46,6 +46,21 @@
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
 
+    <!-- ===== Opened from Home ===== -->
+
+    <!-- Ask OnBoard, the multilingual assistant (the "Ask OnBoard" bar on Home). startVoice = start listening at once
+         (Home's microphone button). -->
+    <fragment
+        android:id="@+id/navigation_ask"
+        android:name="com.safarsaathi.app.ui.ask.AskFragment"
+        android:label="@string/title_ask"
+        tools:layout="@layout/fragment_ask">
+        <argument
+            android:name="startVoice"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
+
     <!-- ===== Opened from Profile ===== -->
 
     <fragment

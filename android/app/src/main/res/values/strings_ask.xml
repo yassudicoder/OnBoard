@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ask OnBoard (the multilingual assistant) screen texts. A separate file so the assistant's strings stay together and
+     never clash with other features' edits to strings.xml; Android merges every file in values/.
+     The ANSWERS themselves are not here: they are in src/main/resources/com/safarsaathi/app/data/ask/answers_*.properties,
+     because the reply language follows the question, not the phone's language. -->
+<resources>
+    <string name="title_ask">Ask OnBoard</string>
+
+    <!-- Home entry point -->
+    <string name="ask_home_bar">Ask OnBoard: gate, boarding, bags…</string>
+    <string name="ask_home_bar_hint">Works offline · English, हिंदी, मराठी, Hinglish</string>
+    <string name="ask_home_voice">Ask with your voice</string>
+
+    <!-- Welcome card (empty chat) -->
+    <string name="ask_welcome_title">Ask in your language</string>
+    <string name="ask_welcome_body">Type or speak in English, हिंदी, मराठी or Hinglish. Answers about your gate, boarding, flight, bags and where things are in Terminal 2 come from the data saved on this phone, so they also work in airplane mode.</string>
+    <string name="ask_welcome_examples">Try: “Mera gate kahan hai?” · “Majhi bag kuthe aahe?” · “When does boarding close?”</string>
+
+    <!-- Input bar -->
+    <string name="ask_input_hint">Ask about your trip</string>
+    <string name="ask_send">Send</string>
+    <string name="ask_mic">Speak your question</string>
+    <string name="ask_mic_stop">Stop listening</string>
+    <string name="ask_listening">Listening in %1$s…</string>
+
+    <!-- Language chip -->
+    <string name="ask_language_auto">Auto</string>
+    <string name="ask_language_auto_detail">Auto (reply in the language you ask in)</string>
+    <string name="ask_language_chip_auto">Language: Auto</string>
+    <string name="ask_language_chip_fixed">Language: %1$s</string>
+    <string name="ask_language_en">English</string>
+    <string name="ask_language_hi">हिंदी (Hindi)</string>
+    <string name="ask_language_mr">मराठी (Marathi)</string>
+    <string name="ask_language_hinglish">Hinglish (Hindi in English letters)</string>
+    <string name="ask_language_short_en">EN</string>
+    <string name="ask_language_short_hi">हिं</string>
+    <string name="ask_language_short_mr">मरा</string>
+    <string name="ask_language_short_hinglish">Hinglish</string>
+    <string name="ask_offline_badge">Works offline</string>
+
+    <!-- Answer bubble -->
+    <string name="ask_speak_answer">Read this answer aloud</string>
+
+    <!-- Voice problems -->
+    <string name="ask_voice_not_heard">Didn\'t catch that. Try again, or type your question.</string>
+    <string name="ask_voice_needs_pack">Voice needs the offline %1$s speech pack or internet. Type your question, or download the pack in your phone\'s voice settings.</string>
+    <string name="ask_voice_no_permission">OnBoard needs the microphone to hear your question. You can still type it.</string>
+    <string name="ask_voice_mic_problem">The microphone isn\'t working right now. Please type your question.</string>
+    <string name="ask_voice_busy">Voice input is busy. Try again in a moment.</string>
+    <string name="ask_voice_unavailable">This phone has no speech recognizer. Please type your question.</string>
+    <string name="ask_voice_missing">No %1$s voice on this phone, so answers in it are not read aloud. You can add one in Settings, Text-to-speech.</string>
+    <string name="ask_mic_rationale">OnBoard uses the microphone only while it is listening for your question; your phone\'s speech service turns it into text. OnBoard keeps no recording.</string>
+</resources>

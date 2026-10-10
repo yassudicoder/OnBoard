@@ -4,10 +4,10 @@ Hackathon project for **Elevate 1.0 (DJSCE), Problem Statement 01 — "Seamless 
 4-person college team, strong in **Java**. This file is the condensed project brief. Every session follows it.
 If a decision changes, update this file in the same change.
 
-**Direction (since 2026-10-11): three main features, Gate Navigation, Disruption Recovery (§3D) and Baggage Shield.** The
-trip timeline UI and the old bookings / Plan B plan stay **parked**, not deleted (see "Parked" below); the ripple engine,
-flight watcher and disruption service are **un-parked** as the one engine behind Disruption Recovery (never a second
-disruption engine).
+**Direction (since 2026-10-11): three main features, Gate Navigation, Disruption Recovery (§3D) and Baggage Shield,
+plus (added 2026-10-11) Ask OnBoard, the multilingual assistant (§3E).** The trip timeline UI and the old bookings /
+Plan B plan stay **parked**, not deleted (see "Parked" below); the ripple engine, flight watcher and disruption
+service are **un-parked** as the one engine behind Disruption Recovery (never a second disruption engine).
 
 - App name **OnBoard** (was "Safar Saathi"). Code names stay on purpose so nothing breaks: Android package / applicationId
   `com.safarsaathi.app`, backend package `com.safarsaathi.backend`, database `safarsaathi`, settings prefix `safarsaathi.*`.
@@ -237,6 +237,52 @@ live safety scoring (a country pack's official advisory link at most).
 
 ---
 
+## 3E. Ask OnBoard — multilingual assistant (added 2026-10-11; A1 built)
+- **What:** the traveller types or speaks a question in English, Hindi, Marathi or Hinglish ("Mera gate kahan hai?",
+  "Majhi bag kuthe aahe?") and gets the answer in that language (text + optional voice). Three layers, picked by a plain
+  Java router (A4): **Layer 1 Quick answers** (offline, no AI model, phone's saved data), **Layer 2 on-device AI** (A2:
+  small Gemma via MediaPipe LLM Inference, offline, grounded only in phone facts, translate in/out with ML Kit, a guard
+  rejects any gate/time/flight/belt/amount not in the facts), **Layer 3 cloud AI** (A3: backend `/api/assistant/chat`,
+  Gemini with function calling: trip summary, flight search (Duffel test / mock), hotel search (LiteAPI sandbox / mock),
+  Uber rider deep link, `prepare_booking` = quote only). A chip under every answer: "Answered on your phone / by
+  on-device AI / in the cloud" + "as of HH:MM".
+- **Golden rules:** facts (gates, times, belts, flight numbers, prices, deadlines) come from data and are put into the
+  sentence by code; missing = "not announced yet". The AI never books, pays or cancels: booking only after a Confirm tap
+  that creates a signed token; `/api/bookings/confirm` refuses without it; the model has no booking tool. Cabs = "Opened
+  in Uber", never "booked". Mock/sandbox results say SAMPLE DATA / TEST BOOKING. Passport/visa never go to the cloud.
+- **Layer 1 as built (A1), all in `data/ask/` (pure Java except `MlKitLanguageHints`, `AskSettings`):**
+  - `AskText` normalises (case, punctuation, Devanagari nukta/nasal marks, digits). `Lexicon` reads
+    `resources/.../data/ask/lexicon_{en,hi,mr,hinglish,mr_latn}.properties` (one line per `Concept`; longest phrase
+    first; Marathi endings cut off; typos forgiven in words of 5+ letters; `MARKERS` = language giveaways).
+  - `IntentMatcher`: rules over concepts (same for every language) → intent + confidence (HIGH only without a close
+    rival that saw another topic). Intents: GATE, BOARDING_TIME, BOARDING_CLOSE, FLIGHT_STATUS, CONNECTION_STATUS,
+    BAGGAGE_BELT, BAG_STATUS, NEXT_STEP, DOCUMENT_EXPIRY, WHERE_IS (washroom / help desk / lift), HELP; recognised but
+    not answered on the phone: SEARCH_FLIGHTS, SEARCH_HOTELS, CAB.
+  - `LanguagePicker`: marker words decide; ML Kit language-id (bundled, offline) breaks ties; Marathi in English
+    letters is answered in Marathi script; the language chip overrides (saved in `AskSettings`).
+  - `QuickAnswerer` + `AnswerText` (`answers_{en,hi,mr,hinglish}.properties`, `{name}` placeholders filled by code;
+    a sentence never contains a number). `TripFacts` = snapshot of the saved trip (Room, same as Home), the T2 map,
+    and later gate (G4) and bag (B1) data. `TerminalPlaces` describes places by the nearest landmark on the map.
+  - Screen `ui/ask/` (`AskFragment`, opened from the "Ask OnBoard" bar on Home; tabs hidden; voice in via
+    `SpeechRecognizer` + `EXTRA_PREFER_OFFLINE`, voice out via TTS in en-IN / hi-IN / mr-IN).
+  - **Documents (user decision 2026-10-11): narrow, read-only vault access.** The Vault track writes
+    `VaultSummaryReader.getSummaries(tripId)` (branch `feature/document-vault`; Ask never adds files under
+    `data/vault/**`): per document type, holder FIRST name, expiry, covered dates + countries, status (READY /
+    EXPIRES_SOON / EXPIRED / MISSING / MISMATCH / NOT_OFFLINE_YET). Never numbers, MRZ, images, file paths, full names,
+    birth dates. Only Layer 1 and Layer 2 may use it; Layer 3 (cloud) never receives vault data (a test checks it).
+    Vault locked: "Unlock your vault to see this" + an Unlock button (biometric prompt), then the answer. A1 itself
+    reads nothing from the vault (it is not on this branch yet).
+  - Connection answers state the gap only until Disruption Recovery C1's minimum-connection-time data is wired in
+    (then labelled "based on a demo minimum connection time"); never "enough" without that data.
+- **Branch:** `feature/ask-onboard` (worktree `../OnBoard-ask`) = main + a merge of `feature/gate-navigation`
+  (the map and `setTabsVisible` are G1-G3 code). It must reach main AFTER the gate branch. When G4 and C1 are in main,
+  merge main and wire GATE / BOARDING / CONNECTION_STATUS to them; BAG_STATUS waits for B1.
+- **Tests:** `IntentGoldenSetTest` (golden_phrases.tsv, 124 phrases, 4 languages, ≥ 90% intents AND languages; chips
+  100%), `QuickAnswererTest`, `AnswerTextTest` (same keys/placeholders everywhere), `LexiconTest`, `LanguagePickerTest`,
+  UI `AskFragmentTest`. Lexicons/answers in hi, mr, Hinglish need a native speaker's review (phase P).
+
+---
+
 ## 4. Tech stack (locked; add only what a phase needs)
 
 ### Android app — `/android`
@@ -380,6 +426,14 @@ GET  /api/health                                    app status + MOCK/REAL provi
     / share sheet + labelled mock), honest draft states.
   - **C5 — Push and reconnect:** FCM with mock sender, WorkManager refresh, "What changed" summary, demo script, README and
     CLAUDE.md updates.
+- Ask OnBoard (its own track, §3E, same stop-after-each rule):
+  - **A1 — Quick answers:** intent matcher, lexicons, templates (en/hi/mr/Hinglish), voice in/out, Ask screen, golden tests.
+  - **A2 — On-device AI:** model manager (Wi-Fi download, size, delete; disabled with a message on weak phones),
+    MediaPipe LLM Inference, fact collection + keyword retrieval, translate in/out, grounding guard, fallbacks.
+  - **A3 — Cloud AI:** backend Gemini + function calling, flight search + ranking (MCT check), hotel search, cab hand-off,
+    quote cards, confirmation-token flow, sandbox booking (TEST BOOKING CONFIRMED / PENDING / FAILED).
+  - **A4 — Router and polish:** router rules (offline, documents never cloud, battery < 15% / saver, search → cloud),
+    source chips, settings (reply language, voice, model, "never send to cloud"), airplane-mode test, demo script.
 
 ## 9. Demo story (`docs/demo-script.md` in phase P)
 1. Home: **IJ 512, Gate 32, boarding closes 07:35** (from the mock gate provider) → Navigate to gate → scan the "Entry 4" QR →
@@ -428,6 +482,7 @@ GET  /api/health                                    app status + MOCK/REAL provi
 | ML Kit barcode scanning | 17.3.0 (bundled model) | Latest on Google Maven (checked 2026-10-10); works without Play services. |
 | ZXing core | 3.5.4 | Latest on Maven Central (checked 2026-10-10); draws QR codes into PDFs. |
 | Google code scanner (play-services-code-scanner) | 16.1.0 | Latest on Google Maven (checked 2026-10-11); QR "You are here" scanner, needs Google Play services. |
+| ML Kit language identification | 17.0.6 (bundled model) | Newest (checked 2026-10-11); Ask OnBoard's reply language, offline, no Play services; release added 16 KB support. |
 Exact Android library versions live in `android/gradle/libs.versions.toml`; backend versions come from the Spring Boot parent POM.
 
 ## Conventions & gotchas
@@ -463,3 +518,5 @@ Exact Android library versions live in `android/gradle/libs.versions.toml`; back
 - [x] C1 — Data and connection check (done 2026-10-11, merged into `main`)
 - [ ] C2 — Recovery plan on the server · [ ] C3 — Offline plan on the phone · [ ] C4 — Airline request · [ ] C5 — Push and
   reconnect
+- [x] A1 — Ask OnBoard Quick answers (done 2026-10-11) · [ ] A2 — On-device AI (go-ahead 2026-10-11) ·
+  [ ] A3 — Cloud AI + bookings · [ ] A4 — Router & polish (§3E)
