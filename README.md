@@ -26,7 +26,24 @@ has the full brief and the phases R0 → P). We build it phase by phase and stop
 - **Home:** greets Aditi (the demo's sample traveller) and shows a flight card: the flight and its times from the
   backend, and **Gate / Boarding: "Not announced yet"**, because there is no gate source until phase G4 and the app never
   invents a gate or a time. "Navigate to gate" and "Register a bag" open the new tabs.
-- **Navigate, Bags, Help:** say what they will do and which phase builds them (G1–G3, B1, B3).
+- **Navigate (G1-G3): Google-Maps-style walking directions inside Mumbai T2.** The map is always labelled **"Demo
+  schematic, not an official airport map"**. Everything below works offline (map, routes and words ship inside the app).
+  - **Find a place:** search bar ("32" finds Gate 32), Departures / Arrivals, icons for gates, security, washrooms,
+    lifts and help desks.
+  - **Directions:** tap a place → **Directions**. The app first asks **"Where are you now?"**: scan a QR "You are here"
+    code, or choose your place. A phone can't locate itself inside a terminal, so the app never guesses.
+  - **Preview:** e.g. "4 min (280 m) · via Security check", with the note "Walking time only, an estimate · security
+    queues not included". Toggles: **Step-free** (lifts only) and **Slower pace**.
+  - **Start:** green banner ("10 m · Turn left at Check-in row D", then "Then …"), and the map turns so you walk "up",
+    following a blue arrow. Time, distance and arrival time (estimate) at the bottom. Voice guidance, **Steps** list,
+    **Help nearby** (nearest help desk / washrooms / lift / buggy stop, then "Continue to Gate 32").
+  - **What moves the arrow:** your steps along the route (an estimate, corrected when the phone notices you turning at
+    the next corner), a QR code, or "I'm here" on a place. Off the route → a new route from there. Debug builds have
+    **Demo walk** (×1 / ×4 / ×8), labelled as a simulation.
+  - **Instructions:** in English, Hindi or Marathi (follows the phone's language).
+  - **Getting to the airport:** "Directions to T2 (Google Maps)" on Home opens the real Google Maps app.
+  - **For the demo:** print [docs/qr-anchors.html](docs/qr-anchors.html) (8 "You are here" cards).
+- **Bags, Help:** say what they will do and which phase builds them (B1, B3).
 - **Profile:** traveller, this trip, large text, saved cards, and **More → Wallet** (boarding passes by photo or code,
   Aadhaar last 4 digits / masked PAN / visas, everything as one PDF).
 
@@ -166,7 +183,8 @@ PowerShell needs the `.\` in front; in cmd it's optional. The debug APK lands in
 ```text
 .
 ├── android/             Android app (Java, XML layouts, Material 3). Open THIS folder in Android Studio.
-├── backend/             Spring Boot 3 backend (Java 17, Maven): REST API, ripple engine, /demo page, later more
+├── backend/             Spring Boot 3 backend (Java 17, Maven): REST API, airport map, /demo page, ...
+├── routing-core/        plain Java shared by backend and app: airport map model + checks, route finder, instructions
 ├── docs/                architecture.md, api.md, demo-script.md
 ├── mock-data/           demo seed data (JSON): demo-trips.json; airports/BOM-T2/ (demo schematic) from G1
 ├── docker-compose.yml   local PostgreSQL 17 (the backend needs it from Phase 1)
@@ -184,9 +202,9 @@ New plan (11 Oct 2026): Gate Navigation + Baggage Shield. Details of every phase
 | Phase | What it delivers | Status |
 |---|---|---|
 | R0 | Refocus: new brief, new tabs (Home · Navigate · Bags · Help · Profile), old screens parked behind a flag | **Done** (11 Oct 2026) |
-| G1 | Airport map: Mumbai T2 demo schematic, map endpoint, offline cache, map with floors and points of interest | Planned |
-| G2 | Routing: shortest walk, step-free option, walking speeds, landmark instructions (English, Hindi, Marathi) | Planned |
-| G3 | Navigation screen: next instruction, route line, blue dot, QR "You are here", simulated walk, re-route, voice | Planned |
+| G1 | Airport map: Mumbai T2 demo schematic, map endpoint, offline cache, map with floors and points of interest | **Built**, waiting for the go-ahead |
+| G2 | Routing: shortest walk, step-free option, walking speeds, landmark instructions (English, Hindi, Marathi) | **Built**, waiting for the go-ahead |
+| G3 | Navigation screen: next instruction, route line, blue dot, QR "You are here", simulated walk, re-route, voice | **Built** (no ongoing notification yet), waiting for the go-ahead |
 | G4 | Gate changes: gate watcher, push alert, automatic re-route mid-walk, `/demo` trigger | Planned |
 | B1 | Bag Shield capture: register bag, scan tag, guided photos, fingerprints (SHA-256), signed receipt | Planned |
 | B2 | Counter & Station pages, tamper-evident hash chain, verification | Planned |

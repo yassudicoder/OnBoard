@@ -8,6 +8,7 @@ import com.safarsaathi.app.data.remote.TripDto;
 import java.io.IOException;
 
 import okhttp3.Request;
+import okhttp3.ResponseBody;
 import okio.Timeout;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -21,6 +22,11 @@ public class OfflineApi implements SafarSaathiApi {
 
     @Override
     public Call<TripDto> getTrip(long tripId) {
+        return new NoNetworkCall<>();
+    }
+
+    @Override
+    public Call<ResponseBody> getAirportMap(String airport, String terminal) {
         return new NoNetworkCall<>();
     }
 

@@ -96,6 +96,18 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    // Shared with the backend (CLAUDE.md, Gate Navigation): the plain-Java routing-core folder is compiled together with
+    // the app's own code (its resources, the route instruction sentences in English / Hindi / Marathi, come along), and
+    // the airport maps from the repo-root mock-data folder ship inside the app as assets
+    // (assets/BOM-T2/map.json + areas.geojson), so the map works offline even before the app ever reached the server.
+    sourceSets {
+        getByName("main") {
+            java.srcDir("../../routing-core/src/main/java")
+            resources.srcDir("../../routing-core/src/main/resources")
+            assets.srcDir("../../mock-data/airports")
+        }
+    }
+
     buildFeatures {
         // AGP 9 switches BuildConfig off by default; we need it for BACKEND_BASE_URL and HAS_MAPS_KEY.
         buildConfig = true
@@ -127,6 +139,9 @@ dependencies {
     implementation(libs.mlkit.barcode.scanning)
     // Wallet PDF: draws each boarding pass's barcode (as a QR code) into the downloaded ticket.
     implementation(libs.zxing.core)
+    // Navigate: Google's ready-made scanner screen for the QR "You are here" codes. Google Play services shows the
+    // camera, so the app itself needs no camera permission and no camera code.
+    implementation(libs.play.services.code.scanner)
 
     // Talking to our backend: Retrofit turns SafarSaathiApi into HTTP calls, Gson reads the JSON,
     // OkHttp does the actual networking (its logging interceptor prints requests in debug builds).
