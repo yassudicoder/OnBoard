@@ -318,6 +318,11 @@ live safety scoring (a country pack's official advisory link at most).
     BAGGAGE_BELT, BAG_STATUS, NEXT_STEP, DOCUMENT_EXPIRY, DOCUMENT_MISSING, WHERE_IS (washroom / help desk / lift),
     HELP; recognised but
     not answered on the phone: SEARCH_FLIGHTS, SEARCH_HOTELS, CAB.
+    Added 2026-10-11 after a probe of 46 everyday questions (16 got "didn't get that"): GREETING, THANKS,
+    BAG_DAMAGED / BAG_NOT_ARRIVED / BAG_PILFERED (PIR + limits quoted from B3's `baggage-facts.json`, the baggage
+    services counter from the map), LOST_ITEM (CSMIA Lost & Found from the same file, with its check date),
+    ASSISTANCE, ITEM_RULES and BAG_ALLOWANCE (honest "not on the phone, ask the airline"), GETTING_THERE; WHERE_IS also
+    finds food, security, check-in / bag drop, baggage services and buggy stops. Test: `EverydayQuestionsTest`.
   - `LanguagePicker`: marker words decide; ML Kit language-id (bundled, offline) breaks ties; Marathi in English
     letters is answered in Marathi script; the language chip overrides (saved in `AskSettings`).
   - `QuickAnswerer` + `AnswerText` (`answers_{en,hi,mr,hinglish}.properties`, `{name}` placeholders filled by code;

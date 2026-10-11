@@ -25,7 +25,11 @@ public final class Answer {
         /** The vault is locked: show its fingerprint / face / PIN prompt here, then answer the same question again. */
         UNLOCK_VAULT,
         /** Home: flight card, changes, and the Uber ride buttons. */
-        OPEN_HOME
+        OPEN_HOME,
+        /** The Help tab: "What happened?" (damaged / late / pilfered bag, with the claim pack). */
+        OPEN_HELP,
+        /** The Lost &amp; Found guide (CSMIA, with the pre-filled report). */
+        OPEN_LOST_FOUND
     }
 
     public final String text;

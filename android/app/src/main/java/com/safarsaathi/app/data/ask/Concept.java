@@ -53,5 +53,39 @@ public enum Concept {
     CAB,
     /** find, search, best, cheapest, another, options: asking to look for something new */
     SEARCH,
-    BOOK
+    BOOK,
+
+    // ---- Added for the everyday questions that used to get "Sorry, I didn't get that" ----
+    /** hi, hello, namaste, namaskar */
+    GREETING,
+    /** thanks, thank you, shukriya, dhanyavaad */
+    THANKS,
+    /** damaged, broken, torn, toot gaya, फुटली: something is wrong with the bag itself */
+    DAMAGE,
+    /** "didn't arrive", "not on the belt", "nahi aaya", "आली नाही": the checked bag did not come */
+    NOT_ARRIVED,
+    /** stolen, taken out, chori, गायब: something is missing from inside the bag */
+    PILFER,
+    /** lost, left behind, kho gaya, हरवले: the traveller lost something */
+    LOST,
+    /** lost and found, lost property */
+    LOST_FOUND,
+    /** food, eat, restaurant, cafe, khana, जेवण */
+    FOOD,
+    /** security, security check, frisking, सुरक्षा जांच */
+    SECURITY,
+    /** check-in, bag drop, drop my bag, counter */
+    CHECKIN,
+    /** airline baggage services, baggage counter */
+    BAGGAGE_SERVICES,
+    /** buggy, golf cart */
+    BUGGY,
+    /** wheelchair, special assistance, व्हीलचेयर */
+    WHEELCHAIR,
+    /** allowance, weight limit, how many kg, excess baggage */
+    ALLOWANCE,
+    /** power bank, battery, liquids, lighter, "can I carry": what may go in the bags */
+    CARRY_RULES,
+    /** get to the airport, reach the airport, leave for the airport */
+    GET_THERE
 }
