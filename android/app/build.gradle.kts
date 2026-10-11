@@ -142,6 +142,9 @@ android {
     // app as assets, so the ride buttons work offline. Kept apart from Gate Navigation's sourceSets block (which adds
     // mock-data/airports), so the two never register the same folder twice.
     sourceSets.getByName("main").assets.srcDir("../../mock-data/rides")
+    // Baggage Shield B3 (Help tab): the checked deadlines, Lost & Found facts and escalation steps
+    // (repo-root mock-data/baggage/baggage-facts.json, each with its source and date) ship inside the app, offline.
+    sourceSets.getByName("main").assets.srcDir("../../mock-data/baggage")
 }
 
 dependencies {

@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "preparedBy": "OnBoard team",
+  "note": "Facts for the Help tab (Baggage Shield B3). Every item has its source and the day it was checked. Information only, not legal advice. Re-check before each demo.",
+  "deadlines": {
+    "damageDays": 7,
+    "delayDays": 21,
+    "lostAfterDays": 21,
+    "rule": "Montreal Convention 1999, Article 31(2) (written complaint) and Article 17(3) (bag not arrived after 21 days)",
+    "damageQuote": "In the case of damage, the person entitled to delivery must complain to the carrier forthwith after the discovery of the damage, and, at the latest, within seven days from the date of receipt in the case of checked baggage",
+    "delayQuote": "in the case of delay, the complaint must be made at the latest within twenty-one days from the date on which the baggage has been placed at his or her disposal",
+    "lostQuote": "if the checked baggage has not arrived at the expiration of twenty-one days after the date on which it ought to have arrived, the passenger is entitled to enforce against the carrier the rights which flow from the contract of carriage",
+    "sourceUrl": "https://otc-cta.gc.ca/eng/ruling/10-c-a-2022",
+    "sourceNote": "Treaty text as quoted by the Canadian Transportation Agency (decisions 10-C-A-2022 and 36-C-A-2018). The delay sentence was confirmed only from a search summary; re-check against the ICAO text.",
+    "appliesTo": "International journeys covered by the Montreal Convention. Indian domestic flights: check the airline's Conditions of Carriage.",
+    "lastChecked": "2026-10-11"
+  },
+  "pir": {
+    "advice": "Report it to the airline's staff or baggage counter in the baggage hall before you leave, and ask for a Property Irregularity Report (PIR). Keep its reference number.",
+    "sourceUrl": "https://www.airindia.com/in/en/travel-information/baggage-guidelines/mishandled-baggage-statement.html",
+    "sourceNote": "Air India's mishandled baggage page (from a search summary; the page did not load when checked).",
+    "lastChecked": "2026-10-11"
+  },
+  "lostFound": {
+    "airport": "BOM",
+    "name": "CSMIA Lost & Found",
+    "t2Location": "Ground Transportation Lobby, Level 1, Terminal 2 (Sahar)",
+    "t1Location": "Terminal 1, Departures, next to the Airport Police Station (Santacruz East)",
+    "hours": "Items can be collected between 09:30 and 17:30, except the 2nd and 4th Saturdays, Sundays and public holidays.",
+    "keptFor": "Unclaimed items stay at the airport for up to 24 hours, then go to a warehouse. Perishables: up to 48 hours or until their expiry date, whichever is earlier.",
+    "toCollect": [
+      "A valid government-issued ID",
+      "Your boarding pass or ticket",
+      "An authorisation letter, if someone else collects for you"
+    ],
+    "portalUrl": "https://adaniairports.powerappsportals.com/lf-portal/",
+    "portalNote": "The official portal: check a report's status, browse found items, file a claim, upload documents. OnBoard never submits anything for you.",
+    "sourceUrl": "https://csmia-mumbai.adaniairports.com/en/airport-facilities/lost-and-found-services",
+    "lastChecked": "2026-10-11",
+    "verified": true
+  },
+  "escalation": [
+    {
+      "title": "1. The airline's customer care",
+      "detail": "Write to the airline with your PIR reference and the claim pack. Keep every reply.",
+      "url": "",
+      "sourceNote": "",
+      "lastChecked": "2026-10-11"
+    },
+    {
+      "title": "2. The airline's Nodal Officer, then its Appellate Authority",
+      "detail": "Indian airlines must have both to settle passenger grievances (DGCA Civil Aviation Requirement, Section 3 Series M Part IV). Their contacts are on the airline's website.",
+      "url": "https://eparlib.nic.in/bitstream/123456789/609447/1/111570.pdf",
+      "sourceNote": "Lok Sabha answer describing the DGCA rule (the DGCA text itself was not checked).",
+      "lastChecked": "2026-10-11"
+    },
+    {
+      "title": "3. AirSewa (Ministry of Civil Aviation)",
+      "detail": "The government's grievance portal for air travellers.",
+      "url": "https://www.airsewa.gov.in",
+      "sourceNote": "Site title confirmed; page text could not be read when checked.",
+      "lastChecked": "2026-10-11"
+    },
+    {
+      "title": "4. National Consumer Helpline",
+      "detail": "Department of Consumer Affairs: call 1915 (8 AM to 8 PM) or register a grievance online.",
+      "url": "https://consumerhelpline.gov.in/",
+      "sourceNote": "",
+      "lastChecked": "2026-10-11"
+    }
+  ]
+}

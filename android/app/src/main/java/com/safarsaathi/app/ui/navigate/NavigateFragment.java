@@ -137,6 +137,18 @@ public class NavigateFragment extends Fragment {
         }
     };
 
+    /**
+     * A place another tab asked for ("Show the way" on the Help tab), used once when this tab's map is loaded: the
+     * route preview to it opens (which asks "Where are you now?" first, as always). Main thread only.
+     */
+    @Nullable
+    private static String pendingDestination;
+
+    /** Call before switching to the Navigate tab: opens directions to this map place (node id). */
+    public static void requestDirections(String nodeId) {
+        pendingDestination = nodeId;
+    }
+
     // Android re-creates fragments by calling this no-argument constructor, so it must stay public.
     public NavigateFragment() {
         super(R.layout.fragment_navigate);
@@ -184,6 +196,11 @@ public class NavigateFragment extends Fragment {
         viewModel.getMapData().observe(getViewLifecycleOwner(), newData -> {
             data = newData;
             renderMap();
+            if (newData != null && pendingDestination != null && newData.map.node(pendingDestination) != null) {
+                String destination = pendingDestination;
+                pendingDestination = null;
+                viewModel.setDestination(destination);
+            }
         });
         viewModel.getSyncState().observe(getViewLifecycleOwner(), state -> {
             syncState = state;

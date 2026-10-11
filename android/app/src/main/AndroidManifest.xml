@@ -104,6 +104,18 @@
             android:name=".ui.navigate.NavigationService"
             android:exported="false"
             android:foregroundServiceType="health" />
+
+        <!-- Help tab, bag photos: gives the phone's camera app a content:// link to write ONE new photo into the app's
+             cache (res/xml/bag_photo_paths.xml). Not exported: only apps we hand a link to can use it. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.bagphotos"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/bag_photo_paths" />
+        </provider>
     </application>
 
 </manifest>

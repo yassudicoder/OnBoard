@@ -13,5 +13,8 @@
         <exclude domain="database" path="." />
         <!-- Ride handoff: addresses the traveller typed for a ride stay on this phone (RecentRidePlaces). -->
         <exclude domain="sharedpref" path="onboard_ride_places.xml" />
+        <!-- Baggage Shield (Help tab): bag-problem drafts (tag, PIR, flight) stay on this phone (ClaimStore). Their photos
+             are in no_backup/bag-evidence/, which is never backed up. -->
+        <exclude domain="sharedpref" path="bag_claims.xml" />
     </cloud-backup>
 </data-extraction-rules>

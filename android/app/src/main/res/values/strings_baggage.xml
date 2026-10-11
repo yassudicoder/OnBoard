@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Baggage Shield B3 (Help tab, bag claims, Lost & Found). English only for now; Hindi and Marathi come in phase P.
+     Honesty rules (CLAUDE.md): never promise an outcome or an amount, never say "verified", always show the source of a
+     rule, and say plainly what the phone could not prove. -->
+<resources>
+    <!-- What happened? -->
+    <string name="help_what_happened">What happened?</string>
+    <string name="help_what_happened_intro">Pick what went wrong. OnBoard shows what to do, step by step, and keeps your photos and details on this phone.</string>
+    <string name="help_issue_damage">My bag is damaged</string>
+    <string name="help_issue_damage_hint">Broken wheel or handle, torn, crushed</string>
+    <string name="help_issue_delay">My bag didn\'t arrive</string>
+    <string name="help_issue_delay_hint">Not on the belt, or came days later</string>
+    <string name="help_issue_pilferage">Something is missing from my bag</string>
+    <string name="help_issue_pilferage_hint">The bag arrived, an item didn\'t</string>
+    <string name="help_issue_lost">I lost something at the airport</string>
+    <string name="help_issue_lost_hint">Left behind in the terminal or on the plane</string>
+    <string name="help_not_legal_advice">Information only, not legal advice. The airline decides on any claim.</string>
+    <string name="bags_b1_note">Coming in B1: register your bag, scan its tag and photograph it before drop-off with a server-signed receipt. Today: the bag-problem guide below works fully on this phone.</string>
+
+    <!-- Claim screen -->
+    <string name="claim_title_damage">Damaged bag</string>
+    <string name="claim_title_delay">Bag didn\'t arrive</string>
+    <string name="claim_title_pilferage">Item missing from bag</string>
+    <string name="claim_step_pir">1 · Before you leave the baggage hall</string>
+    <string name="claim_show_way">Show the way to airline baggage services</string>
+    <string name="claim_map_note">Mumbai T2 demo schematic, not an official airport map.</string>
+    <string name="claim_show_staff">Show to staff (QR)</string>
+    <string name="claim_step_photos">2 · Photos of your bag</string>
+    <string name="claim_photos_before">Before you handed it over</string>
+    <string name="claim_photos_after">Now</string>
+    <string name="claim_photos_none">No photos yet</string>
+    <string name="claim_take_photo">Take photo</string>
+    <string name="claim_choose_photo">From gallery</string>
+    <string name="claim_photos_note">Each photo gets a SHA-256 fingerprint on this phone. If the photo is changed later, its fingerprint no longer matches. Keep faces and documents out of the frame.</string>
+    <!-- %1$s = time OnBoard stored the photo; %2$s = first characters of its fingerprint -->
+    <string name="claim_photo_caption">Added %1$s\n%2$s…</string>
+    <!-- %1$s = time from the photo file's own data -->
+    <string name="claim_photo_taken">In the photo file: %1$s (not proven)</string>
+    <string name="claim_photo_adding">Adding the photo…</string>
+    <string name="claim_photo_failed">Could not add that photo. Please try again.</string>
+    <string name="claim_photo_remove_title">Remove this photo?</string>
+    <string name="claim_photo_remove">Remove</string>
+    <string name="claim_camera_denied">The camera is needed to take a photo here. You can choose a photo from the gallery instead.</string>
+    <string name="claim_step_details">3 · Details</string>
+    <string name="claim_airline">Airline</string>
+    <string name="claim_flight">Flight number</string>
+    <string name="claim_bag_tag">Bag tag number (10 digits on the sticker)</string>
+    <string name="claim_bag_tag_error">A bag tag number has 10 digits</string>
+    <string name="claim_pir">PIR reference (from the baggage counter)</string>
+    <string name="claim_date_received">Day you got the bag (DD/MM/YYYY)</string>
+    <string name="claim_date_landed">Day your flight landed (DD/MM/YYYY)</string>
+    <string name="claim_date_delivered">Day the bag was delivered (empty if still missing)</string>
+    <string name="claim_date_error">Use DD/MM/YYYY, e.g. 11/10/2026</string>
+    <string name="claim_today">Today</string>
+    <string name="claim_description">What is damaged or missing?</string>
+    <string name="claim_step_deadline">4 · Your deadline</string>
+    <string name="claim_deadline_missing">Fill in the date above to see your deadline.</string>
+    <!-- %1$s = a date, e.g. "Sat, 18 Oct 2026" -->
+    <string name="claim_complain_by">Complain to the airline in writing by %1$s</string>
+    <string name="claim_lost_from">Still missing on %1$s? From then it may be treated as lost</string>
+    <string name="claim_days_today">Last day: today</string>
+    <plurals name="claim_days_left">
+        <item quantity="one">%d day left</item>
+        <item quantity="other">%d days left</item>
+    </plurals>
+    <plurals name="claim_days_passed">
+        <item quantity="one">Passed %d day ago: write to the airline anyway</item>
+        <item quantity="other">Passed %d days ago: write to the airline anyway</item>
+    </plurals>
+    <string name="claim_pilferage_note">The Convention names damage, not missing items: ask the airline which limit it uses, and report it straight away.</string>
+    <string name="claim_delay_note">Once the bag is delivered, the written complaint is due within 21 days of delivery.</string>
+    <!-- %1$s = the rule, %2$s = date checked -->
+    <string name="claim_rule_source">%1$s · checked %2$s</string>
+    <string name="claim_add_reminder">Add a reminder to my calendar</string>
+    <string name="claim_reminder_title">Bag complaint deadline (OnBoard)</string>
+    <!-- %1$s = issue, %2$s = PIR reference or "-" -->
+    <string name="claim_reminder_body">Last day to complain in writing to the airline about: %1$s. PIR: %2$s.</string>
+    <string name="claim_no_calendar">No calendar app on this phone.</string>
+    <string name="claim_step_pack">5 · Claim pack</string>
+    <string name="claim_pack_intro">One PDF with your details, deadline, before and after photos with their fingerprints, and a QR code. Attach it when you write to the airline.</string>
+    <string name="claim_save_pdf">Save claim pack (PDF)</string>
+    <string name="claim_pdf_working">Making the claim pack…</string>
+    <string name="claim_pdf_saved">Claim pack saved</string>
+    <string name="claim_pdf_open">Open</string>
+    <string name="claim_pdf_failed">Could not save the claim pack. Please try again.</string>
+    <string name="claim_pdf_no_viewer">No app on this phone can open PDFs.</string>
+    <string name="claim_step_escalate">6 · If the airline doesn\'t help</string>
+    <string name="claim_email_airline">Write to the airline (your mail app)</string>
+    <string name="claim_no_mail">No mail app on this phone.</string>
+    <!-- %1$s = issue label, %2$s = flight -->
+    <string name="claim_email_subject">Baggage complaint: %1$s, flight %2$s</string>
+    <string name="claim_start_again">Start again</string>
+    <string name="claim_start_again_title">Start again?</string>
+    <string name="claim_start_again_body">The photos and details for this bag problem are deleted from this phone.</string>
+    <string name="claim_qr_title">Show this to the baggage counter</string>
+    <string name="claim_qr_body">Made by the passenger on their phone. Not an airline document.</string>
+    <string name="claim_close">Close</string>
+    <string name="claim_proof_note">Photos are fingerprinted on this phone. A server-signed receipt (tamper-evident) comes with Baggage Shield B2.</string>
+    <string name="claim_open_link_failed">No app on this phone can open the link.</string>
+
+    <!-- Lost & Found -->
+    <string name="lost_title">Lost something?</string>
+    <string name="lost_where">Where did you lose it?</string>
+    <string name="lost_where_terminal">In the terminal (Mumbai airport)</string>
+    <string name="lost_where_aircraft">On the plane</string>
+    <string name="lost_where_aircraft_body">Contact the airline you flew with: they handle items found on board. Have your flight number, seat and date ready.</string>
+    <string name="lost_where_bag">Inside my checked bag</string>
+    <string name="lost_t2">Terminal 2</string>
+    <string name="lost_t1">Terminal 1</string>
+    <string name="lost_hours">Collection hours</string>
+    <string name="lost_kept">If nobody collects it</string>
+    <string name="lost_to_collect">To collect, bring</string>
+    <string name="lost_show_way">Show the way (Terminal 2 map)</string>
+    <string name="lost_report_title">Your report (copy it into the official form)</string>
+    <string name="lost_what">What did you lose?</string>
+    <string name="lost_where_exactly">Where? (e.g. near security, gate 32)</string>
+    <string name="lost_when">When? (date and time)</string>
+    <string name="lost_flight">Flight number (if any)</string>
+    <string name="lost_details">Colour, brand, anything that identifies it</string>
+    <string name="lost_copy">Copy report</string>
+    <string name="lost_copied">Report copied. Paste it into the official form.</string>
+    <string name="lost_open_portal">Open the official Lost &amp; Found portal</string>
+    <string name="lost_portal_note">OnBoard never submits anything for you.</string>
+    <!-- %1$s = source URL, %2$s = date -->
+    <string name="lost_source">Source: %1$s · checked %2$s</string>
+    <string name="lost_no_phone">The official page lists no phone number for Lost &amp; Found.</string>
+    <string name="lost_report_heading">Lost item report</string>
+</resources>

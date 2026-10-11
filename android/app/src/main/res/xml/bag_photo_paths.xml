@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FileProvider paths (Help tab, bag photos): the phone's camera app writes the new photo into this cache folder
+     through a content:// link. BagClaimFragment then copies it into no_backup/bag-evidence/ and deletes this copy. -->
+<paths>
+    <cache-path
+        name="bag_camera"
+        path="bag-camera/" />
+</paths>

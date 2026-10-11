@@ -61,6 +61,26 @@
             app:argType="boolean" />
     </fragment>
 
+    <!-- ===== Opened from the Help and Bags tabs (Baggage Shield B3) ===== -->
+
+    <!-- One bag problem: issue = DAMAGE, DELAY or PILFERAGE (BagIssue). -->
+    <fragment
+        android:id="@+id/navigation_bag_claim"
+        android:name="com.safarsaathi.app.ui.help.BagClaimFragment"
+        android:label="@string/title_help"
+        tools:layout="@layout/fragment_bag_claim">
+        <argument
+            android:name="issue"
+            android:defaultValue="DAMAGE"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_lost_found"
+        android:name="com.safarsaathi.app.ui.help.LostFoundFragment"
+        android:label="@string/lost_title"
+        tools:layout="@layout/fragment_lost_found" />
+
     <!-- ===== Opened from Profile ===== -->
 
     <fragment
