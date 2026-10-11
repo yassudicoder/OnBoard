@@ -113,6 +113,32 @@ public final class IntentMatcher {
         // Places in the terminal, and general help.
         rule(AskIntent.WHERE_IS, 8, any(Concept.WASHROOM, Concept.HELP_DESK, Concept.LIFT));
         rule(AskIntent.HELP, 6, any(Concept.HELP));
+
+        // ---- Everyday questions added after the demo probe (they used to get "Sorry, I didn't get that") ----
+        // A problem with the checked bag (11) beats every other bag answer and "what should I do" (8):
+        // "My bag is damaged, what do I do?" is about the damage, not the next step of the trip.
+        rule(AskIntent.BAG_DAMAGED, 11, any(Concept.BAG), any(Concept.DAMAGE));
+        rule(AskIntent.BAG_NOT_ARRIVED, 11, any(Concept.BAG), any(Concept.NOT_ARRIVED));
+        rule(AskIntent.BAG_PILFERED, 11, any(Concept.BAG), any(Concept.PILFER));
+        rule(AskIntent.BAG_NOT_ARRIVED, 10, any(Concept.BAG), any(Concept.LOST));
+        rule(AskIntent.BAG_NOT_ARRIVED, 8, any(Concept.NOT_ARRIVED));
+        rule(AskIntent.BAG_DAMAGED, 7, any(Concept.DAMAGE));
+        rule(AskIntent.BAG_PILFERED, 7, any(Concept.PILFER));
+        // Lost something (not the checked bag): beats the place words, so "lost my headphones near security" is
+        // about the headphones.
+        rule(AskIntent.LOST_ITEM, 10, any(Concept.LOST_FOUND));
+        rule(AskIntent.LOST_ITEM, 9, any(Concept.LOST));
+        // Rules and allowances the phone does not have: recognised, so the answer can say so honestly.
+        rule(AskIntent.BAG_ALLOWANCE, 10, any(Concept.ALLOWANCE));
+        rule(AskIntent.ITEM_RULES, 9, any(Concept.CARRY_RULES));
+        rule(AskIntent.ASSISTANCE, 9, any(Concept.WHEELCHAIR));
+        // More places on the terminal map. Check-in / bag drop and baggage services (9) beat "where is my bag" (8).
+        rule(AskIntent.WHERE_IS, 9, any(Concept.CHECKIN, Concept.BAGGAGE_SERVICES));
+        rule(AskIntent.WHERE_IS, 8, any(Concept.FOOD, Concept.SECURITY, Concept.BUGGY));
+        rule(AskIntent.GETTING_THERE, 8, any(Concept.GET_THERE));
+        // Small talk: lowest, so "hi, where is my gate?" is about the gate.
+        rule(AskIntent.GREETING, 3, any(Concept.GREETING));
+        rule(AskIntent.THANKS, 3, any(Concept.THANKS));
     }
 
     private final Lexicon lexicon;
@@ -182,6 +208,21 @@ public final class IntentMatcher {
             }
             if (hit.concepts.contains(Concept.LIFT)) {
                 return IntentMatch.Place.LIFT;
+            }
+            if (hit.concepts.contains(Concept.FOOD)) {
+                return IntentMatch.Place.FOOD;
+            }
+            if (hit.concepts.contains(Concept.SECURITY)) {
+                return IntentMatch.Place.SECURITY;
+            }
+            if (hit.concepts.contains(Concept.CHECKIN)) {
+                return IntentMatch.Place.CHECKIN;
+            }
+            if (hit.concepts.contains(Concept.BAGGAGE_SERVICES)) {
+                return IntentMatch.Place.BAGGAGE_SERVICES;
+            }
+            if (hit.concepts.contains(Concept.BUGGY)) {
+                return IntentMatch.Place.BUGGY;
             }
         }
         return null;

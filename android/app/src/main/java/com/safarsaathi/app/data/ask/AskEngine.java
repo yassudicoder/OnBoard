@@ -2,6 +2,8 @@ package com.safarsaathi.app.data.ask;
 
 import androidx.annotation.Nullable;
 
+import com.safarsaathi.app.data.baggage.BaggageFacts;
+
 /**
  * Ask OnBoard's brain for Layer 1 (Quick answers), in three steps:
  * <ol>
@@ -17,16 +19,27 @@ public final class AskEngine {
 
     private final LanguagePicker languagePicker;
     private final IntentMatcher intentMatcher;
-    private final QuickAnswerer quickAnswerer = new QuickAnswerer();
+    private final QuickAnswerer quickAnswerer;
 
     public AskEngine(Lexicon lexicon) {
+        this(lexicon, null);
+    }
+
+    /** @param baggage the checked bag-problem and Lost &amp; Found facts (baggage-facts.json), or null */
+    public AskEngine(Lexicon lexicon, @Nullable BaggageFacts baggage) {
         this.languagePicker = new LanguagePicker(lexicon);
         this.intentMatcher = new IntentMatcher(lexicon);
+        this.quickAnswerer = new QuickAnswerer(baggage);
     }
 
     /** The engine with the lexicon files that ship in the app. */
     public static AskEngine standard() {
         return new AskEngine(Lexicon.get());
+    }
+
+    /** The same, also quoting the sourced bag-problem and Lost &amp; Found facts. */
+    public static AskEngine standard(@Nullable BaggageFacts baggage) {
+        return new AskEngine(Lexicon.get(), baggage);
     }
 
     /**

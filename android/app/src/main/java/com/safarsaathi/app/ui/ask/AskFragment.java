@@ -23,6 +23,7 @@ import androidx.core.view.MenuProvider;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -385,8 +386,15 @@ public class AskFragment extends Fragment {
 
     /** Opens the screen an answer's button points to, exactly as if the traveller had tapped that tab. */
     private void openScreen(Answer.Action action) {
+        if (action == Answer.Action.OPEN_LOST_FOUND) {
+            // Not a tab: the Lost & Found guide from the Help tab (B3), opened on top of this screen.
+            NavHostFragment.findNavController(this).navigate(R.id.navigation_lost_found);
+            return;
+        }
         int tab;
-        if (action == Answer.Action.OPEN_VAULT || action == Answer.Action.UNLOCK_VAULT) {
+        if (action == Answer.Action.OPEN_HELP) {
+            tab = R.id.navigation_help;
+        } else if (action == Answer.Action.OPEN_VAULT || action == Answer.Action.UNLOCK_VAULT) {
             // The Document Vault is not on this branch yet (CLAUDE.md §3E): Profile is where its link will be.
             tab = R.id.navigation_profile;
         } else if (action == Answer.Action.OPEN_BAGS) {

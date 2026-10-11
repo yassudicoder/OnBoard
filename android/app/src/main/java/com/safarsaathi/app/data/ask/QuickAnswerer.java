@@ -3,8 +3,10 @@ package com.safarsaathi.app.data.ask;
 import androidx.annotation.Nullable;
 
 import com.safarsaathi.app.AppConfig;
+import com.safarsaathi.app.data.baggage.BaggageFacts;
 import com.safarsaathi.app.data.local.BlockEntity;
 import com.safarsaathi.app.ui.trip.TripOverview;
+import com.safarsaathi.routing.map.AirportMap;
 import com.safarsaathi.routing.map.MapFloor;
 import com.safarsaathi.routing.map.NodeType;
 import com.safarsaathi.routing.map.Zone;
@@ -38,6 +40,21 @@ public final class QuickAnswerer {
 
     /** At most this many places in one "where is" reply; the map shows the rest. */
     static final int MAX_PLACES = 4;
+
+    /**
+     * The checked bag-problem and Lost &amp; Found facts (mock-data/baggage/baggage-facts.json, each with its source and
+     * date), or null when the screen did not load them: then those answers point to the Help tab instead of quoting.
+     */
+    @Nullable
+    private final BaggageFacts baggage;
+
+    public QuickAnswerer() {
+        this(null);
+    }
+
+    public QuickAnswerer(@Nullable BaggageFacts baggage) {
+        this.baggage = baggage;
+    }
 
     private static final DateTimeFormatter HOURS_MINUTES = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -95,6 +112,26 @@ public final class QuickAnswerer {
                 return new Reply(text.get("cloud.search"), null, null);
             case CAB:
                 return new Reply(text.get("cloud.cab"), null, Answer.Action.OPEN_HOME);
+            case GREETING:
+                return new Reply(text.get("greeting"), null, null);
+            case THANKS:
+                return new Reply(text.get("thanks"), null, null);
+            case BAG_DAMAGED:
+                return bagProblem(text, facts, "bag.problem_damaged", "bag.deadline_damage");
+            case BAG_NOT_ARRIVED:
+                return bagProblem(text, facts, "bag.problem_not_arrived", "bag.deadline_delay");
+            case BAG_PILFERED:
+                return bagProblem(text, facts, "bag.problem_pilfered", "bag.deadline_pilfered");
+            case LOST_ITEM:
+                return lostItem(text);
+            case ASSISTANCE:
+                return assistance(text, facts);
+            case ITEM_RULES:
+                return new Reply(text.get("rules.carry"), null, null);
+            case BAG_ALLOWANCE:
+                return new Reply(text.get("rules.allowance"), null, null);
+            case GETTING_THERE:
+                return gettingThere(text, facts);
             case UNKNOWN:
             default:
                 return new Reply(text.get("unknown"), null, null);
@@ -371,13 +408,13 @@ public final class QuickAnswerer {
             return new Reply(text.get("where.no_map"), null, Answer.Action.OPEN_MAP);
         }
         IntentMatch.Place kind = match.place == null ? IntentMatch.Place.WASHROOM : match.place;
-        NodeType type = NodeType.valueOf(kind.name()); // WASHROOM, HELP_DESK and LIFT have the same names
-        List<TerminalPlaces.Place> places = TerminalPlaces.find(facts.map, type, match.gateNumber);
+        List<TerminalPlaces.Place> places = placesFor(kind, facts.map, match.gateNumber);
         if (places.isEmpty()) {
             return new Reply(text.get("where.none"), null, Answer.Action.OPEN_MAP);
         }
         String lang = text.language().mapLanguage;
-        boolean sameNames = true;
+        // One place: always say its name ("Food court near Central hall"); several with one name: just where they are.
+        boolean sameNames = places.size() > 1;
         for (TerminalPlaces.Place place : places) {
             sameNames &= place.node.name(lang).equals(places.get(0).node.name(lang));
         }
@@ -385,7 +422,7 @@ public final class QuickAnswerer {
         for (int i = 0; i < Math.min(MAX_PLACES, places.size()); i++) {
             items.add(placeLine(places.get(i), sameNames, text, facts));
         }
-        StringBuilder sentence = new StringBuilder(text.get("where.header_" + type.name()));
+        StringBuilder sentence = new StringBuilder(text.get("where.header_" + kind.name()));
         if (TerminalPlaces.hasGate(facts.map, match.gateNumber)) {
             sentence.append(' ').append(text.fill("where.closest_to_gate", "gate", match.gateNumber));
         }
@@ -394,6 +431,110 @@ public final class QuickAnswerer {
                 .append(text.get("sentence.end"));
         sentence.append(' ').append(text.get("where.demo_map"));
         return new Reply(sentence.toString(), null, Answer.Action.OPEN_MAP);
+    }
+
+    /** The map's places of one kind. Most kinds are one node type; food and check-in need a little more. */
+    private static List<TerminalPlaces.Place> placesFor(IntentMatch.Place kind, AirportMap map,
+                                                        @Nullable String gateNumber) {
+        switch (kind) {
+            case FOOD: {
+                // The demo map has no food node type: its food court is a landmark (id "food_court").
+                List<TerminalPlaces.Place> food = new ArrayList<>();
+                for (TerminalPlaces.Place place : TerminalPlaces.find(map, NodeType.LANDMARK, gateNumber)) {
+                    if (place.node.id != null && place.node.id.contains("food")) {
+                        food.add(place);
+                    }
+                }
+                return food;
+            }
+            case CHECKIN: {
+                List<TerminalPlaces.Place> checkIn = new ArrayList<>(TerminalPlaces.find(map, NodeType.BAG_DROP, gateNumber));
+                checkIn.addAll(TerminalPlaces.find(map, NodeType.CHECKIN_ROW, gateNumber));
+                return checkIn;
+            }
+            case BUGGY:
+                return TerminalPlaces.find(map, NodeType.BUGGY_STOP, gateNumber);
+            default: // WASHROOM, HELP_DESK, LIFT, SECURITY and BAGGAGE_SERVICES have the node type's name
+                return TerminalPlaces.find(map, NodeType.valueOf(kind.name()), gateNumber);
+        }
+    }
+
+    // ---- Bag problems, lost things, help, rules (added after the demo probe) ----
+
+    /**
+     * Damaged / not arrived / something stolen from the checked bag: what to do before leaving the baggage hall (a
+     * PIR), the written-complaint time limit from baggage-facts.json (sourced, never typed into a sentence), where the
+     * baggage services counter is on the demo map, and the Help tab that makes the claim pack.
+     */
+    private Reply bagProblem(AnswerText text, TripFacts facts, String problemKey, String deadlineKey) {
+        StringBuilder sentence = new StringBuilder(text.get(problemKey));
+        if (baggage != null && baggage.deadlines.damageDays > 0 && baggage.deadlines.delayDays > 0) {
+            int days = "bag.deadline_delay".equals(deadlineKey)
+                    ? baggage.deadlines.delayDays : baggage.deadlines.damageDays;
+            sentence.append(' ').append(text.fill(deadlineKey, "days", String.valueOf(days),
+                    "lost_days", String.valueOf(baggage.deadlines.lostAfterDays)));
+            sentence.append(' ').append(text.get("bag.deadline_note"));
+        }
+        TerminalPlaces.Place counter = facts.map == null ? null
+                : first(TerminalPlaces.find(facts.map, NodeType.BAGGAGE_SERVICES, null));
+        if (counter != null) {
+            sentence.append(' ').append(text.fill("bag.counter_where", "place", placeLine(counter, false, text, facts)));
+        }
+        sentence.append(' ').append(text.get("bag.claim_help"));
+        if ("bag.problem_not_arrived".equals(problemKey)) {
+            // "Lost my bag" can also mean a bag left in the terminal: point to Lost & Found too.
+            sentence.append(' ').append(text.get("bag.or_lost_found"));
+        }
+        return new Reply(sentence.toString(), null, Answer.Action.OPEN_HELP);
+    }
+
+    /** Lost something at the airport: CSMIA Lost &amp; Found from baggage-facts.json, with its source date. */
+    private Reply lostItem(AnswerText text) {
+        if (baggage == null || baggage.lostFound.t2Location.isEmpty()) {
+            return new Reply(text.get("lost.no_facts"), null, Answer.Action.OPEN_LOST_FOUND);
+        }
+        BaggageFacts.LostFound lost = baggage.lostFound;
+        StringBuilder sentence = new StringBuilder(text.fill("lost.found", "name", lost.name,
+                "location", lost.t2Location));
+        if (!lost.hours.isEmpty()) {
+            sentence.append(' ').append(text.fill("lost.hours", "hours", lost.hours));
+        }
+        sentence.append(' ').append(text.get("lost.portal")).append(' ').append(text.get("lost.plane"));
+        try {
+            sentence.append(' ').append(text.fill("lost.source", "date", date(LocalDate.parse(lost.lastChecked), text)));
+        } catch (RuntimeException noDate) {
+            // no checked date in the file: say nothing about it rather than invent one
+        }
+        return new Reply(sentence.toString(), null, Answer.Action.OPEN_LOST_FOUND);
+    }
+
+    /** Wheelchair / special assistance: OnBoard can't book it; the airline can; the nearest help desk on the map. */
+    private Reply assistance(AnswerText text, TripFacts facts) {
+        StringBuilder sentence = new StringBuilder(text.get("assist.wheelchair"));
+        TerminalPlaces.Place desk = facts.map == null ? null
+                : first(TerminalPlaces.find(facts.map, NodeType.HELP_DESK, null));
+        if (desk != null) {
+            sentence.append(' ').append(text.fill("assist.desk", "place", placeLine(desk, false, text, facts)));
+        }
+        return new Reply(sentence.toString(), null, Answer.Action.OPEN_MAP);
+    }
+
+    /** Getting to the airport: the flight's time and airport from the trip, and the directions on Home. */
+    private Reply gettingThere(AnswerText text, TripFacts facts) {
+        TripFacts.Flight flight = facts.flight;
+        if (flight == null) {
+            return new Reply(text.get("there.directions"), null, Answer.Action.OPEN_HOME);
+        }
+        String first = flight.from == null
+                ? text.fill("there.flight_no_from", "flight", flight.name, "departs", time(flight.departs, text, facts))
+                : text.fill("there.flight", "flight", flight.name, "departs", time(flight.departs, text, facts),
+                "from", flight.from);
+        return new Reply(first + " " + text.get("there.directions"), facts.asOf, Answer.Action.OPEN_HOME);
+    }
+
+    @Nullable
+    private static TerminalPlaces.Place first(List<TerminalPlaces.Place> places) {
+        return places.isEmpty() ? null : places.get(0);
     }
 
     /** "near Gate 32 (Departures, after security)", or "Lift A near Duty Free (...)" when names differ. */

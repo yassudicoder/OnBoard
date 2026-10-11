@@ -151,3 +151,32 @@ DOCUMENT_EXPIRY	MR	Majha passport kadhi expire hoto?
 DOCUMENT_EXPIRY	EN	Is my travel insurance still valid?
 DOCUMENT_EXPIRY	HI	मेरा बीमा कब तक वैध है?
 DOCUMENT_EXPIRY	HINGLISH	visa kab tak valid hai
+
+# Added after the demo probe (11 Oct): everyday questions that used to get "I didn't get that" or a wrong answer.
+BAG_DAMAGED	EN	My bag is damaged, what do I do?
+BAG_DAMAGED	EN	the wheel of my suitcase is broken
+BAG_NOT_ARRIVED	EN	My bag didn't arrive
+BAG_NOT_ARRIVED	EN	my luggage never came on the belt
+BAG_PILFERED	EN	Something was stolen from my bag
+LOST_ITEM	EN	I lost my headphones near security
+LOST_ITEM	EN	Where is lost and found?
+WHERE_IS	EN	Where can I eat?
+WHERE_IS	EN	Where is security?
+WHERE_IS	EN	Where do I drop my bag?
+ASSISTANCE	EN	I need a wheelchair
+ITEM_RULES	EN	Can I carry a power bank?
+BAG_ALLOWANCE	EN	What is my baggage allowance?
+GETTING_THERE	EN	When should I leave for the airport?
+GREETING	EN	hello
+THANKS	EN	thanks a lot
+BAG_DAMAGED	HINGLISH	Mera bag toot gaya
+LOST_ITEM	HINGLISH	Mera phone kho gaya
+WHERE_IS	HINGLISH	Khana kahan milega?
+ITEM_RULES	HINGLISH	Power bank cabin bag mein le ja sakta hoon?
+BAG_DAMAGED	HI	मेरा बैग टूट गया
+BAG_NOT_ARRIVED	HI	मेरा सामान नहीं आया
+LOST_ITEM	HI	मेरा फोन खो गया
+GREETING	HI	नमस्ते
+BAG_DAMAGED	MR	माझी बॅग फुटली
+BAG_NOT_ARRIVED	MR	माझी बॅग आली नाही
+WHERE_IS	MR	जेवण कुठे मिळेल?

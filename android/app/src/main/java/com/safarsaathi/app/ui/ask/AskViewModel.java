@@ -23,11 +23,16 @@ import com.safarsaathi.app.data.ask.AskSettings;
 import com.safarsaathi.app.data.ask.LanguageHint;
 import com.safarsaathi.app.data.ask.MlKitLanguageHints;
 import com.safarsaathi.app.data.ask.TripFacts;
+import com.safarsaathi.app.data.baggage.BaggageFacts;
 import com.safarsaathi.app.data.local.AirportMapEntity;
 import com.safarsaathi.app.data.local.BlockEntity;
 import com.safarsaathi.app.data.local.TripEntity;
 import com.safarsaathi.routing.map.AirportMap;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -113,9 +118,24 @@ public class AskViewModel extends AndroidViewModel {
         // The map ships inside the app: save it to Room if this phone has never opened the Navigate tab.
         mapRepository.ensureSaved(AppConfig.PILOT_AIRPORT, AppConfig.PILOT_TERMINAL);
         worker.execute(() -> {
-            engine = AskEngine.standard();
+            engine = AskEngine.standard(readBaggageFacts(application));
             hints = new MlKitLanguageHints();
         });
+    }
+
+    /**
+     * The checked facts behind the bag-problem and Lost &amp; Found answers (the same asset the Help tab reads). A broken
+     * file is a bug the unit tests catch; here it only means those answers point to the Help tab instead of quoting.
+     */
+    @Nullable
+    private static BaggageFacts readBaggageFacts(Application application) {
+        try (Reader reader = new InputStreamReader(application.getAssets().open(BaggageFacts.ASSET),
+                StandardCharsets.UTF_8)) {
+            return BaggageFacts.parse(reader);
+        } catch (IOException | RuntimeException e) {
+            Log.w(TAG, "Could not read " + BaggageFacts.ASSET + "; bag answers will point to the Help tab", e);
+            return null;
+        }
     }
 
     LiveData<List<ChatMessage>> getMessages() {

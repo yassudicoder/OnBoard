@@ -22,7 +22,7 @@ public final class IntentMatch {
     }
 
     /** For {@link AskIntent#WHERE_IS}: which kind of place. */
-    public enum Place { WASHROOM, HELP_DESK, LIFT }
+    public enum Place { WASHROOM, HELP_DESK, LIFT, FOOD, SECURITY, CHECKIN, BAGGAGE_SERVICES, BUGGY }
 
     /** For the document intents: which document was named (null = documents in general). */
     public enum Document { PASSPORT, VISA, INSURANCE }
