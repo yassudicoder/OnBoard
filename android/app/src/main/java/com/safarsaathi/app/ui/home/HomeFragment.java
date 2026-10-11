@@ -107,6 +107,8 @@ public class HomeFragment extends Fragment {
             }
         });
         binding.homeRegisterBag.setOnClickListener(button -> openTab(R.id.navigation_bags));
+        binding.homePlanJourney.setOnClickListener(button ->
+                androidx.navigation.Navigation.findNavController(view).navigate(R.id.navigation_journey));
         // The departure ride sits on the coloured flight card, so its notes use that card's text colour.
         binding.homeRideDeparture.setTextColor(MaterialColors.getColor(binding.homeFlightCard,
                 com.google.android.material.R.attr.colorOnPrimaryContainer));
@@ -195,6 +197,27 @@ public class HomeFragment extends Fragment {
 
     /** The flight card. Gate and boarding stay "Not announced yet" (set in the layout) until phase G4. */
     private void renderFlight(@Nullable BlockEntity flight) {
+        // A SAMPLE journey picked in "Plan a journey" replaces the server's demo flight on the card.
+        com.safarsaathi.app.data.journey.ChosenJourney chosen =
+                com.safarsaathi.app.data.journey.ChosenJourney.load(requireContext());
+        if (chosen != null) {
+            java.time.format.DateTimeFormatter hhmm = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+            java.time.format.DateTimeFormatter dayFormat =
+                    java.time.format.DateTimeFormatter.ofPattern("EEE, d MMM", java.util.Locale.ENGLISH);
+            binding.homeFlightTitle.setText(getString(R.string.journey_home_title, chosen.flightNo,
+                    chosen.from.name, chosen.to.name));
+            binding.homeFlightFrom.setVisibility(View.VISIBLE);
+            binding.homeFlightFrom.setText(getString(R.string.home_flight_from,
+                    chosen.from.airport + " (" + chosen.from.code + ")"));
+            binding.homeDepartsTime.setText(hhmm.format(chosen.departs));
+            binding.homeDepartsDay.setText(dayFormat.format(chosen.departs));
+            binding.homeArrivesTime.setText(hhmm.format(chosen.arrives));
+            binding.homeArrivesDay.setText(dayFormat.format(chosen.arrives));
+            binding.homeFlightStatus.setVisibility(View.GONE);
+            binding.homeFlightPlanned.setVisibility(View.VISIBLE);
+            binding.homeFlightPlanned.setText(R.string.journey_home_note);
+            return;
+        }
         if (flight == null) {
             binding.homeFlightTitle.setText(R.string.home_no_flight);
             binding.homeFlightFrom.setVisibility(View.GONE);

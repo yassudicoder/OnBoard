@@ -61,6 +61,13 @@
             app:argType="boolean" />
     </fragment>
 
+    <!-- Plan a journey (Home): pick From -> To and a SAMPLE flight, or find a booking. -->
+    <fragment
+        android:id="@+id/navigation_journey"
+        android:name="com.safarsaathi.app.ui.journey.JourneyFragment"
+        android:label="@string/journey_screen_label"
+        tools:layout="@layout/fragment_journey" />
+
     <!-- ===== Opened from the Help and Bags tabs (Baggage Shield B3) ===== -->
 
     <!-- One bag problem: issue = DAMAGE, DELAY or PILFERAGE (BagIssue). -->

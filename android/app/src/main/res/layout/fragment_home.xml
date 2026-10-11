@@ -203,6 +203,18 @@
                 android:visibility="gone"
                 tools:visibility="visible">
 
+                <!-- Plan a journey: pick From -> To and a SAMPLE flight, or find a booking (JourneyFragment). -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/home_plan_journey"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:minHeight="48dp"
+                    android:text="@string/journey_home_button"
+                    app:icon="@drawable/ic_block_flight_24" />
+
                 <!-- 2. Flight card -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/home_flight_card"

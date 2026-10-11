@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Plan a journey (JourneyFragment). All flights here are SAMPLE: no live schedule source yet. -->
+<resources>
+    <string name="journey_home_button">Plan a journey or change trip</string>
+    <string name="journey_screen_label">Plan a journey</string>
+    <string name="journey_title">Where are you flying?</string>
+    <string name="journey_from">From</string>
+    <string name="journey_to">To</string>
+    <string name="journey_today">Today</string>
+    <string name="journey_tomorrow">Tomorrow</string>
+    <string name="journey_day_after">Day after</string>
+    <string name="journey_search">Show flights</string>
+    <string name="journey_same_city">Choose two different cities.</string>
+    <!-- %1$s = from, %2$s = to, %3$s = date -->
+    <string name="journey_results">%1$s → %2$s · %3$s</string>
+    <!-- %1$s = flight, %2$s = departs, %3$s = arrives, %4$s = duration -->
+    <string name="journey_flight_row">%1$s · %2$s → %3$s · %4$s · direct</string>
+    <string name="journey_tap_to_choose">SAMPLE · tap to make this your trip</string>
+    <string name="journey_sample_note">SAMPLE flights for the demo, not live schedules or prices. OnBoard never books for you: book with the airline, then add the trip here. Live flight search comes with the online assistant.</string>
+    <!-- %1$s = flight, %2$s = from, %3$s = to -->
+    <string name="journey_chosen">Trip set: %1$s %2$s → %3$s (SAMPLE)</string>
+    <string name="journey_booked_title">Already booked?</string>
+    <string name="journey_booking_ref">Booking reference (e.g. 7XKQ2P)</string>
+    <string name="journey_last_name">Last name</string>
+    <string name="journey_find_trip">Find my trip</string>
+    <string name="journey_booked_note">Demo: any booking reference finds the demo trip IJ 512 Mumbai → Bengaluru. Trip details stay on this phone.</string>
+    <string name="journey_booking_needed">Type the booking reference and last name</string>
+    <string name="journey_found">Trip found (demo): IJ 512 Mumbai → Bengaluru</string>
+    <!-- Home flight card when a SAMPLE journey is chosen. %1$s = flight, %2$s = from city, %3$s = to city -->
+    <string name="journey_home_title">Flight %1$s %2$s to %3$s</string>
+    <string name="journey_home_note">SAMPLE trip you picked in Plan a journey. Gate and boarding show when the airline announces them.</string>
+</resources>
