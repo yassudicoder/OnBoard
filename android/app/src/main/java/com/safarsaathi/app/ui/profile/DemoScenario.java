@@ -24,7 +24,7 @@ import com.safarsaathi.app.R;
  * show them without a live airline feed or the server's demo buttons. Every alert says DEMO SCENARIO and uses the
  * demo trip's values (IJ 512, the SAMPLE bag), never real flight data. Nothing on the server changes.
  */
-final class DemoScenario {
+public final class DemoScenario {
 
     private static final String CHANNEL_ID = "demo_scenario";
     private static int nextId = 7100;
@@ -57,11 +57,13 @@ final class DemoScenario {
         manager.createNotificationChannel(new NotificationChannel(CHANNEL_ID,
                 context.getString(R.string.demo_scenario_channel), NotificationManager.IMPORTANCE_HIGH));
 
+        // Tapping the alert opens its next step (MainActivity.handleDemoTap): route to the gate, Home, Bags, or the
+        // missed-connection plan. SINGLE_TOP + CLEAR_TOP reach the running screen instead of a second copy.
         Intent open = new Intent(context, MainActivity.class)
-                .setAction(Intent.ACTION_MAIN)
-                .addCategory(Intent.CATEGORY_LAUNCHER)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        PendingIntent tap = PendingIntent.getActivity(context, 1, open,
+                .putExtra(EXTRA_SCENARIO, which)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent tap = PendingIntent.getActivity(context, 100 + which, open,
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder alert = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_navigation)
@@ -80,16 +82,18 @@ final class DemoScenario {
         } catch (SecurityException e) {
             // Notifications were switched off in the phone's settings: nothing to show.
         }
-        if (which == MISSED_CONNECTION) {
-            showMissedConnectionPlan(fragment);
-        }
     }
 
+    /** Intent extra on a demo alert's tap: which scenario it was (index into demo_scenario_choices). */
+    public static final String EXTRA_SCENARIO = "onboard.demo_scenario";
+    public static final int GATE_ANNOUNCED = 0;
+    public static final int GATE_CHANGED = 1;
+    public static final int DELAYED = 2;
+    public static final int BAG_ON_BELT = 3;
     /** The 5th scenario: what OnBoard tells a traveller who will miss a connection (rebook, options, refund). */
-    private static final int MISSED_CONNECTION = 4;
+    public static final int MISSED_CONNECTION = 4;
 
-    private static void showMissedConnectionPlan(Fragment fragment) {
-        Context context = fragment.requireContext();
+    public static void showMissedConnectionPlan(Context context) {
         new MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.demo_missed_title)
                 .setMessage(R.string.demo_missed_body)

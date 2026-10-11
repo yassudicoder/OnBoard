@@ -24,8 +24,14 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.safarsaathi.app.databinding.ActivityMainBinding;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.safarsaathi.app.ui.login.LaunchAnimation;
 import com.safarsaathi.app.ui.login.LoginActivity;
+import com.safarsaathi.app.ui.navigate.NavigateFragment;
+import com.safarsaathi.app.ui.profile.DemoScenario;
 import com.safarsaathi.app.ui.vault.VaultWindow;
 
 /**
@@ -127,6 +133,35 @@ public class MainActivity extends AppCompatActivity {
         // Only on a fresh start: after a screen rotation the question (or its answer) is already there.
         if (savedInstanceState == null) {
             askForLocalNetworkAccess();
+            handleDemoTap(getIntent());
+        }
+    }
+
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleDemoTap(intent);
+    }
+
+    /** A tapped demo alert (Profile → Demo scenario) opens its next step. Other launches carry no extra. */
+    private void handleDemoTap(@Nullable Intent intent) {
+        int which = intent == null ? -1 : intent.getIntExtra(DemoScenario.EXTRA_SCENARIO, -1);
+        if (which < 0) {
+            return;
+        }
+        intent.removeExtra(DemoScenario.EXTRA_SCENARIO);
+        BottomNavigationView tabs = findViewById(R.id.bottom_nav);
+        if (which == DemoScenario.GATE_ANNOUNCED || which == DemoScenario.GATE_CHANGED) {
+            // Route to the (demo) gate: the Navigate tab asks "Where are you now?" and shows the way.
+            NavigateFragment.requestDirections(which == DemoScenario.GATE_CHANGED ? "gate_41" : "gate_32");
+            tabs.setSelectedItemId(R.id.navigation_navigate);
+        } else if (which == DemoScenario.BAG_ON_BELT) {
+            tabs.setSelectedItemId(R.id.navigation_bags);
+        } else if (which == DemoScenario.MISSED_CONNECTION) {
+            DemoScenario.showMissedConnectionPlan(this);
+        } else {
+            tabs.setSelectedItemId(R.id.navigation_home);
         }
     }
 
