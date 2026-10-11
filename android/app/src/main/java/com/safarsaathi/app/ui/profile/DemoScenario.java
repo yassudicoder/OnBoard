@@ -80,5 +80,31 @@ final class DemoScenario {
         } catch (SecurityException e) {
             // Notifications were switched off in the phone's settings: nothing to show.
         }
+        if (which == MISSED_CONNECTION) {
+            showMissedConnectionPlan(fragment);
+        }
+    }
+
+    /** The 5th scenario: what OnBoard tells a traveller who will miss a connection (rebook, options, refund). */
+    private static final int MISSED_CONNECTION = 4;
+
+    private static void showMissedConnectionPlan(Fragment fragment) {
+        Context context = fragment.requireContext();
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.demo_missed_title)
+                .setMessage(R.string.demo_missed_body)
+                .setPositiveButton(R.string.demo_missed_email, (dialog, which) -> {
+                    android.net.Uri uri = android.net.Uri.parse("mailto:?subject="
+                            + android.net.Uri.encode(context.getString(R.string.demo_missed_email_subject))
+                            + "&body=" + android.net.Uri.encode(context.getString(R.string.demo_missed_email_body)));
+                    try {
+                        context.startActivity(new Intent(Intent.ACTION_SENDTO, uri));
+                    } catch (android.content.ActivityNotFoundException e) {
+                        android.widget.Toast.makeText(context, R.string.demo_missed_no_mail,
+                                android.widget.Toast.LENGTH_LONG).show();
+                    }
+                })
+                .setNegativeButton(R.string.demo_missed_close, null)
+                .show();
     }
 }

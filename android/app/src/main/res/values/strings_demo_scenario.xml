@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- "Demo scenario" (debug builds, Profile): sample alerts for the presentation. Always labelled DEMO SCENARIO; the
-     values belong to the demo trip (IJ 512) and the SAMPLE bag, not to any real flight. -->
+     values belong to the demo trips (IJ 512; trip 3 Mumbai - Doha from Disruption Recovery C1) and the SAMPLE bag,
+     not to any real flight. Never a promised refund amount or outcome. -->
 <resources>
     <string name="demo_scenario_button">Demo scenario: send a sample alert</string>
     <string name="demo_scenario_title">Send a demo alert</string>
@@ -11,17 +12,29 @@
         <item>Gate changed (32 → 41)</item>
         <item>Flight delayed (45 min)</item>
         <item>Bag on the belt (Belt 7)</item>
+        <item>Missed connection (delay → next flight leaves)</item>
     </string-array>
     <string-array name="demo_scenario_titles">
         <item>IJ 512 · Gate 32 announced</item>
         <item>Gate changed: 32 → 41 · IJ 512</item>
         <item>IJ 512 delayed by 45 min</item>
         <item>Your bag is on Belt 7</item>
+        <item>You will likely miss MJ 31 in Doha</item>
     </string-array>
     <string-array name="demo_scenario_texts">
         <item>Boarding closes 07:35. Tap to open OnBoard and navigate to Gate 32.</item>
         <item>Boarding closes 07:35 · about 6 min walk from security. Tap to open OnBoard and re-route.</item>
         <item>New departure 08:45. Your connection and ride times may change.</item>
         <item>Blue hard case · tag 0058 123 456. Check it before you leave the hall: Bags → What happened?</item>
+        <item>IJ 1907 is 95 min late and lands 21:10. MJ 31 leaves 21:55. Open OnBoard for your options.</item>
     </string-array>
+
+    <!-- Missed connection plan (opens with the 5th scenario). -->
+    <string name="demo_missed_title">Missed connection: what now?</string>
+    <string name="demo_missed_body">DEMO SCENARIO · demo trip Mumbai → Doha\n\nIJ 1907 Mumbai → Doha is 95 min late and now lands at 21:10. Your next flight MJ 31 leaves Doha at 21:55. You have 45 min; Doha needs at least 60 min (demo value). You will likely miss MJ 31.\n\n1. Rebooking. One ticket for both flights: go to the airline\'s transfer desk in Doha and ask to be rebooked; check your ticket\'s conditions. Separate tickets: contact the second airline now, before you board.\n\n2. Options to ask for (SAMPLE, not live data):\n• MJ 33 · tonight 23:50\n• MJ 35 · tomorrow 08:15\n• A partner airline\'s next flight\n\n3. Not travelling any more? Ask the airline about a refund of the unused flights. What you get back depends on your fare rules; OnBoard never promises an amount.\n\n4. Waiting overnight? Ask the airline about meals and a hotel, and keep every receipt.\n\nOnBoard never books, cancels or pays for you.</string>
+    <string name="demo_missed_email">Write to the airline</string>
+    <string name="demo_missed_close">Close</string>
+    <string name="demo_missed_email_subject">Missed connection: IJ 1907 delayed, MJ 31 in Doha</string>
+    <string name="demo_missed_email_body">Dear airline team,\n\nMy flight IJ 1907 Mumbai → Doha is about 95 minutes late, so I will miss my connecting flight MJ 31 from Doha (21:55).\n\nPlease rebook me on the next available flight, or tell me my options, including a refund of the unused flights.\n\nBooking reference: \nName: \n\nThank you.</string>
+    <string name="demo_missed_no_mail">No mail app on this phone.</string>
 </resources>
