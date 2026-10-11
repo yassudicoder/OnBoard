@@ -478,7 +478,8 @@ GET  /api/health                                    app status + MOCK/REAL provi
 2. **Navigate:** map + instruction banner + bottom sheet, QR "You are here", simulate-walk (demo builds only), steps list,
    step-free toggle, help sheet.
 3. **Bags:** register bag (scan tag) → guided 4-photo capture → signed receipt; status timeline; before/after compare;
-   "Something went wrong".
+   "Something went wrong". Until B1 is in the app, the tab starts with ONE hardcoded bag labelled SAMPLE DATA
+   (`layout/view_sample_bag.xml`, Figma B01; belt "not announced yet"); remove it when B1 lists real bags.
 4. **Help:** "What happened?" decision tree; CSMIA Lost & Found card with source and last-checked date.
 5. **Profile:** language, voice guidance, elderly / step-free defaults, large text, notifications; "More" links to the
    **Document Vault** (nested nav graph `vault_graph`), the Wallet (boarding passes, Aadhaar last-4 / masked PAN / visas, PDF)

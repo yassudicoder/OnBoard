@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bags tab: the hardcoded SAMPLE bag at the top (layout/view_sample_bag.xml), until Baggage Shield B1 registers
+         real ones. Sample values only; no belt number (it says "not announced yet"). -->
+    <string name="bags_your_bags">Your bags</string>
+    <string name="bags_sample_label">SAMPLE DATA</string>
+    <string name="bags_register_title">Register a bag</string>
+    <string name="bags_register_hint">Scan the tag or type its 10 digits</string>
+    <string name="bags_register_coming">Registering a bag comes with Baggage Shield B1. The bag below is a sample.</string>
+
+    <string name="bags_sample_name">Blue hard case</string>
+    <string name="bags_sample_details">Tag 0058 123 456 · IJ 512 · BOM → BLR</string>
+    <string name="bags_sample_status">Dropped</string>
+
+    <string name="bags_step_photos">Photos</string>
+    <string name="bags_step_dropped">Dropped</string>
+    <string name="bags_step_arrived">Arrived</string>
+    <string name="bags_step_belt">Belt</string>
+    <string name="bags_step_collected">Collected</string>
+    <!-- Read aloud by TalkBack for each step, so the tick / ring is never the only signal. -->
+    <string name="bags_step_photos_done">Photos: done</string>
+    <string name="bags_step_dropped_done">Dropped at the counter: done</string>
+    <string name="bags_step_arrived_next">Arrived: not yet</string>
+    <string name="bags_step_belt_next">On the belt: not yet</string>
+    <string name="bags_step_collected_next">Collected: not yet</string>
+
+    <string name="bags_belt_not_announced">Belt not announced yet. OnBoard shows it when the airport does.</string>
+
+    <string name="bags_photo_front">Front</string>
+    <string name="bags_photo_back">Back</string>
+    <string name="bags_photo_side">Side</string>
+    <string name="bags_photo_marks">Marks</string>
+
+    <string name="bags_sample_footnote">Sample bag for the demo, not a real booking. Registering your own bag, the tag scan and the server-signed photo receipt come with Baggage Shield B1.</string>
+</resources>
