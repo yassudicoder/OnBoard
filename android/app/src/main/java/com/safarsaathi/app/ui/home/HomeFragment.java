@@ -178,6 +178,9 @@ public class HomeFragment extends Fragment {
             BlockEntity flight = TripOverview.of(blocks, Instant.now()).flight;
             renderFlight(flight);
             renderRides(flight);
+            // "After you land" belongs to a trip: hidden until one is picked (Plan a journey).
+            binding.homeArrivalCard.setVisibility(
+                    com.safarsaathi.app.data.journey.ChosenJourney.hasTrip(requireContext()) ? View.VISIBLE : View.GONE);
         } else {
             renderNoSavedPlan();
         }
