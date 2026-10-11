@@ -14,15 +14,18 @@
     <!-- Primary: main brand colour (buttons, active states) -->
     <color name="md_theme_primary">#1B4DFF</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
-    <color name="md_theme_primaryContainer">#DEE1FF</color>
-    <color name="md_theme_onPrimaryContainer">#0032C3</color>
+    <!-- Containers follow the Figma, not the generated (lavender) tones: the Home flight card, boarding passes and
+         Ask's question bubble are WHITE cards with navy ink text (16.9:1). -->
+    <color name="md_theme_primaryContainer">#FFFFFF</color>
+    <color name="md_theme_onPrimaryContainer">#0B1626</color>
     <color name="md_theme_inversePrimary">#B9C3FF</color>
 
     <!-- Secondary: calmer companion colour (e.g. the selected bottom-bar pill) -->
     <color name="md_theme_secondary">#5A5D72</color>
     <color name="md_theme_onSecondary">#FFFFFF</color>
-    <color name="md_theme_secondaryContainer">#DFE1F9</color>
-    <color name="md_theme_onSecondaryContainer">#434659</color>
+    <!-- Figma's selected tab pill and icon tiles: a light tint of the blue with blue icons (contrast 4.9:1). -->
+    <color name="md_theme_secondaryContainer">#E6ECFF</color>
+    <color name="md_theme_onSecondaryContainer">#1B4DFF</color>
 
     <!-- Tertiary: saffron accent -->
     <color name="md_theme_tertiary">#AE3200</color>
