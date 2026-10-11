@@ -17,6 +17,9 @@
          Android allows it only once the traveller allowed physical activity (above). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    <!-- Navigate: Android 16+ "Live Updates" (status-bar chip with the minutes left while walking, see NavNotification).
+         A normal permission: granted at install, no question asked. -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
 
     <!-- Ride handoff: "is the phone online?", so the ride button can say "Uber needs internet to book". Android grants
          this one without asking. -->

@@ -249,6 +249,18 @@
             style="@style/Widget.SafarSaathi.ProfileSection"
             android:text="@string/profile_section_more" />
 
+        <!-- Debug builds only: sample alerts for the presentation (DemoScenario). -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/profile_demo_scenario"
+            style="?attr/materialButtonTonalStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:minHeight="48dp"
+            android:text="@string/demo_scenario_button"
+            android:visibility="gone"
+            app:icon="@drawable/ic_play_24" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/profile_open_vault"
             style="?attr/materialButtonOutlinedStyle"

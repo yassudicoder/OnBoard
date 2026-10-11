@@ -114,7 +114,8 @@ final class NavNotification {
             return;
         }
         shownKey = key;
-        Notification notification = build(title, text, note, step.maneuver);
+        Notification notification = liveUpdate(build(title, text, note, step.maneuver),
+                NavText.minutes(res, session.remainingSeconds()));
         current = notification;
         post(notification);
         startServiceIfStepsCounted();
@@ -164,6 +165,23 @@ final class NavNotification {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC) // directions only, readable on the lock screen
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .setContentIntent(tap)
+                .build();
+    }
+
+    /**
+     * Android 16+ "Live Updates", Android's answer to a Dynamic Island: the walk shows as a small chip in the status bar
+     * (e.g. "4 min") while the traveller is in another app, and at the top of the notification shade. Android only
+     * promotes plain (not colorized) ongoing notifications, so the green colour is dropped there. Older Android keeps
+     * the normal green notification.
+     */
+    private Notification liveUpdate(Notification notification, String chip) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+            return notification;
+        }
+        return Notification.Builder.recoverBuilder(context, notification)
+                .setColorized(false)
+                .setRequestPromotedOngoing(true)
+                .setShortCriticalText(chip)
                 .build();
     }
 

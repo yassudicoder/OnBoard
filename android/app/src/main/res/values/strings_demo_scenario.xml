@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Demo scenario" (debug builds, Profile): sample alerts for the presentation. Always labelled DEMO SCENARIO; the
+     values belong to the demo trip (IJ 512) and the SAMPLE bag, not to any real flight. -->
+<resources>
+    <string name="demo_scenario_button">Demo scenario: send a sample alert</string>
+    <string name="demo_scenario_title">Send a demo alert</string>
+    <string name="demo_scenario_channel">Demo scenario alerts</string>
+    <string name="demo_scenario_label">DEMO SCENARIO</string>
+    <string-array name="demo_scenario_choices">
+        <item>Gate announced (Gate 32)</item>
+        <item>Gate changed (32 → 41)</item>
+        <item>Flight delayed (45 min)</item>
+        <item>Bag on the belt (Belt 7)</item>
+    </string-array>
+    <string-array name="demo_scenario_titles">
+        <item>IJ 512 · Gate 32 announced</item>
+        <item>Gate changed: 32 → 41 · IJ 512</item>
+        <item>IJ 512 delayed by 45 min</item>
+        <item>Your bag is on Belt 7</item>
+    </string-array>
+    <string-array name="demo_scenario_texts">
+        <item>Boarding closes 07:35. Tap to open OnBoard and navigate to Gate 32.</item>
+        <item>Boarding closes 07:35 · about 6 min walk from security. Tap to open OnBoard and re-route.</item>
+        <item>New departure 08:45. Your connection and ride times may change.</item>
+        <item>Blue hard case · tag 0058 123 456. Check it before you leave the hall: Bags → What happened?</item>
+    </string-array>
+</resources>

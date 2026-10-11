@@ -105,6 +105,8 @@ public class ProfileFragment extends Fragment {
 
         // More: the Wallet is always there; the parked trip-timeline screens only with feature.tripTimeline=true.
         ViewCompat.setAccessibilityHeading(binding.profileMoreHeading, true);
+        binding.profileDemoScenario.setVisibility(BuildConfig.DEBUG ? View.VISIBLE : View.GONE);
+        binding.profileDemoScenario.setOnClickListener(button -> DemoScenario.show(this));
         binding.profileOpenVault.setOnClickListener(button -> open(R.id.vault_graph));
         binding.profileOpenWallet.setOnClickListener(button -> open(R.id.navigation_wallet));
         int parked = BuildConfig.FEATURE_TRIP_TIMELINE ? View.VISIBLE : View.GONE;
