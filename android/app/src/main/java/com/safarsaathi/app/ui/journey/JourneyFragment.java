@@ -135,7 +135,7 @@ public class JourneyFragment extends Fragment {
             return;
         }
         // Demo: the booking is the server's demo trip (IJ 512 Mumbai -> Bengaluru), so the picked SAMPLE trip goes.
-        ChosenJourney.clear(requireContext());
+        ChosenJourney.useBooking(requireContext());
         Snackbar.make(binding.getRoot(), R.string.journey_found, Snackbar.LENGTH_SHORT).show();
         Navigation.findNavController(binding.getRoot()).navigateUp();
     }

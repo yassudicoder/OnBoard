@@ -44,6 +44,17 @@ public final class ChosenJourney {
         prefs(context).edit().clear().apply();
     }
 
+    /** "Find my trip" found the booking: Home shows the demo trip (IJ 512) from the server. */
+    public static void useBooking(Context context) {
+        prefs(context).edit().clear().putBoolean("booking", true).apply();
+    }
+
+    /** False on a fresh install: Home shows no ticket until a journey is picked or a booking is found. */
+    public static boolean hasTrip(Context context) {
+        SharedPreferences prefs = prefs(context);
+        return prefs.getString("flight", null) != null || prefs.getBoolean("booking", false);
+    }
+
     @Nullable
     public static ChosenJourney load(Context context) {
         SharedPreferences prefs = prefs(context);

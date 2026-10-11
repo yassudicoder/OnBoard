@@ -197,6 +197,13 @@ public class HomeFragment extends Fragment {
 
     /** The flight card. Gate and boarding stay "Not announced yet" (set in the layout) until phase G4. */
     private void renderFlight(@Nullable BlockEntity flight) {
+        // No ticket until the traveller picks a journey or finds a booking ("Plan a journey").
+        boolean hasTrip = com.safarsaathi.app.data.journey.ChosenJourney.hasTrip(requireContext());
+        binding.homeFlightCard.setVisibility(hasTrip ? View.VISIBLE : View.GONE);
+        binding.homePlanJourney.setText(hasTrip ? R.string.journey_home_button : R.string.journey_home_first);
+        if (!hasTrip) {
+            return;
+        }
         // A SAMPLE journey picked in "Plan a journey" replaces the server's demo flight on the card.
         com.safarsaathi.app.data.journey.ChosenJourney chosen =
                 com.safarsaathi.app.data.journey.ChosenJourney.load(requireContext());

@@ -2,6 +2,7 @@
 <!-- Plan a journey (JourneyFragment). All flights here are SAMPLE: no live schedule source yet. -->
 <resources>
     <string name="journey_home_button">Plan a journey or change trip</string>
+    <string name="journey_home_first">Plan your first journey</string>
     <string name="journey_screen_label">Plan a journey</string>
     <string name="journey_title">Where are you flying?</string>
     <string name="journey_from">From</string>
