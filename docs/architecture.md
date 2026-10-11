@@ -192,6 +192,6 @@ flowchart LR
 
 ## 6. Quality
 
-- 272 Android unit tests (routing, MRZ/BCBP parsers, vault crypto, Ask golden set, deadlines, hashes, facts files…),
+- 284 Android unit tests (routing, MRZ/BCBP parsers, vault crypto, Ask golden set, deadlines, hashes, facts files…),
   192 backend tests (incl. the shared cores, H2 in PostgreSQL mode), plus instrumented UI tests per feature.
 - Honesty is tested too: answer templates never contain numbers; fact files must carry sources and dates.

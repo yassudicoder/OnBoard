@@ -75,7 +75,7 @@ Details, diagrams and data flows: **[docs/architecture.md](docs/architecture.md)
 | Backend | Spring Boot 3.5.16 · Spring Data JPA · Flyway · PostgreSQL 17 · scheduled watchers · Docker |
 | Shared | `routing-core`, `recovery-core` (plain Java, JUnit-tested, compiled by both builds) |
 | Hosting | Render Blueprint (`render.yaml`): free Docker web service + free Postgres 17, Singapore |
-| Quality | 272 app unit tests · 192 backend tests (incl. shared cores) · instrumented UI tests per feature |
+| Quality | 284 app unit tests · 192 backend tests (incl. shared cores) · instrumented UI tests per feature |
 
 ## Run it
 
