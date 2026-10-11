@@ -2,6 +2,9 @@
 <!-- Demo sign-in screen (LoginActivity). There is no real account: say so plainly. -->
 <resources>
     <string name="login_logo_description">OnBoard</string>
+    <!-- Launch animation (Figma "Loading 3"). -->
+    <string name="launch_tagline">From your door to your destination.</string>
+    <string name="launch_getting_ready">Getting your trip ready…</string>
     <string name="login_tagline">Your airport companion: gate directions, bag help and travel documents, even offline.</string>
     <string name="login_title">Welcome aboard</string>
     <string name="login_name">Your name</string>

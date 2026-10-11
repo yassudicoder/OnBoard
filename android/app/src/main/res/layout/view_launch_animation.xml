@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Animated launch screen, the team's Figma "Loading 1-3" frames (static frames, no timing in the file):
+     1 "Ready": the orange "A" plane low on the screen with a short contrail; 2 "Takeoff": the plane high up, a long
+     contrail behind it; 3 "Logo": the "onboard" badge in the middle, the tagline, a progress bar and "Getting your trip
+     ready...". The first frame matches the Android 12+ system launch screen (288 dp mark in the middle, logo at the
+     bottom), so the animation continues from it. LaunchAnimation places and moves the pieces (positions are fractions
+     of the screen height, measured from the 393 x 852 dp Figma frames). -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/brand_navy"
+    android:clickable="true"
+    android:focusable="true">
+
+    <View
+        android:id="@+id/launch_trail"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:layout_gravity="top|center_horizontal"
+        android:alpha="0"
+        android:background="#8A93A3" />
+
+    <ImageView
+        android:id="@+id/launch_mark"
+        android:layout_width="288dp"
+        android:layout_height="288dp"
+        android:layout_gravity="center"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_launcher_foreground" />
+
+    <!-- Where the system launch screen draws its logo: fades out as the animation starts. -->
+    <ImageView
+        android:id="@+id/launch_logo_bottom"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="60dp"
+        android:contentDescription="@null"
+        android:src="@drawable/splash_branding" />
+
+    <ImageView
+        android:id="@+id/launch_logo"
+        android:layout_width="250dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:alpha="0"
+        android:contentDescription="@string/login_logo_description"
+        android:src="@drawable/splash_branding" />
+
+    <TextView
+        android:id="@+id/launch_tagline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:alpha="0"
+        android:text="@string/launch_tagline"
+        android:textColor="#8A93A3"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:id="@+id/launch_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:alpha="0"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="118dp"
+            android:layout_height="3dp"
+            android:background="#2A3446">
+
+            <View
+                android:id="@+id/launch_progress_fill"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/brand_logo_orange" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/launch_getting_ready"
+            android:textColor="#8A93A3"
+            android:textSize="11sp" />
+    </LinearLayout>
+</FrameLayout>

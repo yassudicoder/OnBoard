@@ -40,7 +40,8 @@ public class LoginActivity extends AppCompatActivity {
         return context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    private static boolean runningInstrumentedTests() {
+    /** True while instrumented (Espresso) tests run: they skip the launch animation and the sign-in. */
+    public static boolean runningInstrumentedTests() {
         try {
             Class.forName("androidx.test.platform.app.InstrumentationRegistry");
             return true;
