@@ -474,6 +474,7 @@ GET  /api/health                                    app status + MOCK/REAL provi
 ```
 
 ## 7. App screens (bottom tabs: Home · Navigate · Bags · Help · Profile)
+- **Start (2026-10-11):** Android 12+ launch screen (navy, A mark) held 1.5 s; first start opens a demo sign-in (`ui/login/LoginActivity`: name or guest, kept on the phone, no password/account/server). Brand font Plus Jakarta Sans bundled in `res/font` (OFL, `docs/licenses/`), Material type scale in `values/themes_type.xml`; filled buttons navy per the Figma (`values/themes_buttons.xml`). The login screen is NOT a Figma frame (none exists).
 1. **Home:** flight card with gate status and boarding countdown, "Navigate to gate", bag summary.
 2. **Navigate:** map + instruction banner + bottom sheet, QR "You are here", simulate-walk (demo builds only), steps list,
    step-free toggle, help sheet.

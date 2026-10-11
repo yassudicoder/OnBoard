@@ -2,10 +2,13 @@ package com.safarsaathi.app;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
+import android.view.ViewTreeObserver;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -23,6 +26,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.safarsaathi.app.databinding.ActivityMainBinding;
+import com.safarsaathi.app.ui.login.LoginActivity;
 import com.safarsaathi.app.ui.vault.VaultWindow;
 
 /**
@@ -68,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         applySideInsets(binding);
+        if (savedInstanceState == null) {
+            holdLaunchScreen(binding.getRoot());
+        }
 
         // Our MaterialToolbar becomes the top "action bar" (the theme has none of its own: NoActionBar).
         setSupportActionBar(binding.toolbar);
@@ -116,7 +123,36 @@ public class MainActivity extends AppCompatActivity {
         // Only on a fresh start: after a screen rotation the question (or its answer) is already there.
         if (savedInstanceState == null) {
             askForLocalNetworkAccess();
+            // First start: the demo sign-in screen opens on top (no real account, see LoginActivity).
+            if (LoginActivity.shouldShow(this)) {
+                startActivity(new Intent(this, LoginActivity.class));
+            }
         }
+    }
+
+    /** How long the OnBoard launch screen (Figma "Loading") stays up on a cold start, so people actually see it. */
+    private static final long LAUNCH_SCREEN_MS = 1500;
+
+    /**
+     * Android 12+ shows the OnBoard launch screen (values-v31/themes_splash.xml) until our first frame is drawn.
+     * Skipping draws for LAUNCH_SCREEN_MS keeps it on screen a little longer (the platform's documented way: a
+     * pre-draw listener that returns false). Older Android versions have no launch screen, so nothing is held there.
+     */
+    private void holdLaunchScreen(View content) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            return;
+        }
+        long shownAt = SystemClock.uptimeMillis();
+        content.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (SystemClock.uptimeMillis() - shownAt < LAUNCH_SCREEN_MS) {
+                    return false;
+                }
+                content.getViewTreeObserver().removeOnPreDrawListener(this);
+                return true;
+            }
+        });
     }
 
     /**

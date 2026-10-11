@@ -45,5 +45,26 @@
 
         <item name="colorOutline">@color/md_theme_outline</item>
         <item name="colorOutlineVariant">@color/md_theme_outlineVariant</item>
+
+        <!-- Brand font (Figma: Plus Jakarta Sans), see themes_type.xml and font/plus_jakarta_sans.xml. -->
+        <item name="fontFamily">@font/plus_jakarta_sans</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans</item>
+        <!-- Figma: navy filled buttons (themes_buttons.xml). -->
+        <item name="materialButtonStyle">@style/Widget.OnBoard.Button</item>
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.OnBoard.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.OnBoard.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.OnBoard.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.OnBoard.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.OnBoard.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.OnBoard.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.OnBoard.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.OnBoard.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.OnBoard.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.OnBoard.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.OnBoard.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.OnBoard.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.OnBoard.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.OnBoard.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.OnBoard.LabelSmall</item>
     </style>
 </resources>

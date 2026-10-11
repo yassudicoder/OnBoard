@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Demo sign-in screen (LoginActivity). There is no real account: say so plainly. -->
+<resources>
+    <string name="login_logo_description">OnBoard</string>
+    <string name="login_tagline">Your airport companion: gate directions, bag help and travel documents, even offline.</string>
+    <string name="login_title">Welcome aboard</string>
+    <string name="login_name">Your name</string>
+    <string name="login_name_error">Type your name, or continue as a guest</string>
+    <string name="login_continue">Continue</string>
+    <string name="login_guest">Continue as guest</string>
+    <string name="login_demo_note">Demo sign-in: no password and no account. Your name stays on this phone.</string>
+</resources>

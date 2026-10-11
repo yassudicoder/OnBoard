@@ -99,6 +99,12 @@
             </intent-filter>
         </activity>
 
+        <!-- Demo sign-in, opened by MainActivity on the first start (no real account). -->
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Navigate: runs only while walking with step counting on (see NavigationService). -->
         <service
             android:name=".ui.navigate.NavigationService"

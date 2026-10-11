@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma button colours: filled (primary) buttons are navy; blue (colorPrimary) stays for links, outlined and text
+     buttons and selected states. Theme.SafarSaathi uses this as its materialButtonStyle, so every plain
+     MaterialButton gets it; buttons with their own style (outlined, tonal, text) keep theirs. -->
+<resources>
+    <style name="Widget.OnBoard.Button" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/onboard_button_bg</item>
+        <item name="android:textColor">@color/onboard_button_text</item>
+        <item name="iconTint">@color/onboard_button_text</item>
+    </style>
+</resources>
