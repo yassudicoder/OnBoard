@@ -54,7 +54,7 @@ has the full brief and the phases R0 → P). We build it phase by phase and stop
   no key. Price and booking happen in Uber, so the app only ever says "Opened in Uber". Airport points come from
   OpenStreetMap and are labelled "Approximate drop-off point" until the team checks them
   (`mock-data/rides/ride-points.json`).
-- **Bags, Help:** say what they will do and which phase builds them (B1, B3).
+- **Bags / Help → What happened? (B3, phone only):** damaged bag, bag didn't arrive, item missing, lost at the airport. The claim screen says to report it before leaving the baggage hall (**Show the way** opens the T2 route to airline baggage services; **Show to staff** = a QR summary), takes before/after photos with SHA-256 fingerprints, works out the written-complaint deadline (Montreal Convention, source + date shown) with a calendar reminder, saves a **claim pack PDF** and lists escalation steps. Lost & Found: CSMIA facts from the official page, the way there, a copyable report and the official portal. All on the phone; no server signature until B1/B2. Facts: `mock-data/baggage/baggage-facts.json`.
 - **Profile:** traveller, this trip, large text, saved cards, and **More → Wallet** (boarding passes by photo or code,
   Aadhaar last 4 digits / masked PAN / visas, everything as one PDF).
 - **Home → Ask OnBoard (A1, quick answers):** the bar at the top of Home ("Ask OnBoard: gate, boarding, bags…"). Type or

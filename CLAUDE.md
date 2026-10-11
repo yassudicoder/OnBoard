@@ -639,7 +639,7 @@ Exact Android library versions live in `android/gradle/libs.versions.toml`; back
 - [ ] G4 — Gate changes (waits for Disruption Recovery C1 in main: GateWatcher builds on its flight model)
 - [ ] B1 — Bag Shield capture
 - [ ] B2 — Counter & Station
-- [ ] B3 — Problems & claims
+- [ ] B3 — Problems & claims (phone-only slice built 2026-10-11 on release/demo: Help/Bags "What happened?", claim screen with way to baggage services, photo SHA-256, Montreal deadline + calendar, claim pack PDF, escalation, Lost & Found; facts in mock-data/baggage/baggage-facts.json. Not yet: arrival status, station photos, server signature (need B1/B2), hi/mr strings. Waiting for the go-ahead)
 - [ ] P — Polish & demo
 - [x] C1 — Data and connection check (done 2026-10-11, merged into `main`)
 - [ ] C2 — Recovery plan on the server · [ ] C3 — Offline plan on the phone · [ ] C4 — Airline request · [ ] C5 — Push and
